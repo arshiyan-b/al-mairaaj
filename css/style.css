@@ -1,8 +1,8 @@
 /********** Template CSS **********/
 :root {
-    --primary: #06BBCC;
-    --light: #F0FBFC;
-    --dark: #181d38;
+    --primary: #008080;
+    --light: #e0f7f7;
+    --dark: #2a2f36;
 }
 
 .fw-medium {
@@ -21,6 +21,9 @@
     z-index: 99;
 }
 
+.text-primary {
+    color: #008080 !important; 
+}
 
 /*** Spinner ***/
 #spinner {
@@ -47,6 +50,8 @@
 .btn.btn-primary,
 .btn.btn-secondary {
     color: #FFFFFF;
+    background-color: #008080;
+    border-color: #008080;
 }
 
 .btn-square {
