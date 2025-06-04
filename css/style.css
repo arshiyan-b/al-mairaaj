@@ -5,6 +5,11 @@
     --dark: #2a2f36;
 }
 
+.bg-custom-success {
+    background-color: var(--success) !important;
+    color: #82d9d8; 
+}
+
 .fw-medium {
     font-weight: 600 !important;
 }
