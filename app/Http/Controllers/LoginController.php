@@ -177,6 +177,7 @@ class LoginController extends Controller
     public function verify_otp(Request $request)
     {
         $email = $request->input('email') ?? $request->query('email');
+
         if ($email) {
             return view('student.otp', compact('email'));
         } else {
