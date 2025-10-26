@@ -5,6 +5,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use App\Models\Student;
 use App\Models\StudentUserOtp;
 use App\Models\Subject;
@@ -12,6 +13,7 @@ use App\Models\Teacher;
 use App\Models\TeacherDoc;
 use App\Models\User;
 use App\Mail\StudentRegistrationOTP;
+use Carbon\Carbon;
 
 class LoginController extends Controller
 {
@@ -41,7 +43,7 @@ class LoginController extends Controller
         return back()->withErrors(['email' => 'Invalid credentials']);
     }
 
-    public function logout()
+    public function admin_logout()
     {
         Auth::logout();
         return redirect()->route('login');
@@ -125,31 +127,22 @@ class LoginController extends Controller
 
     public function register_authenticate(Request $request)
     {
-        \Log::info('Registration attempt:', $request->all());
-        
-        try {
-            $request->validate([
-                'first_name' => 'required|string|max:255',
-                'middle_name' => 'nullable|string|max:255',
-                'last_name' => 'required|string|max:255',
-                'father_name' => 'required|string|max:255',
-                'email' => 'required|email|unique:students,email',
-                'phone' => ['required','regex:/^(92\d{10})$/',],
-                'password' => ['required','confirmed','regex:/^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/'],
-            ], [
-                'email.unique' => 'This email is already registered.',
-                'phone.regex' => 'Phone number must start with 92 and be 12 digits long (e.g., 923001234567).',
-                'password.confirmed' => 'Password confirmation does not match.',
-                'password.regex' => 'Password must be at least 8 characters long and include: one uppercase letter, one lowercase letter, one number, and one special character.'
-            ]);
-        } catch (\Illuminate\Validation\ValidationException $e) {
-            \Log::error('Validation failed:', $e->errors());
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Validation failed',
-                'errors' => $e->errors()
-            ], 422);
-        }
+
+        $request->validate([
+            'first_name' => 'required|string|max:255',
+            'middle_name' => 'nullable|string|max:255',
+            'last_name' => 'required|string|max:255',
+            'father_name' => 'required|string|max:255',
+            'email' => 'required|email|unique:students,email',
+            'phone' => ['required','regex:/^(92\d{10})$/',],
+            'password' => ['required','confirmed','regex:/^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/'],
+        ], [
+            'email.unique' => 'This email is already registered.',
+            'phone.regex' => 'Phone number must start with 92 and be 12 digits long (e.g., 923001234567).',
+            'password.confirmed' => 'Password confirmation does not match.',
+            'password.regex' => 'Password must be at least 8 characters long and include: one uppercase letter, one lowercase letter, one number, and one special character.'
+        ]);
+
 
         $otp = rand(100000, 999999);
 
@@ -168,12 +161,11 @@ class LoginController extends Controller
             'password' => Hash::make($request->password),
             'otp' => $otp,
             'status' => 'pending',
+            'type' => 'registration',
             'expires_at' => now()->addMinutes(10),
         ]);
 
         Mail::to($student->email)->send(new StudentRegistrationOTP($otp));
-
-        \Log::info('Registration successful for:', ['email' => $student->email, 'student_id' => $student->id]);
 
         return response()->json([
             'status' => 'success',
@@ -182,21 +174,113 @@ class LoginController extends Controller
             'email' => $student->email,
         ]);
     }
-    public function otp(Request $request)
+    public function verify_otp(Request $request)
     {
         $email = $request->input('email') ?? $request->query('email');
-
-        return view('student.otp', compact('email'));
+        if ($email) {
+            return view('student.otp', compact('email'));
+        } else {
+            return redirect()->route('register') 
+                ->with('error', 'Email not found. Please start registration again.');
+        }
     }
 
-    public function otp_verify(Request $request)
+    public function verify_otp_authenticate(Request $request)
     {
-        return view('student.otp');
+        $request->validate([
+            'email' => 'required|email',
+            'otp' => 'required|numeric',
+        ]);
+
+        $otpRecord = StudentUserOtp::where('email', $request->email)
+            ->where('type', 'registration')
+            ->first();
+
+        if (!$otpRecord) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'No OTP found for this email.',
+            ]);
+        }
+
+        if ($otpRecord->status == 'pending') {
+
+            if ($otpRecord->otp == $request->otp) {
+
+                $otpRecord->update(['status' => 'verified']);
+                $student = Student::where('email', $request->email)->first();
+                User::create([
+                    'name' => trim(collect([$student->first_name, $student->middle_name, $student->last_name])->filter()->join(' ')),
+                    'email' => $student->email,
+                    'password' => $otpRecord->password, 
+                    'role' => 'student',
+                    'student_id' => $student->id,
+                    'created_at' => now(),
+                    'email_verified_at' => now(),
+                ]);
+
+                return response()->json([
+                    'status' => 'success',
+                    'message' => 'OTP verified successfully!',
+                    'redirect' => route('login'),
+                ]);
+            } else {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Invalid OTP. Please try again.',
+                ]);
+            }
+        } else if ($otpRecord->status == 'verified') {
+            return response()->json([
+                'status' => 'info',
+                'message' => 'This OTP has already been verified.',
+                'redirect' => route('login'),
+            ]);
+        } 
     }
-
-
     public function login()
     {
         return view('student.login');
+    }
+
+    public function login_authenticate(Request $request)
+    {
+        $request->validate([
+            'email' => 'required|email',
+            'password' => 'required',
+        ]);
+
+        if (Auth::attempt($request->only('email', 'password'))) {
+            $request->session()->regenerate();
+
+            $user = Auth::user();
+
+            if ($user->role === 'student') {
+                return response()->json([
+                    'status' => 'success',
+                    'redirect' => route('student.dashboard'),
+                ]);
+            }
+
+            Auth::logout();
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Unauthorized role.',
+            ], 403);
+        }
+
+        // Always JSON, no redirects here
+        return response()->json([
+            'status' => 'error',
+            'message' => 'Invalid email or password.',
+        ], 401);
+    }
+
+    public function logout(Request $request)
+    {
+        Auth::logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+        return redirect()->route('login');
     }
 }

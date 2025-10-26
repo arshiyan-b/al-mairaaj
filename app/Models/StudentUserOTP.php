@@ -17,6 +17,7 @@ class StudentUserOtp extends Model
         'password',
         'otp',
         'status',
+        'type',
         'expires_at',
     ];
 

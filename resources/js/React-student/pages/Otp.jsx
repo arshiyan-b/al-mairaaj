@@ -13,26 +13,19 @@ export default function Otp() {
   const appDiv = document.getElementById("app");
   const otpVerifyRoute = `${appDiv?.dataset?.otpVerifyRoute}`;
   const csrfToken = appDiv?.dataset?.csrf;
-  
-  console.log('OTP Verify Route:', otpVerifyRoute);
-  console.log('CSRF Token:', csrfToken);
 
   useEffect(() => {
     // Get email from Laravel blade's data attribute
     const el = document.getElementById("app");
-    console.log('OTP component mounted, app element:', el);
-    console.log('App dataset:', el?.dataset);
     
     if (el && el.dataset.email) {
       setEmail(el.dataset.email);
-      console.log('Email set from dataset:', el.dataset.email);
     } else {
       // Try to get email from URL params as fallback
       const urlParams = new URLSearchParams(window.location.search);
       const emailFromUrl = urlParams.get('email');
       if (emailFromUrl) {
         setEmail(emailFromUrl);
-        console.log('Email set from URL params:', emailFromUrl);
       }
     }
   }, []);
@@ -79,9 +72,7 @@ export default function Otp() {
         <div className="flex flex-col items-center mb-6 text-center">
           <img src={logo} alt="Al Mairaaj" className="w-60 h-auto mb-2" />
           <p className="text-sm text-gray-500 mt-1">
-            {email
-              ? `OTP has been sent to ${email}`
-              : "Please enter your OTP to verify your account"}
+            Please enter your OTP to verify your account
           </p>
         </div>
 

@@ -21,13 +21,15 @@ Route::post('/teacher-register', [LoginController::class, 'teacher_register_stor
 Route::get('/chat', [ChatbotController::class, 'chat'])->name('chat');
 
 Route::get('/register', [LoginController::class, 'register'])->name('register');
-Route::post('/register/auth', [LoginController::class, 'register_authenticate'])->name('register.auth');
+Route::post('/register-auth', [LoginController::class, 'register_authenticate'])->name('register.auth');
 
-Route::get('/verify-otp', [LoginController::class, 'otp'])->name('otp');
-Route::post('/verify-otp-auth', [StudentController::class, 'otp_verify'])->name('otp.verify');
+Route::get('/verify-otp', [LoginController::class, 'verify_otp'])->name('otp');
+Route::post('/verify-otp-auth', [LoginController::class, 'verify_otp_authenticate'])->name('otp.verify');
 
 Route::get('/login', [LoginController::class, 'login'])->name('login');
+Route::post('/login-auth', [LoginController::class, 'login_authenticate'])->name('login.auth');
 
+Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
 Route::middleware(['auth', 'role:admin'])->group(function () {
 

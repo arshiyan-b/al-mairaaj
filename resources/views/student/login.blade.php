@@ -5,5 +5,9 @@
 @endsection
 
 @section('content')
-    <div id="app"></div>
+    <div 
+        id="app"
+        data-login-route="{{ route('login.auth') }}"
+        data-csrf="{{ csrf_token() }}">
+    </div>
 @endsection

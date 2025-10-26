@@ -50,20 +50,14 @@ export default function Register() {
       });
 
       const data = await response.json();
-      
-      console.log('Registration response:', data);
-      console.log('Response status:', response.status);
 
       if (!response.ok) {
-        console.log('Registration failed:', data);
         if (data.errors) {
           setErrors(data.errors);
-          console.log('Validation errors:', data.errors);
         } else {
           setErrorMsg(data.message || "Registration failed. Please try again.");
         }
       } else if (data.status === "success") {
-        console.log('Registration successful, redirecting to:', data.redirect);
         // save email temporarily (so OTP page can access it)
         sessionStorage.setItem("otp_email", data.email);
         

@@ -5,5 +5,7 @@
 @endsection
 
 @section('content')
-    <div id="app" data-user="{{ json_encode($user) }}"></div>
+    <div id="app" 
+        data-user="{{ json_encode($user) }}">
+    </div>
 @endsection

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Search, User, Settings, LogOut, Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -16,7 +16,19 @@ import { Navbar } from "./Navbar";
 export const Header = ({ username }) => {
   const [isSearchExpanded, setIsSearchExpanded] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [logoutRoute, setLogoutRoute] = useState("");
+  const [csrfToken, setCsrfToken] = useState("");
+  const [loading, setLoading] = useState(false);
   const isMobile = useIsMobile();
+
+  useEffect(() => {
+    // Get logout route and CSRF token from the page
+    const appDiv = document.getElementById("app");
+    if (appDiv?.dataset?.logoutRoute && appDiv?.dataset?.csrf) {
+      setLogoutRoute(appDiv.dataset.logoutRoute);
+      setCsrfToken(appDiv.dataset.csrf);
+    }
+  }, []);
 
   const handleSearchClick = () => {
     if (isMobile && !isSearchExpanded) setIsSearchExpanded(true);
@@ -24,6 +36,37 @@ export const Header = ({ username }) => {
 
   const handleSearchBlur = () => {
     if (isMobile && isSearchExpanded) setIsSearchExpanded(false);
+  };
+
+  const handleLogout = async () => {
+    if (!logoutRoute || !csrfToken) {
+      console.error("Logout route or CSRF token not found");
+      // Fallback: just redirect to login
+      window.location.href = "/login";
+      return;
+    }
+
+    setLoading(true);
+    
+    try {
+      const form = document.createElement("form");
+      form.method = "POST";
+      form.action = logoutRoute;
+      
+      // Add CSRF token
+      const csrfInput = document.createElement("input");
+      csrfInput.type = "hidden";
+      csrfInput.name = "_token";
+      csrfInput.value = csrfToken;
+      form.appendChild(csrfInput);
+      
+      document.body.appendChild(form);
+      form.submit();
+    } catch (error) {
+      console.error("Logout error:", error);
+      // Fallback: redirect to login
+      window.location.href = "/login";
+    }
   };
 
   return (
@@ -92,8 +135,12 @@ export const Header = ({ username }) => {
                   <Settings className="h-4 w-4 mr-2" /> Settings
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem className="text-red-600">
-                  <LogOut className="h-4 w-4 mr-2" /> Logout
+                <DropdownMenuItem 
+                  className="text-red-600 cursor-pointer" 
+                  onClick={handleLogout}
+                  disabled={loading}
+                >
+                  <LogOut className="h-4 w-4 mr-2" /> {loading ? "Logging out..." : "Logout"}
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
