@@ -11,7 +11,6 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-
 Route::get('/sign-in', [LoginController::class, 'showLoginForm'])->name('login.two');
 Route::post('/sign-in/auth', [LoginController::class, 'authenticate'])->name('admin.auth');
 
