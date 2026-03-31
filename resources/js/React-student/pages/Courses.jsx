@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Plus, CheckCircle, Clock, Search } from "lucide-react";
+import { motion } from "framer-motion";
 
 const coursesData = [
   {
@@ -69,17 +70,27 @@ export default function MyCourses() {
   return (
     <div className="min-h-screen bg-white px-8 py-10">
       {/* Header */}
-      <div className="text-center mb-6">
+      <motion.div 
+        className="text-center mb-6"
+        initial={{ opacity: 0, y: -30 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6 }}
+      >
         <h1 className="text-2xl md:text-3xl font-extrabold bg-gradient-to-r text-black bg-clip-text">
           Explore Our Courses
         </h1>
         <p className="text-gray-600 mt-1 text-sm md:text-base">
           Find the perfect course across multiple subjects.
         </p>
-      </div>
+      </motion.div>
 
       {/* 🔍 Search Bar */}
-      <div className="relative mb-8 max-w-md">
+      <motion.div 
+        className="relative mb-8 max-w-md"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, delay: 0.2 }}
+      >
         <Search
           size={20}
           className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
@@ -91,24 +102,28 @@ export default function MyCourses() {
           onChange={(e) => setSearch(e.target.value)}
           className="w-full pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
         />
-      </div>
+      </motion.div>
 
       {/* Courses Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         {filteredCourses.length > 0 ? (
-          filteredCourses.map((course) => (
-            <div
+          filteredCourses.map((course, idx) => (
+            <motion.div
               key={course.id}
               className="bg-white rounded-xl shadow hover:shadow-lg transition overflow-hidden relative"
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.3, delay: idx * 0.1 }}
+              whileHover={{ y: -5 }} /* Added small pop to mimic other cards' hover, preserving shadow transition */
             >
               {/* Status Icon */}
               {course.status === "completed" && (
-                <div className="absolute top-3 right-3 bg-green-500 text-white p-1 rounded-full">
+                <div className="absolute top-3 right-3 bg-green-500 text-white p-1 rounded-full z-10">
                   <CheckCircle size={20} />
                 </div>
               )}
               {course.status === "draft" && (
-                <div className="absolute top-3 right-3 bg-yellow-500 text-white p-1 rounded-full">
+                <div className="absolute top-3 right-3 bg-yellow-500 text-white p-1 rounded-full z-10">
                   <Clock size={20} />
                 </div>
               )}
@@ -130,7 +145,7 @@ export default function MyCourses() {
                   <p>📍 {course.location}</p>
                 </div>
               </div>
-            </div>
+            </motion.div>
           ))
         ) : (
           <p className="text-gray-500 text-center col-span-full">

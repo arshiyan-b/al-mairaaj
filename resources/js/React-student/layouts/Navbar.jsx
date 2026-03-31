@@ -1,10 +1,10 @@
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { X } from "lucide-react";
 
 const navigationItems = [
   { label: "Courses", href: "/courses" },
-  { label: "Boards", href: "/boards" },
+  { label: "Examination Boards", href: "/examination-boards" },
   { label: "Subjects", href: "/subjects" },
   { label: "Books", href: "/books" },
   { label: "Past Papers", href: "/past-papers" },
@@ -33,15 +33,15 @@ export const Navbar = ({ isMobileMenuOpen, setIsMobileMenuOpen }) => {
             <ul className="flex space-x-6">
               {navigationItems.map((item) => (
                 <li key={item.label}>
-                  <Button
-                    variant="ghost"
-                    className={`text-white hover:bg-gray-400 hover:text-black px-3 py-2 text-sm font-medium transition-colors ${
-                      activeLabel === item.label ? "bg-gray-700 text-teal-400" : ""
-                    }`}
-                    onClick={() => goto(item.href)}
-                  >
-                    {item.label}
-                  </Button>
+                  <Link to={item.href}>
+                    <Button
+                      variant="ghost"
+                      className={`text-white hover:bg-gray-400 hover:text-black px-3 py-2 text-sm font-medium transition-colors ${activeLabel === item.label ? "bg-gray-700 text-teal-400" : ""
+                        }`}
+                    >
+                      {item.label}
+                    </Button>
+                  </Link>
                 </li>
               ))}
             </ul>
@@ -49,51 +49,47 @@ export const Navbar = ({ isMobileMenuOpen, setIsMobileMenuOpen }) => {
         </div>
       </nav>
 
-     {/* Mobile Drawer */}
-{isMobileMenuOpen && (
-  <div className="md:hidden fixed inset-0 z-[999] flex">
-    {/* Sidebar */}
-    <nav
-      className="h-full w-72 bg-gray-900 text-white shadow-lg z-50
-                 transform transition-transform duration-300 ease-out"
-    >
-      {/* Header */}
-      <div className="flex items-center justify-between p-4 border-b border-gray-800">
-        <span className="text-lg font-semibold">Menu</span>
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() => setIsMobileMenuOpen(false)}
-        >
-          <X className="h-5 w-5" />
-        </Button>
-      </div>
+      {/* Mobile Drawer */}
+      {isMobileMenuOpen && (
+        <div className="md:hidden fixed inset-0 z-[999] flex">
+          {/* Sidebar */}
+          <nav className="h-full w-72 bg-gray-900 text-white shadow-lg z-50 transform transition-transform duration-300 ease-out">
+            {/* Header */}
+            <div className="flex items-center justify-between p-4 border-b border-gray-800">
+              <span className="text-lg font-semibold">Menu</span>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                <X className="h-5 w-5" />
+              </Button>
+            </div>
 
-      {/* Links */}
-      <ul className="p-2 space-y-1">
-        {navigationItems.map((item) => (
-          <li key={item.label}>
-            <Button
-              variant="ghost"
-              className={`w-full justify-start px-4 py-2 ${
-                activeLabel === item.label ? "bg-gray-800 text-teal-400" : ""
-              }`}
-              onClick={() => goto(item.href)}
-            >
-              {item.label}
-            </Button>
-          </li>
-        ))}
-      </ul>
-    </nav>
+            {/* Links */}
+            <ul className="p-2 space-y-1">
+              {navigationItems.map((item) => (
+                <li key={item.label}>
+                  <Button
+                    variant="ghost"
+                    className={`w-full justify-start px-4 py-2 ${activeLabel === item.label ? "bg-gray-800 text-teal-400" : ""
+                      }`}
+                    onClick={() => goto(item.href)}
+                  >
+                    {item.label}
+                  </Button>
+                </li>
+              ))}
+            </ul>
+          </nav>
 
-    {/* Clickable Overlay */}
-    <div
-      className="flex-1 bg-black/50"
-      onClick={() => setIsMobileMenuOpen(false)}
-    />
-  </div>
-)}
+          {/* Clickable Overlay */}
+          <div
+            className="flex-1 bg-black/50"
+            onClick={() => setIsMobileMenuOpen(false)}
+          />
+        </div>
+      )}
 
     </>
   );

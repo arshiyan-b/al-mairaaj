@@ -1,19 +1,19 @@
 import React from 'react';
 import { Header } from './Header';
-import { Navbar } from './Navbar';
+import { Outlet } from "react-router-dom";
 
-
-const MainLayout = ({ children , user }) => {
+const MainLayout = ({ user }) => {
   return (
     <div className="app-container">
-        
-      <Header username={user}/>
-        <div className="content-wrapper" style={{ display: 'flex' }}>
-      
+
+      <Header username={user} />
+
+      <div className="content-wrapper" style={{ display: 'flex' }}>
         <main className="max-w-7xl mx-auto px-6 py-6">
-          {children}
+          <Outlet />
         </main>
       </div>
+
     </div>
   );
 };

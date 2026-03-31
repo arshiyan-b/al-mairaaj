@@ -3,6 +3,7 @@ import SpotlightCard from "../components/SpotlightCard";
 import { GraduationCap, FlaskConical, Sigma, Dna, Laptop, Search, Filter } from "lucide-react";
 import { Button } from "@/components/ui/button"; 
 import { useNavigate } from "react-router-dom";
+import { motion } from "framer-motion";
 
 const subjects = [
   { 
@@ -56,7 +57,12 @@ const Subjects = () => {
   return (
     <div className="max-w-6xl mx-auto px-6 pt-6 pb-10">
       {/* Page Heading */}
-      <div className="text-center mb-8">
+      <motion.div 
+        className="text-center mb-8"
+        initial={{ opacity: 0, y: -30 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6 }}
+      >
         <h1 className="text-3xl font-extrabold text-gray-800 tracking-tight">
           Explore Our Subjects
         </h1>
@@ -64,10 +70,15 @@ const Subjects = () => {
           Choose from a variety of subjects to start learning, enhance your knowledge, 
           and build a strong academic foundation.
         </p>
-      </div>
+      </motion.div>
 
       {/* Search & Filter Box */}
-      <div className="bg-white/90 backdrop-blur border border-gray-200 shadow-sm rounded-xl p-4 mb-6">
+      <motion.div 
+        className="bg-white/90 backdrop-blur border border-gray-200 shadow-sm rounded-xl p-4 mb-6"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, delay: 0.2 }}
+      >
         <h2 className="text-base font-semibold text-gray-700 mb-3 flex items-center gap-2">
           <Filter className="w-4 h-4 text-teal-600" />
           Filters
@@ -99,7 +110,7 @@ const Subjects = () => {
             </select>
           </div>
         </div>
-      </div>
+      </motion.div>
 
       {/* Cards Grid */}
       <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
@@ -107,45 +118,51 @@ const Subjects = () => {
           filteredSubjects.map((subject, idx) => {
             const Icon = subject.icon;
             return (
-              <SpotlightCard
+              <motion.div
                 key={idx}
-                spotlightColor={subject.color}
-                className="bg-white rounded-2xl shadow-md p-6 hover:shadow-xl 
-                           transform hover:-translate-y-2 transition-all duration-300 flex flex-col"
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.3, delay: idx * 0.1 }}
               >
-                <div className="flex items-center justify-between mb-4">
-                  {/* Icon */}
-                  <div
-                    className="p-3 rounded-xl"
-                    style={{ backgroundColor: subject.color }}
-                  >
-                    <Icon className="h-6 w-6 text-gray-800" />
+                <SpotlightCard
+                  spotlightColor={subject.color}
+                  className="bg-white rounded-2xl shadow-md p-6 hover:shadow-xl 
+                             transform hover:-translate-y-2 transition-all duration-300 flex flex-col h-full"
+                >
+                  <div className="flex items-center justify-between mb-4">
+                    {/* Icon */}
+                    <div
+                      className="p-3 rounded-xl"
+                      style={{ backgroundColor: subject.color }}
+                    >
+                      <Icon className="h-6 w-6 text-gray-800" />
+                    </div>
+
+                    {/* Subject Level */}
+                    <span className="text-xs md:text-sm bg-gray-100 text-gray-700 px-3 py-1 rounded-full font-medium">
+                      {subject.level}
+                    </span>
                   </div>
 
-                  {/* Subject Level */}
-                  <span className="text-xs md:text-sm bg-gray-100 text-gray-700 px-3 py-1 rounded-full font-medium">
-                    {subject.level}
-                  </span>
-                </div>
+                  {/* Subject Name */}
+                  <h3 className="text-xl font-bold text-gray-800 mb-2">
+                    {subject.name}
+                  </h3>
 
-                {/* Subject Name */}
-                <h3 className="text-xl font-bold text-gray-800 mb-2">
-                  {subject.name}
-                </h3>
+                  {/* Description */}
+                  <p className="text-sm text-gray-600 leading-relaxed flex-grow">
+                    {subject.desc}
+                  </p>
 
-                {/* Description */}
-                <p className="text-sm text-gray-600 leading-relaxed flex-grow">
-                  {subject.desc}
-                </p>
-
-                {/* Explore Button */}
-                <Button
-                  onClick={() => navigate("/courses")}
-                  className="mt-2 px-4 py-2 text-sm font-medium text-white bg-teal-600 hover:bg-teal-700 rounded-lg transition"
-                >
-                  Explore
-                </Button>
-              </SpotlightCard>
+                  {/* Explore Button */}
+                  <Button
+                    onClick={() => navigate("/courses")}
+                    className="mt-2 px-4 py-2 text-sm font-medium text-white bg-teal-600 hover:bg-teal-700 rounded-lg transition"
+                  >
+                    Explore
+                  </Button>
+                </SpotlightCard>
+              </motion.div>
             );
           })
         ) : (

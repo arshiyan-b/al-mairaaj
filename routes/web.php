@@ -32,7 +32,7 @@ Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
 Route::middleware(['auth', 'role:admin'])->group(function () {
 
-    Route::post('admin/logout', [LoginController::class, 'logout'])->name('admin.logout'); 
+    Route::post('admin/logout', [LoginController::class, 'logout'])->name('admin.logout');
 
     Route::get('/admin/dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');
 
@@ -70,10 +70,10 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
 // Teacher Routes
 Route::middleware(['auth', 'role:teacher'])->group(function () {
 
-    Route::post('teacher/logout', [LoginController::class, 'logout'])->name('teacher.logout'); 
+    Route::post('teacher/logout', [LoginController::class, 'logout'])->name('teacher.logout');
 
     Route::get('/teacher/dashboard', [TeacherController::class, 'dashboard'])->name('teacher.dashboard');
-    
+
     Route::get('/teacher/caie/olevel', [TeacherController::class, 'caie_olevel_index'])->name('teacher.caie_olevel');
     Route::get('/teacher/caie/alevel-as', [TeacherController::class, 'caie_alevel_as_index'])->name('teacher.caie_alevel_as');
     Route::get('/teacher/pearson/igcse', [TeacherController::class, 'pearson_igcse_index'])->name('teacher.pearson_igcse');
@@ -89,7 +89,7 @@ Route::middleware(['auth', 'role:teacher'])->group(function () {
 // Student Routes
 Route::middleware(['auth', 'role:student'])->group(function () {
 
-    Route::post('student/logout', [LoginController::class, 'logout'])->name('student.logout'); 
+    Route::post('student/logout', [LoginController::class, 'logout'])->name('student.logout');
 
     Route::get('/dashboard', [StudentController::class, 'dashboard'])->name('student.dashboard');
 
@@ -97,7 +97,7 @@ Route::middleware(['auth', 'role:student'])->group(function () {
     Route::get('/courses', [StudentController::class, 'courses'])->name('student.courses');
 
     // boards
-    Route::get('/boards', [StudentController::class, 'boards'])->name('student.boards');
+    Route::get('/examination-boards', [StudentController::class, 'boards'])->name('student.boards');
 
     // subjects
     Route::get('/subjects', [StudentController::class, 'subjects'])->name('student.subjects');

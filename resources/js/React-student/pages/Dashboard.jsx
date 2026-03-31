@@ -99,7 +99,7 @@ const Dashboard = ({ user }) => {
           <Card className="relative flex items-center justify-between bg-gradient-to-r from-teal-950 to-teal-800 text-white rounded-xl shadow-md  px-2 py-8 h-50">
           {/* Left: Text Section */}
           <div className="flex flex-col mr-8">
-            <h2 className="text-xl font-semibold">Welcome back, {user.name}!</h2>
+            <h2 className="text-xl font-semibold">Welcome back, {user?.name || "Student"}!</h2>
             <p className="text-sm opacity-90">Here's your learning progress today.</p>
 
             {/* Progress Bar */}

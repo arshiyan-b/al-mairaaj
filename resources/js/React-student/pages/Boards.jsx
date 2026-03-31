@@ -4,8 +4,9 @@ import { GraduationCap, Users, Clock } from "lucide-react";
 import { motion } from "framer-motion";
 
 const boardsData = {
-  Edexcel: {
+  "Pearson Edexcel": {
     color: "bg-blue-600",
+    hoverColor: "hover:bg-blue-700",
     description: "International A-Level curriculum with globally recognized qualifications",
     courses: [
       {
@@ -28,8 +29,9 @@ const boardsData = {
       },
     ],
   },
-  "Aga Khan University": {
+  "Aga Khan University Examination Board": {
     color: "bg-green-600",
+    hoverColor: "hover:bg-green-700",
     description: "Curriculum focused on modern science and healthcare education pathways.",
     courses: [
       {
@@ -46,8 +48,9 @@ const boardsData = {
       },
     ],
   },
-  Cambridge: {
+  "Cambridge Assessment International Education": {
     color: "bg-purple-600",
+    hoverColor: "hover:bg-purple-700",
     description: "Globally recognized Cambridge curriculum with strong academic foundation.",
     courses: [
       {
@@ -66,6 +69,7 @@ const boardsData = {
   },
   "International Baccalaureate": {
     color: "bg-orange-600",
+    hoverColor: "hover:bg-orange-700",
     description: "IB curriculum designed for critical thinking and international education.",
     courses: [
       {
@@ -85,11 +89,11 @@ const boardsData = {
 };
 
 // Custom Button Component
-function CustomButton({ children, onClick }) {
+function CustomButton({ children, onClick, color = "bg-blue-600", hoverColor = "hover:bg-blue-700" }) {
   return (
     <button
       onClick={onClick}
-      className="w-full flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-colors"
+      className={`w-full flex items-center justify-center gap-2 ${color} ${hoverColor} text-white font-medium py-2 px-4 rounded-lg transition-colors`}
     >
       {children}
     </button>
@@ -97,39 +101,37 @@ function CustomButton({ children, onClick }) {
 }
 
 export default function BoardsPage() {
-  const [activeTab, setActiveTab] = useState("Edexcel");
+  const [activeTab, setActiveTab] = useState("Pearson Edexcel");
 
   return (
     <div className="p-4 md:p-6 max-w-7xl mx-auto">
       {/* Page Heading */}
-      <h1 className="text-2xl md:text-3xl font-bold text-center mb-2">
-        Choose Your Educational Path
-      </h1>
-      <p className="text-center text-gray-600 mb-6 max-w-2xl mx-auto">
-        Select from our comprehensive collection of courses across different educational boards. 
-        Each pathway is designed to provide you with the knowledge and skills needed for academic success.
-      </p>
+      <motion.div
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+      >
+        <h1 className="text-2xl md:text-3xl font-bold text-center mb-2">
+          Choose Your Educational Path
+        </h1>
+        <p className="text-center text-gray-600 mb-6 max-w-2xl mx-auto">
+          Select from our comprehensive collection of courses across different educational boards.
+          Each pathway is designed to provide you with the knowledge and skills needed for academic success.
+        </p>
+      </motion.div>
 
-      {/* Custom Tabs */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 w-full mb-6 rounded-lg overflow-hidden border">
+      {/* Custom Tabs (Rendered as Cards) */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 w-full mb-8">
         {Object.entries(boardsData).map(([board, data]) => (
           <button
             key={board}
             onClick={() => setActiveTab(board)}
-            className={`py-2 text-sm md:text-base font-medium flex items-center justify-center gap-2 transition-colors ${
-              activeTab === board
-                ? `${data.color} text-white`
-                : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-            }`}
+            className={`px-4 py-6 text-sm md:text-base font-semibold flex items-center justify-center text-center transition-all duration-300 rounded-2xl shadow-sm border ${activeTab === board
+              ? `${data.color} text-white shadow-md border-transparent scale-[1.03]`
+              : "bg-white text-gray-700 hover:bg-gray-50 hover:shadow-md"
+              }`}
           >
             {board}
-            <span
-              className={`ml-1 text-xs px-2 py-0.5 rounded ${
-                activeTab === board ? "bg-white text-gray-800" : "bg-gray-300 text-gray-700"
-              }`}
-            >
-              {data.courses.length}
-            </span>
           </button>
         ))}
       </div>
@@ -178,7 +180,7 @@ export default function BoardsPage() {
                   </div>
 
                   {/* Custom Button */}
-                  <CustomButton>
+                  <CustomButton color={data.color} hoverColor={data.hoverColor}>
                     <GraduationCap className="w-4 h-4" /> Start Learning
                   </CustomButton>
                 </motion.div>

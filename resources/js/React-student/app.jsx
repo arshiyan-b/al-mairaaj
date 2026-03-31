@@ -11,17 +11,20 @@ import PastPapers from "./pages/PastPapers";
 import Login from "./pages/Login";
 import Otp from "./pages/Otp";
 import Register from "./pages/Register";
+import ErrorBoundary from "./components/ErrorBoundary";
 import "./app.css";
 
 // Get root element
 const el = document.getElementById("app");
 
 // Safely parse user data from HTML
-let userData = null;
-try {
-  userData = el?.dataset?.user ? JSON.parse(el.dataset.user) : null;
-} catch (err) {
-  console.error("Failed to parse user data:", err);
+let userData = window.authUser || null;
+if (!userData) {
+  try {
+    userData = el?.dataset?.user ? JSON.parse(el.dataset.user) : null;
+  } catch (err) {
+    console.error("Failed to parse user data:", err);
+  }
 }
 
 // Main App Component
@@ -29,28 +32,19 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
-        {/* Routes OUTSIDE the layout */}
+        {/* Public */}
         <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/verify-otp" element={<Otp />} />
 
-        {/* Routes INSIDE the layout */}
-        <Route
-          path="/*"
-          element={
-            <MainLayout user={userData}>
-              <Routes>
-                <Route path="/dashboard" element={<Dashboard user={userData} />} />
-                <Route path="/courses" element={<Courses user={userData} />} />
-                <Route path="/boards" element={<Boards user={userData} />} />
-                <Route path="/subjects" element={<Subjects user={userData} />} />
-                <Route path="/books" element={<Books user={userData} />} />
-                <Route path="/past-papers" element={<PastPapers user={userData} />} />
-                
-              </Routes>
-            </MainLayout>
-          }
-        />
+        {/* Layout */}
+        <Route path="/" element={<MainLayout user={userData} />}>
+          <Route index element={<Dashboard user={userData} />} />
+          <Route path="dashboard" element={<Dashboard user={userData} />} />
+          <Route path="courses" element={<Courses />} />
+          <Route path="examination-boards" element={<Boards />} />
+          <Route path="subjects" element={<Subjects />} />
+          <Route path="books" element={<Books />} />
+          <Route path="past-papers" element={<PastPapers />} />
+        </Route>
       </Routes>
     </BrowserRouter>
   );
@@ -58,7 +52,11 @@ function App() {
 
 // Render the app
 if (el) {
-  createRoot(el).render(<App />);
+  createRoot(el).render(
+    <ErrorBoundary>
+      <App />
+    </ErrorBoundary>
+  );
 } else {
   console.error("Root element with id='app' not found in HTML.");
 }

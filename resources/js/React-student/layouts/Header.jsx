@@ -12,6 +12,7 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import { Navbar } from "./Navbar";
+import { Link } from "react-router-dom";
 
 export const Header = ({ username }) => {
   const [isSearchExpanded, setIsSearchExpanded] = useState(false);
@@ -23,20 +24,17 @@ export const Header = ({ username }) => {
 
   useEffect(() => {
     // Get logout route and CSRF token from the page
-    const appDiv = document.getElementById("app");
-    if (appDiv?.dataset?.logoutRoute && appDiv?.dataset?.csrf) {
-      setLogoutRoute(appDiv.dataset.logoutRoute);
-      setCsrfToken(appDiv.dataset.csrf);
+    if (window.logoutRoute && window.csrfToken) {
+      setLogoutRoute(window.logoutRoute);
+      setCsrfToken(window.csrfToken);
+    } else {
+      const appDiv = document.getElementById("app");
+      if (appDiv?.dataset?.logoutRoute && appDiv?.dataset?.csrf) {
+        setLogoutRoute(appDiv.dataset.logoutRoute);
+        setCsrfToken(appDiv.dataset.csrf);
+      }
     }
   }, []);
-
-  const handleSearchClick = () => {
-    if (isMobile && !isSearchExpanded) setIsSearchExpanded(true);
-  };
-
-  const handleSearchBlur = () => {
-    if (isMobile && isSearchExpanded) setIsSearchExpanded(false);
-  };
 
   const handleLogout = async () => {
     if (!logoutRoute || !csrfToken) {
@@ -86,29 +84,15 @@ export const Header = ({ username }) => {
             </Button>
 
             {/* <span className="text-xl font-bold text-teal-700">AL-Mairaaj</span> */}
-            <a href="/dashboard" className="hover:opacity-80 transition">
+            <Link to="/dashboard" className="hover:opacity-80 transition">
             <span className="text-xl font-bold text-teal-700">AL-Mairaaj</span>
-           </a>
-          </div>
-
-          {/* Search Bar */}
-          <div className="flex-1 max-w-xl mx-4">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-500" />
-              <Input
-                type="search"
-                placeholder="Search courses, subjects, books..."
-                className="pl-10 bg-gray-100 border-none rounded-full focus:ring-2 focus:ring-teal-500"
-                onClick={handleSearchClick}
-                onBlur={handleSearchBlur}
-              />
-            </div>
+           </Link>
           </div>
 
           {/* Right side: Profile */}
           <div className="flex items-center gap-2">
             {/* Username text (hidden on mobile) */}
-            <p className="hidden md:block">{username.name}</p>
+            <p className="hidden md:block">{username?.name || "Guest"}</p>
 
             {/* Avatar dropdown */}
             <DropdownMenu>
@@ -121,7 +105,7 @@ export const Header = ({ username }) => {
                   <Avatar className="h-8 w-8">
                     <AvatarImage src="" alt={username.name} />
                     <AvatarFallback className="bg-teal-700 text-white text-sm">
-                      {username.name?.charAt(0).toUpperCase() || "H"}
+                      {username?.name?.charAt(0).toUpperCase() || "G"}
                     </AvatarFallback>
                   </Avatar>
                 </Button>

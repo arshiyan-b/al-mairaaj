@@ -22,12 +22,12 @@ class StudentController extends Controller
     
     public function courses()
     {   
-        return view('student.courses.index');
+        return view('student.courses.index',  ['user' => auth()->user()]);
     }
 
     public function boards()
     {   
-        return view('student.boards.index', ['user' => auth()->user()]);
+        return view('student.boards.index');
     }
 
     public function subjects()

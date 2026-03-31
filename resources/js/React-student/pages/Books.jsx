@@ -11,6 +11,7 @@ import {
   Search,
   Filter,
 } from "lucide-react";
+import { motion } from "framer-motion";
 
 const books = [
   { title: "Programming Basics", subject: "Computer Science", description: "Learn the fundamentals of programming and coding.", icon: <Binary className="w-4 h-4" />, color: "rgba(45, 212, 191, 0.25)" },
@@ -33,17 +34,27 @@ const Books = () => {
   return (
     <div className="max-w-6xl mx-auto px-4 py-6">
       {/* Heading */}
-      <div className="text-center mb-6">
+      <motion.div 
+        className="text-center mb-6"
+        initial={{ opacity: 0, y: -30 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6 }}
+      >
         <h1 className="text-2xl md:text-3xl font-extrabold bg-gradient-to-r text-black bg-clip-text">
           Explore Our Books
         </h1>
         <p className="text-gray-600 mt-1 text-sm md:text-base">
           Find the perfect book across multiple subjects.
         </p>
-      </div>
+      </motion.div>
 
       {/* Search & Filter Box */}
-      <div className="bg-white/90 backdrop-blur border border-gray-200 shadow-sm rounded-xl p-4 mb-6">
+      <motion.div 
+        className="bg-white/90 backdrop-blur border border-gray-200 shadow-sm rounded-xl p-4 mb-6"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, delay: 0.2 }}
+      >
         <h2 className="text-base font-semibold text-gray-700 mb-3 flex items-center gap-2">
           <Filter className="w-4 h-4 text-teal-600" />
           Filters
@@ -78,37 +89,48 @@ const Books = () => {
             </select>
           </div>
         </div>
-      </div>
+      </motion.div>
 
       {/* Books Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
         {filteredBooks.length > 0 ? (
-          filteredBooks.map((book) => (
-            <SpotlightCard
+          filteredBooks.map((book, idx) => (
+            <motion.div
               key={book.title}
-              className="custom-spotlight-card relative overflow-hidden rounded-xl shadow-md hover:shadow-lg hover:scale-[1.02] transition-transform duration-300 p-4"
-              spotlightColor={book.color}
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.3, delay: idx * 0.1 }}
+              className="h-full"
             >
-              <div className="relative z-10">
-                <div className="flex justify-between items-center mb-2">
-                  <h3 className="font-semibold flex items-center gap-2 text-base text-gray-800">
-                    {book.icon} {book.title}
-                  </h3>
-                  <span className="text-xs bg-gradient-to-r from-green-700 to-teal-900 text-white px-2 py-0.5 rounded">
-                    {book.subject}
-                  </span>
+              <SpotlightCard
+                className="custom-spotlight-card relative overflow-hidden rounded-xl shadow-md hover:shadow-lg hover:scale-[1.02] transition-transform duration-300 p-4 h-full"
+                spotlightColor={book.color}
+              >
+                <div className="relative z-10 flex flex-col h-full">
+                  <div>
+                    <div className="flex justify-between items-center mb-2">
+                      <h3 className="font-semibold flex items-center gap-2 text-base text-gray-800">
+                        {book.icon} {book.title}
+                      </h3>
+                      <span className="text-xs bg-gradient-to-r from-green-700 to-teal-900 text-white px-2 py-0.5 rounded">
+                        {book.subject}
+                      </span>
+                    </div>
+
+                    <p className="text-xs text-gray-600 mb-4">{book.description}</p>
+                  </div>
+
+                  <div className="mt-auto">
+                    <button
+                      onClick={() => alert(`Open ${book.title}`)}
+                      className="px-4 py-1.5 text-xs font-medium text-white bg-gradient-to-r from-green-600 to-teal-700 hover:from-teal-600 hover:to-green-500 rounded-lg shadow-sm hover:shadow transition"
+                    >
+                      Read Now
+                    </button>
+                  </div>
                 </div>
-
-                <p className="text-xs text-gray-600 mb-4">{book.description}</p>
-
-                <button
-                  onClick={() => alert(`Open ${book.title}`)}
-                  className="mt-2 px-4 py-1.5 text-xs font-medium text-white bg-gradient-to-r from-green-600 to-teal-700 hover:from-teal-600 hover:to-green-500 rounded-lg shadow-sm hover:shadow transition"
-                >
-                  Read Now
-                </button>
-              </div>
-            </SpotlightCard>
+              </SpotlightCard>
+            </motion.div>
           ))
         ) : (
           <p className="text-gray-500 col-span-full text-center text-sm">

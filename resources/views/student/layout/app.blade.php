@@ -7,6 +7,11 @@
     <link rel="icon" type="image/png" href="{{ asset('build/assets/book_logo.png') }}">
     @viteReactRefresh
     @vite(['resources/css/app.css', 'resources/js/React-student/app.jsx'])
+    <script>
+        window.authUser = {!! json_encode(auth()->check() ? auth()->user() : null) !!};
+        window.csrfToken = "{{ csrf_token() }}";
+        window.logoutRoute = "{{ route('logout') }}";
+    </script>
 </head>
     <body>
         @yield('content')
