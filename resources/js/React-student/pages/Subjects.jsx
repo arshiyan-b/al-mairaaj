@@ -126,7 +126,7 @@ const Subjects = () => {
               >
                 <SpotlightCard
                   spotlightColor={subject.color}
-                  className="bg-white rounded-2xl shadow-md p-6 hover:shadow-xl 
+                  className="bg-white rounded-2xl shadow-md hover:shadow-xl p-6  
                              transform hover:-translate-y-2 transition-all duration-300 flex flex-col h-full"
                 >
                   <div className="flex items-center justify-between mb-4">
