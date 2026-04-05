@@ -16,33 +16,36 @@ use Illuminate\Support\Facades\Hash;
 class StudentController extends Controller
 {
     public function dashboard()
-    {   
+    {
         return view('student.dashboard', ['user' => auth()->user()]);
     }
-    
     public function courses()
-    {   
-        return view('student.courses.index',  ['user' => auth()->user()]);
+    {
+        return view('student.courses.index', ['user' => auth()->user()]);
     }
-
     public function boards()
-    {   
+    {
         return view('student.boards.index');
     }
-
     public function subjects()
-    {   
+    {
         return view('student.subjects.index');
     }
-
     public function books()
-    {   
+    {
         return view('student.books.index');
     }
-
     public function past_papers()
-    {   
+    {
         return view('student.past_papers.index');
+    }
+    public function profile()
+    {
+        return view('student.profile.index');
+    }
+    public function wallet()
+    {
+        return view('student.wallet.index');
     }
 
     public function otp_verify(Request $request)

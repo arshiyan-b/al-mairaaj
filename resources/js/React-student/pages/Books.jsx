@@ -50,7 +50,7 @@ const Books = () => {
 
       {/* Search & Filter Box */}
       <motion.div 
-        className="bg-white/90 backdrop-blur border border-gray-200 shadow-sm rounded-xl p-4 mb-6"
+        className="bg-white/90 backdrop-blur border border-gray-200 shadow-sm rounded-xl p-4 mb-8 max-w-3xl mx-auto"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, delay: 0.2 }}
@@ -60,9 +60,9 @@ const Books = () => {
           Filters
         </h2>
 
-        <div className="flex flex-col md:flex-row items-center gap-3">
+        <div className="flex flex-col md:flex-row items-center gap-4 w-full">
           {/* Search */}
-          <div className="relative w-full md:w-1/2">
+          <div className="relative w-full flex-1">
             <Search className="absolute left-3 top-2.5 text-gray-400 w-4 h-4" />
             <input
               type="text"
@@ -74,7 +74,7 @@ const Books = () => {
           </div>
 
           {/* Filter */}
-          <div className="relative w-full md:w-1/3">
+          <div className="relative w-full md:w-1/3 md:max-w-xs">
             <select
               value={filter}
               onChange={(e) => setFilter(e.target.value)}

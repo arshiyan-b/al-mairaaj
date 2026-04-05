@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Search, User, Settings, LogOut, Menu, X } from "lucide-react";
+import { Search, User, Settings, LogOut, Menu, X, Wallet } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -112,9 +112,16 @@ export const Header = ({ username }) => {
               </DropdownMenuTrigger>
 
               <DropdownMenuContent className="w-56" align="end">
-                <DropdownMenuItem>
-                  <User className="h-4 w-4 mr-2" /> My Profile
-                </DropdownMenuItem>
+                <Link to="/profile" className="w-full">
+                  <DropdownMenuItem className="cursor-pointer">
+                    <User className="h-4 w-4 mr-2" /> My Profile
+                  </DropdownMenuItem>
+                </Link>
+                <Link to="/wallet" className="w-full">
+                  <DropdownMenuItem className="cursor-pointer">
+                    <Wallet className="h-4 w-4 mr-2" /> Wallet
+                  </DropdownMenuItem>
+                </Link>
                 <DropdownMenuItem>
                   <Settings className="h-4 w-4 mr-2" /> Settings
                 </DropdownMenuItem>

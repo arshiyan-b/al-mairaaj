@@ -11,13 +11,14 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-Route::get('/sign-in', [LoginController::class, 'showLoginForm'])->name('login.two');
-Route::post('/sign-in/auth', [LoginController::class, 'authenticate'])->name('admin.auth');
-
 Route::get('/register-as-a-teacher', [LoginController::class, 'teacher_register'])->name('teacher.register');
 Route::post('/teacher-register', [LoginController::class, 'teacher_register_store'])->name('teacher.register.store');
 
+Route::get('/sign-in', [LoginController::class, 'showLoginForm'])->name('login.two');
+Route::post('/sign-in/auth', [LoginController::class, 'authenticate'])->name('admin.auth');
+
 Route::get('/chat', [ChatbotController::class, 'chat'])->name('chat');
+
 
 Route::get('/register', [LoginController::class, 'register'])->name('register');
 Route::post('/register-auth', [LoginController::class, 'register_authenticate'])->name('register.auth');
@@ -27,7 +28,6 @@ Route::post('/verify-otp-auth', [LoginController::class, 'verify_otp_authenticat
 
 Route::get('/login', [LoginController::class, 'login'])->name('login');
 Route::post('/login-auth', [LoginController::class, 'login_authenticate'])->name('login.auth');
-
 Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
 Route::middleware(['auth', 'role:admin'])->group(function () {
@@ -107,6 +107,12 @@ Route::middleware(['auth', 'role:student'])->group(function () {
 
     // past papers
     Route::get('/past-papers', [StudentController::class, 'past_papers'])->name('student.past_papers');
+
+    // profile
+    Route::get('/profile', [StudentController::class, 'profile'])->name('student.profile');
+
+    // Wallet
+    Route::get('/wallet', [StudentController::class, 'wallet'])->name('student.wallet');
 
 
     Route::get('/courses/caie/olevel', [StudentController::class, 'caie_olevel'])->name('student.caie_olevel');
