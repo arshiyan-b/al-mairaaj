@@ -39,6 +39,10 @@ class StudentController extends Controller
     {
         return view('student.past_papers.index');
     }
+    public function teachers()
+    {
+        return view('student.teachers.index');
+    }
     public function profile()
     {
         return view('student.profile.index');

@@ -111,6 +111,9 @@ Route::middleware(['auth', 'role:student'])->group(function () {
     // past papers
     Route::get('/past-papers', [StudentController::class, 'past_papers'])->name('student.past_papers');
 
+    // teachers
+    Route::get('/teachers', [StudentController::class, 'teachers'])->name('student.teachers');
+
     // profile
     Route::get('/profile', [StudentController::class, 'profile'])->name('student.profile');
 

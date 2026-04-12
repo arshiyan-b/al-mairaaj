@@ -32,18 +32,18 @@ const Books = () => {
   );
 
   return (
-    <div className="max-w-6xl mx-auto px-4 py-6">
+    <div className="max-w-6xl mx-auto px-6 pt-6 pb-10">
       {/* Heading */}
       <motion.div 
-        className="text-center mb-6"
+        className="text-center mb-8"
         initial={{ opacity: 0, y: -30 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
       >
-        <h1 className="text-2xl md:text-3xl font-extrabold bg-gradient-to-r text-black bg-clip-text">
+        <h1 className="text-3xl font-extrabold text-gray-800 tracking-tight">
           Explore Our Books
         </h1>
-        <p className="text-gray-600 mt-1 text-sm md:text-base">
+        <p className="text-gray-500 mt-2 text-base max-w-2xl mx-auto">
           Find the perfect book across multiple subjects.
         </p>
       </motion.div>

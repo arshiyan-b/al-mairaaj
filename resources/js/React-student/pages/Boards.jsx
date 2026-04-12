@@ -104,17 +104,18 @@ export default function BoardsPage() {
   const [activeTab, setActiveTab] = useState("Pearson Edexcel");
 
   return (
-    <div className="p-4 md:p-6 max-w-7xl mx-auto">
+    <div className="max-w-6xl mx-auto px-6 pt-6 pb-10">
       {/* Page Heading */}
       <motion.div
-        initial={{ opacity: 0, y: -20 }}
+        className="text-center mb-8"
+        initial={{ opacity: 0, y: -30 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
+        transition={{ duration: 0.6 }}
       >
-        <h1 className="text-2xl md:text-3xl font-bold text-center mb-2">
+        <h1 className="text-3xl font-extrabold text-gray-800 tracking-tight">
           Choose Your Educational Path
         </h1>
-        <p className="text-center text-gray-600 mb-6 max-w-2xl mx-auto">
+        <p className="text-gray-500 mt-2 text-base max-w-2xl mx-auto">
           Select from our comprehensive collection of courses across different educational boards.
           Each pathway is designed to provide you with the knowledge and skills needed for academic success.
         </p>

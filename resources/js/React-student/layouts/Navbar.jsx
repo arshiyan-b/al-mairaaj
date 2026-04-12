@@ -9,6 +9,7 @@ const navigationItems = [
   { label: "Subjects", href: "/subjects" },
   { label: "Books", href: "/books" },
   { label: "Past Papers", href: "/past-papers" },
+  { label: "Teachers", href: "/teachers" },
 ];
 
 export const Navbar = ({ isMobileMenuOpen, setIsMobileMenuOpen }) => {
@@ -51,46 +52,53 @@ export const Navbar = ({ isMobileMenuOpen, setIsMobileMenuOpen }) => {
       </nav>
 
       {/* Mobile Drawer */}
-      {isMobileMenuOpen && (
-        <div className="md:hidden fixed inset-0 z-[999] flex">
-          {/* Sidebar */}
-          <nav className="h-full w-72 bg-gray-900 text-white shadow-lg z-50 transform transition-transform duration-300 ease-out">
-            {/* Header */}
-            <div className="flex items-center justify-between p-4 border-b border-gray-800">
-              <span className="text-lg font-semibold">Menu</span>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setIsMobileMenuOpen(false)}
-              >
-                <X className="h-5 w-5" />
-              </Button>
-            </div>
+      <div
+        className={`md:hidden fixed inset-0 z-[999] flex transition-opacity duration-300 ${
+          isMobileMenuOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
+        }`}
+      >
+        {/* Clickable Overlay */}
+        <div
+          className="absolute inset-0 bg-black/50 transition-opacity duration-300"
+          onClick={() => setIsMobileMenuOpen(false)}
+        />
 
-            {/* Links */}
-            <ul className="p-2 space-y-1">
-              {navigationItems.map((item) => (
-                <li key={item.label}>
-                  <Button
-                    variant="ghost"
-                    className={`w-full justify-start px-4 py-2 ${activeLabel === item.label ? "bg-gray-800 text-teal-400" : ""
-                      }`}
-                    onClick={() => goto(item.href)}
-                  >
-                    {item.label}
-                  </Button>
-                </li>
-              ))}
-            </ul>
-          </nav>
+        {/* Sidebar */}
+        <nav
+          className={`relative h-full w-72 bg-gray-900 text-white shadow-lg z-50 transform transition-transform duration-300 ease-in-out ${
+            isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"
+          }`}
+        >
+          {/* Header */}
+          <div className="flex items-center justify-between p-4 border-b border-gray-800">
+            <span className="text-lg font-semibold">Menu</span>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setIsMobileMenuOpen(false)}
+            >
+              <X className="h-5 w-5" />
+            </Button>
+          </div>
 
-          {/* Clickable Overlay */}
-          <div
-            className="flex-1 bg-black/50"
-            onClick={() => setIsMobileMenuOpen(false)}
-          />
-        </div>
-      )}
+          {/* Links */}
+          <ul className="p-2 space-y-1">
+            {navigationItems.map((item) => (
+              <li key={item.label}>
+                <Button
+                  variant="ghost"
+                  className={`w-full justify-start px-4 py-2 ${
+                    activeLabel === item.label ? "bg-gray-800 text-teal-400" : ""
+                  }`}
+                  onClick={() => goto(item.href)}
+                >
+                  {item.label}
+                </Button>
+              </li>
+            ))}
+          </ul>
+        </nav>
+      </div>
 
     </>
   );

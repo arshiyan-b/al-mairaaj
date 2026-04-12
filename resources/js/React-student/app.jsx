@@ -9,6 +9,7 @@ import Boards from "./pages/Boards";
 import Subjects from "./pages/Subjects";
 import Books from "./pages/Books";
 import PastPapers from "./pages/PastPapers";
+import Teachers from "./pages/Teachers";
 import Profile from "./pages/Profile";
 import Wallet from "./pages/Wallet";
 import Login from "./pages/Login";
@@ -48,6 +49,7 @@ function App() {
           <Route path="subjects" element={<Subjects />} />
           <Route path="books" element={<Books />} />
           <Route path="past-papers" element={<PastPapers />} />
+          <Route path="teachers" element={<Teachers />} />
           <Route path="profile" element={<Profile user={userData} />} />
           <Route path="wallet" element={<Wallet user={userData} />} />
         </Route>

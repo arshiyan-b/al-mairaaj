@@ -22,16 +22,18 @@ const PastPapers = () => {
   );
 
   return (
-    <div className="w-full px-6 py-10 bg-gray-50">
+    <div className="max-w-6xl mx-auto px-6 pt-6 pb-10">
       {/* Page Header */}
       <motion.div
+        className="text-center mb-8"
         initial={{ opacity: 0, y: -30 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
-        className="text-center mb-10"
       >
-        <h1 className="text-4xl font-extrabold text-gray-800">Past Papers</h1>
-        <p className="text-gray-500 mt-3 text-lg">
+        <h1 className="text-3xl font-extrabold text-gray-800 tracking-tight">
+            Past Papers
+        </h1>
+        <p className="text-gray-500 mt-2 text-base max-w-2xl mx-auto">
           Browse past exam papers by subject and year to practice effectively.
         </p>
       </motion.div>
