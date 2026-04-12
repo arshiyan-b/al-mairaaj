@@ -1,6 +1,7 @@
 import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Wallet as WalletIcon, Plus, Gift, ArrowUpRight, ArrowDownLeft } from "lucide-react";
+import { motion } from "framer-motion";
 
 const transactions = [
   { id: 1, title: 'Top-up from Bank', date: 'Oct 24, 2026', amount: 500.00, type: 'credit' },
@@ -14,48 +15,85 @@ const transactions = [
 
 const Wallet = ({ user }) => {
   return (
-    <div className="w-full pb-8">
+    <div className="flex-1 p-4 md:p-8 bg-gray-50 dark:bg-gray-900 min-h-screen relative z-0">
+      <motion.div
+        className="text-left mb-6"
+        initial={{ opacity: 0, y: -30 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6 }}
+      >
+        <h1 className="text-2xl md:text-3xl font-extrabold bg-gradient-to-r from-teal-700 to-indigo-700 text-transparent bg-clip-text">
+          My Wallet
+        </h1>
+        <p className="text-gray-600 mt-1 text-sm md:text-base">
+          Manage your balance and view transactions.
+        </p>
+      </motion.div>
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
         {/* Left Column: Balance & Action Cards */}
         <div className="lg:col-span-1 flex flex-col gap-6 h-full">
-          <Card className="flex-1 p-6 rounded-xl shadow-md hover:shadow-xl border-0 bg-gradient-to-br from-indigo-500 to-purple-600 text-white flex flex-col relative">
-            <div className="flex items-center gap-2 absolute top-4 left-6">
-              <WalletIcon className="h-5 w-5" />
-              <span className="font-medium text-white/80">Total Balance</span>
-            </div>
-
-            {/* Amount */}
-            <CardContent className="flex-1 flex items-center justify-center p-0">
-              <div className="text-4xl md:text-5xl font-bold tracking-tight text-center">
-                $1,250.00
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.3, delay: 0.1 }}
+            className="flex-1 flex flex-col relative"
+          >
+            <Card className="flex-1 p-6 rounded-xl shadow-md hover:shadow-xl border-0 bg-gradient-to-br from-indigo-500 to-purple-600 text-white flex flex-col relative">
+              <div className="flex items-center gap-2 absolute top-4 left-6">
+                <WalletIcon className="h-5 w-5" />
+                <span className="font-medium text-white/80">Total Balance</span>
               </div>
-            </CardContent>
-          </Card>
+
+              {/* Amount */}
+              <CardContent className="flex-1 flex items-center justify-center p-0">
+                <div className="text-4xl md:text-5xl font-bold tracking-tight text-center">
+                  $1,250.00
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
 
           <div className="grid grid-cols-2 gap-4">
-            <Card className="hover:bg-indigo-50 dark:hover:bg-gray-800 cursor-pointer transition-colors shadow-md hover:shadow-xl border-0 group">
-              <CardContent className="p-4 flex flex-col items-center justify-center gap-3">
-                <div className="bg-indigo-100 dark:bg-indigo-900/40 p-3 rounded-full group-hover:scale-110 transition-transform">
-                  <Plus className="h-6 w-6 text-indigo-600 dark:text-indigo-400" />
-                </div>
-                <span className="font-semibold text-gray-800 dark:text-gray-200">Top-up</span>
-              </CardContent>
-            </Card>
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.3, delay: 0.2 }}
+            >
+              <Card className="hover:bg-indigo-50 dark:hover:bg-gray-800 cursor-pointer transition-colors shadow-md hover:shadow-xl border-0 group h-full flex flex-col">
+                <CardContent className="p-4 flex flex-col items-center justify-center gap-3 flex-1">
+                  <div className="bg-indigo-100 dark:bg-indigo-900/40 p-3 rounded-full group-hover:scale-110 transition-transform">
+                    <Plus className="h-6 w-6 text-indigo-600 dark:text-indigo-400" />
+                  </div>
+                  <span className="font-semibold text-gray-800 dark:text-gray-200">Top-up</span>
+                </CardContent>
+              </Card>
+            </motion.div>
 
-            <Card className="hover:bg-purple-50 dark:hover:bg-gray-800 cursor-pointer transition-colors shadow-md hover:shadow-xl border-0 group">
-              <CardContent className="p-4 flex flex-col items-center justify-center gap-3">
-                <div className="bg-purple-100 dark:bg-purple-900/40 p-3 rounded-full group-hover:scale-110 transition-transform">
-                  <Gift className="h-6 w-6 text-purple-600 dark:text-purple-400" />
-                </div>
-                <span className="font-semibold text-gray-800 dark:text-gray-200">Redeem</span>
-              </CardContent>
-            </Card>
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.3, delay: 0.3 }}
+            >
+              <Card className="hover:bg-purple-50 dark:hover:bg-gray-800 cursor-pointer transition-colors shadow-md hover:shadow-xl border-0 group h-full flex flex-col">
+                <CardContent className="p-4 flex flex-col items-center justify-center gap-3 flex-1">
+                  <div className="bg-purple-100 dark:bg-purple-900/40 p-3 rounded-full group-hover:scale-110 transition-transform">
+                    <Gift className="h-6 w-6 text-purple-600 dark:text-purple-400" />
+                  </div>
+                  <span className="font-semibold text-gray-800 dark:text-gray-200">Redeem</span>
+                </CardContent>
+              </Card>
+            </motion.div>
           </div>
         </div>
 
         {/* Transactions Card */}
-        <div className="lg:col-span-2">
+        <motion.div
+          className="lg:col-span-2"
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.3, delay: 0.4 }}
+        >
           <Card className="h-full p-6 rounded-xl shadow-md hover:shadow-xl border-0 bg-white dark:bg-gray-800 flex flex-col">
             <CardHeader className="p-0 mb-4 flex-shrink-0">
               <CardTitle className="text-xl font-semibold text-gray-800 dark:text-gray-100">Transactions</CardTitle>
@@ -87,7 +125,7 @@ const Wallet = ({ user }) => {
               </div>
             </CardContent>
           </Card>
-        </div>
+        </motion.div>
 
       </div>
     </div>

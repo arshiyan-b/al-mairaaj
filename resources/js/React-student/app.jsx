@@ -4,6 +4,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import MainLayout from "./layouts/Mainlayout";
 import Dashboard from "./pages/Dashboard";
 import Courses from "./pages/Courses";
+import Course from "./pages/Course";
 import Boards from "./pages/Boards";
 import Subjects from "./pages/Subjects";
 import Books from "./pages/Books";
@@ -42,12 +43,13 @@ function App() {
           <Route index element={<Dashboard user={userData} />} />
           <Route path="dashboard" element={<Dashboard user={userData} />} />
           <Route path="courses" element={<Courses />} />
+          <Route path="course" element={<Course />} />
           <Route path="examination-boards" element={<Boards />} />
           <Route path="subjects" element={<Subjects />} />
           <Route path="books" element={<Books />} />
           <Route path="past-papers" element={<PastPapers />} />
-          <Route path="profile" element={<Profile />} />
-          <Route path="wallet" element={<Wallet />} />
+          <Route path="profile" element={<Profile user={userData} />} />
+          <Route path="wallet" element={<Wallet user={userData} />} />
         </Route>
       </Routes>
     </BrowserRouter>

@@ -1,7 +1,9 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\AnnouncementController;
 use App\Http\Controllers\ChatbotController;
+use App\Http\Controllers\CourseController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\StudentController;
@@ -95,6 +97,7 @@ Route::middleware(['auth', 'role:student'])->group(function () {
 
     // courses
     Route::get('/courses', [StudentController::class, 'courses'])->name('student.courses');
+    Route::get('/course', [CourseController::class, 'index'])->name('course.index');
 
     // boards
     Route::get('/examination-boards', [StudentController::class, 'boards'])->name('student.boards');

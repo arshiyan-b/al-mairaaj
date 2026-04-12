@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
+import { motion, AnimatePresence } from "framer-motion";
 import logo from "../assests/logo.png"; // your Al Mairaaj logo
 import sideImage from "../assests/sideimage.png"; // right side image
 
@@ -11,12 +12,16 @@ export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [errorMsg, setErrorMsg] = useState("");
+  const [successMsg, setSuccessMsg] = useState("");
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     setErrorMsg("");
+    setSuccessMsg("");
+
+    let isSuccess = false;
 
     try {
       const response = await fetch(loginRoute, {
@@ -44,18 +49,55 @@ export default function Login() {
       }
 
       if (data.status === "success") {
-        window.location.href = data.redirect;
+        isSuccess = true;
+        setSuccessMsg("Login successful! Redirecting...");
+        setTimeout(() => {
+          window.location.href = data.redirect;
+        }, 1500);
       }
     } catch (error) {
       console.error("Login error:", error);
       setErrorMsg("Network error. Please try again.");
     } finally {
-      setLoading(false);
+      if (!isSuccess) {
+        setLoading(false);
+      }
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-teal-200 to-teal-400 p-4">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-teal-200 to-teal-400 p-4 relative">
+      {/* Toast Notifications */}
+      <div className="fixed top-10 left-1/2 transform -translate-x-1/2 z-50 flex flex-col gap-3 w-[90%] max-w-md items-center">
+        <AnimatePresence>
+          {errorMsg && (
+            <motion.div
+              initial={{ opacity: 0, y: -50 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -50, transition: { duration: 0.2 } }}
+              className="bg-white border-b-4 border-red-500 shadow-2xl rounded-lg flex items-center justify-center px-4 py-4 w-full"
+            >
+              <div className="text-red-500 font-semibold text-center">
+                {errorMsg}
+              </div>
+            </motion.div>
+          )}
+
+          {successMsg && (
+            <motion.div
+              initial={{ opacity: 0, y: -50 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -50, transition: { duration: 0.2 } }}
+              className="bg-white border-b-4 border-green-500 shadow-2xl rounded-lg flex items-center justify-center px-4 py-4 w-full"
+            >
+              <div className="text-green-600 font-semibold text-center">
+                {successMsg}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+
       <div className="flex flex-col md:flex-row bg-white rounded-2xl shadow-2xl overflow-hidden max-w-5xl w-full">
         {/* Left Section - Login Form */}
         <div className="w-full md:w-1/2 flex flex-col justify-center px-10 py-10">
@@ -67,13 +109,6 @@ export default function Login() {
               Enter your information to access your account.
             </p>
           </div>
-
-          {/* Error Message */}
-          {errorMsg && (
-            <div className="bg-red-100 text-red-700 px-3 py-2 rounded mb-3 text-sm text-center">
-              {errorMsg}
-            </div>
-          )}
 
           {/* Form */}
           <form onSubmit={handleSubmit} className="flex flex-col gap-4">

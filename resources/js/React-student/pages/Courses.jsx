@@ -1,6 +1,7 @@
 import React, { useState } from "react";
-import { Plus, CheckCircle, Clock, Search } from "lucide-react";
+import { Plus, CheckCircle, Clock, Search, Filter } from "lucide-react";
 import { motion } from "framer-motion";
+import { Link } from "react-router-dom";
 
 const coursesData = [
   {
@@ -9,7 +10,7 @@ const coursesData = [
     date: "Dec 10",
     location: "HCMC",
     students: "8/10",
-    
+
     img: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS6t1ekfp0JJWEqrpRtQyn22uqxCcTBhLfAMJi1baT1TVBx116Kvt_mqhk7gAkaBaL7tCo&usqp=CAU",
   },
   {
@@ -18,7 +19,7 @@ const coursesData = [
     date: "Dec 15",
     location: "HCMC",
     students: "10/10",
-    
+
     img: "https://via.placeholder.com/300x200",
   },
   {
@@ -27,7 +28,7 @@ const coursesData = [
     date: "Dec 18",
     location: "HCMC",
     students: "10/10",
-   
+
     img: "https://via.placeholder.com/300x200",
   },
   {
@@ -45,7 +46,7 @@ const coursesData = [
     date: "Jan 20",
     location: "HCMC",
     students: "8/10",
-    
+
     img: "https://via.placeholder.com/300x200",
   },
   {
@@ -54,7 +55,7 @@ const coursesData = [
     date: "Feb 2",
     location: "HCMC",
     students: "10/10",
-   
+
     img: "https://via.placeholder.com/300x200",
   },
 ];
@@ -70,7 +71,7 @@ export default function MyCourses() {
   return (
     <div className="min-h-screen bg-white px-8 py-10">
       {/* Header */}
-      <motion.div 
+      <motion.div
         className="text-center mb-6"
         initial={{ opacity: 0, y: -30 }}
         animate={{ opacity: 1, y: 0 }}
@@ -84,24 +85,30 @@ export default function MyCourses() {
         </p>
       </motion.div>
 
-      {/* 🔍 Search Bar */}
-      <motion.div 
-        className="relative mb-8 max-w-md"
+      {/* Search Box */}
+      <motion.div
+        className="bg-white/90 backdrop-blur border border-gray-200 shadow-sm rounded-xl p-4 mb-8 max-w-3xl mx-auto"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, delay: 0.2 }}
       >
-        <Search
-          size={20}
-          className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
-        />
-        <input
-          type="text"
-          placeholder="Search courses..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="w-full pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
-        />
+        <h2 className="text-base font-semibold text-gray-700 mb-3 flex items-center gap-2">
+          <Filter className="w-4 h-4 text-teal-600" />
+          Filters
+        </h2>
+
+        <div className="flex flex-col md:flex-row items-center gap-4 w-full">
+          <div className="relative w-full flex-1">
+            <Search className="absolute left-3 top-2.5 text-gray-400 w-4 h-4" />
+            <input
+              type="text"
+              placeholder="Search courses..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="w-full pl-9 pr-3 py-2 text-sm rounded-lg border border-gray-200 focus:ring-2 focus:ring-indigo-500 outline-none transition"
+            />
+          </div>
+        </div>
       </motion.div>
 
       {/* Courses Grid */}
@@ -134,9 +141,11 @@ export default function MyCourses() {
                 className="w-full h-40 object-cover"
               />
               <div className="p-5">
-                <h3 className="font-semibold text-lg text-gray-800 mb-2 line-clamp-2">
-                  {course.title}
-                </h3>
+                <Link to="/course">
+                  <h3 className="font-semibold text-lg text-gray-800 mb-2 line-clamp-2 hover:text-blue-900 hover:underline transition-colors">
+                    {course.title}
+                  </h3>
+                </Link>
                 <p className="text-sm text-gray-500 mb-4">by Herman Wong</p>
 
                 <div className="flex justify-between text-sm text-gray-500">

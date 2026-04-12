@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Search, User, Settings, LogOut, Menu, X, Wallet } from "lucide-react";
+import { Search, User, LogOut, Menu, X, Wallet, Megaphone } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -45,19 +45,19 @@ export const Header = ({ username }) => {
     }
 
     setLoading(true);
-    
+
     try {
       const form = document.createElement("form");
       form.method = "POST";
       form.action = logoutRoute;
-      
+
       // Add CSRF token
       const csrfInput = document.createElement("input");
       csrfInput.type = "hidden";
       csrfInput.name = "_token";
       csrfInput.value = csrfToken;
       form.appendChild(csrfInput);
-      
+
       document.body.appendChild(form);
       form.submit();
     } catch (error) {
@@ -85,8 +85,8 @@ export const Header = ({ username }) => {
 
             {/* <span className="text-xl font-bold text-teal-700">AL-Mairaaj</span> */}
             <Link to="/dashboard" className="hover:opacity-80 transition">
-            <span className="text-xl font-bold text-teal-700">AL-Mairaaj</span>
-           </Link>
+              <span className="text-xl font-bold text-teal-700">AL-Mairaaj</span>
+            </Link>
           </div>
 
           {/* Right side: Profile */}
@@ -123,11 +123,11 @@ export const Header = ({ username }) => {
                   </DropdownMenuItem>
                 </Link>
                 <DropdownMenuItem>
-                  <Settings className="h-4 w-4 mr-2" /> Settings
+                  <Megaphone className="h-4 w-4 mr-2" /> Announcements
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem 
-                  className="text-red-600 cursor-pointer" 
+                <DropdownMenuItem
+                  className="text-red-600 cursor-pointer"
                   onClick={handleLogout}
                   disabled={loading}
                 >
@@ -138,7 +138,7 @@ export const Header = ({ username }) => {
           </div>
         </div>
 
-      
+
       </div>
       {/* Navbar receives BOTH props */}
       <Navbar
