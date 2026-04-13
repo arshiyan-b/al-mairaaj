@@ -5,7 +5,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Log;
 use App\Models\Student;
 use App\Models\StudentUserOtp;
 use App\Models\Subject;
@@ -23,36 +22,10 @@ class LoginController extends Controller
         return view('login'); // Return the login view
     }
 
-    public function authenticate(Request $request)
-    {
-        $request->validate([
-            'email' => 'required|email',
-            'password' => 'required',
-        ]);
-    
-        if (Auth::attempt($request->only('email', 'password'))) {
-            $user = Auth::user();
-            
-            return match($user->role) {
-                'admin' => redirect()->route('admin.dashboard'),
-                'teacher' => redirect()->route('teacher.dashboard'),
-                'student' => redirect()->route('student.dashboard'),
-            };
-        }
-    
-        return back()->withErrors(['email' => 'Invalid credentials']);
-    }
-
-    public function admin_logout()
-    {
-        Auth::logout();
-        return redirect()->route('login');
-    }
-
     public function teacher_register(Request $request)
     {
         $subjects = Subject::all();
-        return view ('register_as_a_teacher', compact('subjects'));
+        return view('register_as_a_teacher', compact('subjects'));
     }
 
     public function teacher_register_store(Request $request)
@@ -134,8 +107,8 @@ class LoginController extends Controller
             'last_name' => 'required|string|max:255',
             'father_name' => 'required|string|max:255',
             'email' => 'required|email|unique:students,email',
-            'phone' => ['required','regex:/^(92\d{10})$/',],
-            'password' => ['required','confirmed','regex:/^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/'],
+            'phone' => ['required', 'regex:/^(92\d{10})$/',],
+            'password' => ['required', 'confirmed', 'regex:/^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/'],
         ], [
             'email.unique' => 'This email is already registered.',
             'phone.regex' => 'Phone number must start with 92 and be 12 digits long (e.g., 923001234567).',
@@ -181,7 +154,7 @@ class LoginController extends Controller
         if ($email) {
             return view('student.otp', compact('email'));
         } else {
-            return redirect()->route('register') 
+            return redirect()->route('register')
                 ->with('error', 'Email not found. Please start registration again.');
         }
     }
@@ -213,7 +186,7 @@ class LoginController extends Controller
                 User::create([
                     'name' => trim(collect([$student->first_name, $student->middle_name, $student->last_name])->filter()->join(' ')),
                     'email' => $student->email,
-                    'password' => $otpRecord->password, 
+                    'password' => $otpRecord->password,
                     'role' => 'student',
                     'student_id' => $student->id,
                     'created_at' => now(),
@@ -237,14 +210,14 @@ class LoginController extends Controller
                 'message' => 'This OTP has already been verified.',
                 'redirect' => route('login'),
             ]);
-        } 
+        }
     }
     public function login()
     {
         return view('student.login');
     }
 
-    public function login_authenticate(Request $request)
+    public function authenticate(Request $request)
     {
         $request->validate([
             'email' => 'required|email',
@@ -260,6 +233,16 @@ class LoginController extends Controller
                 return response()->json([
                     'status' => 'success',
                     'redirect' => route('student.dashboard'),
+                ]);
+            } elseif ($user->role === 'admin') {
+                return response()->json([
+                    'status' => 'success',
+                    'redirect' => route('admin.dashboard'),
+                ]);
+            } elseif ($user->role === 'teacher') {
+                return response()->json([
+                    'status' => 'success',
+                    'redirect' => route('teacher.dashboard'),
                 ]);
             }
 
