@@ -119,5 +119,4 @@ Route::middleware(['auth', 'role:student'])->group(function () {
 
     Route::get('/courses/caie/olevel', [StudentController::class, 'caie_olevel'])->name('student.caie_olevel');
     Route::get('/courses/pearson/igcse', [StudentController::class, 'pearson_igcse'])->name('student.pearson_igcse');
-
 });
