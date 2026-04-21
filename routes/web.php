@@ -11,7 +11,7 @@ use App\Http\Controllers\TeacherController;
 use App\Http\Controllers\VideoController;
 
 Route::get('/', function () {
-    return view('welcome');
+    return view('index');
 });
 
 Route::get('/register-as-a-teacher', [LoginController::class, 'teacher_register'])->name('teacher.register');

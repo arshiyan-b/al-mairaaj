@@ -1,12 +1,12 @@
 // Dashboard.jsx
-import studentHeroImage from "../assests/banner1.png";
+import studentHeroImage from "../assets/banner1.png";
 import React from "react";
 import {
   Card,
   CardContent,
   CardHeader,
   CardTitle,
-  
+
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
@@ -97,21 +97,21 @@ const Dashboard = ({ user }) => {
         <div className="md:col-span-2 space-y-6">
           {/* Banner */}
           <Card className="relative flex items-center justify-between bg-gradient-to-r from-teal-950 to-teal-800 text-white rounded-xl shadow-md  px-2 py-8 h-50">
-          {/* Left: Text Section */}
-          <div className="flex flex-col mr-8">
-            <h2 className="text-xl font-semibold">Welcome back, {user?.name || "Student"}!</h2>
-            <p className="text-sm opacity-90">Here's your learning progress today.</p>
+            {/* Left: Text Section */}
+            <div className="flex flex-col mr-8">
+              <h2 className="text-xl font-semibold">Welcome back, {user?.name || "Student"}!</h2>
+              <p className="text-sm opacity-90">Here's your learning progress today.</p>
 
-            {/* Progress Bar */}
-            <div className="mt-3 bg-white/20 rounded-full h-3 w-56 relative">
-              <div
-                className="absolute top-0 left-0 h-3 bg-white rounded-full"
-                style={{ width: "68%" }}
-              ></div>
+              {/* Progress Bar */}
+              <div className="mt-3 bg-white/20 rounded-full h-3 w-56 relative">
+                <div
+                  className="absolute top-0 left-0 h-3 bg-white rounded-full"
+                  style={{ width: "68%" }}
+                ></div>
+              </div>
+              <p className="text-xs mt-1 opacity-90">2.7 hours of 4 hours completed</p>
             </div>
-            <p className="text-xs mt-1 opacity-90">2.7 hours of 4 hours completed</p>
-          </div>
-        </Card>
+          </Card>
 
           {/* Ongoing Courses */}
           <section className="p-4 bg-white rounded-xl shadow-sm dark:bg-gray-800">
@@ -185,8 +185,8 @@ const Dashboard = ({ user }) => {
         {/* Sidebar */}
         <div className="md:col-span-1 space-y-6">
           {/* Progress Calendar */}
-          
-        {/* <Card className="p-6 rounded-xl shadow-sm">
+
+          {/* <Card className="p-6 rounded-xl shadow-sm">
           <CardHeader className="flex flex-row items-center justify-between p-0 mb-4">
             <CardTitle className="text-lg font-semibold">My Progress</CardTitle>
           </CardHeader>

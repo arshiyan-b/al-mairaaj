@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import image from "../assests/logo.png";
+import image from "../assets/logo.png";
 
 export default function Register() {
   // Get Laravel route + CSRF token from Blade
@@ -60,7 +60,7 @@ export default function Register() {
       } else if (data.status === "success") {
         // save email temporarily (so OTP page can access it)
         sessionStorage.setItem("otp_email", data.email);
-        
+
         // Redirect to OTP page with email parameter
         window.location.href = `${data.redirect}?email=${encodeURIComponent(data.email)}`;
       }
@@ -196,9 +196,9 @@ export default function Register() {
             <label className="block text-gray-700 text-sm font-medium mb-1">
               Password <span className="text-red-500">*</span>
             </label>
-              {errors.password && (
-                <p className="text-red-500 text-xs mb-1">{errors.password}</p>
-              )}
+            {errors.password && (
+              <p className="text-red-500 text-xs mb-1">{errors.password}</p>
+            )}
             <input
               name="password"
               type="password"

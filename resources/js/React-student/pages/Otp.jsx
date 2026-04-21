@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import logo from "../assests/logo.png";
+import logo from "../assets/logo.png";
 
 export default function Otp() {
   const [email, setEmail] = useState("");
@@ -17,7 +17,7 @@ export default function Otp() {
   useEffect(() => {
     // Get email from Laravel blade's data attribute
     const el = document.getElementById("app");
-    
+
     if (el && el.dataset.email) {
       setEmail(el.dataset.email);
     } else {

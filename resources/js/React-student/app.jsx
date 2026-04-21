@@ -2,6 +2,7 @@ import React from "react";
 import { createRoot } from "react-dom/client";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import MainLayout from "./layouts/Mainlayout";
+import Index from "./pages/Index";
 import Dashboard from "./pages/Dashboard";
 import Courses from "./pages/Courses";
 import Course from "./pages/Course";
@@ -39,14 +40,14 @@ function App() {
     <BrowserRouter>
       <Routes>
         {/* Public */}
+        <Route path="/" element={<Index />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/otp" element={<Otp />} />
         <Route path="/chatbot" element={<Chatbot />} />
 
         {/* Layout */}
-        <Route path="/" element={<MainLayout user={userData} />}>
-          <Route index element={<Dashboard user={userData} />} />
+        <Route element={<MainLayout user={userData} />}>
           <Route path="dashboard" element={<Dashboard user={userData} />} />
           <Route path="courses" element={<Courses />} />
           <Route path="course/:id" element={<Course />} />

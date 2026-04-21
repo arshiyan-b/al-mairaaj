@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import logo from "../assests/logo.png"; // your Al Mairaaj logo
-import sideImage from "../assests/sideimage.png"; // right side image
+import logo from "../assets/logo.png"; // your Al Mairaaj logo
+import sideImage from "../assets/sideimage.png"; // right side image
 
 export default function Login() {
   const appDiv = document.getElementById("app");
