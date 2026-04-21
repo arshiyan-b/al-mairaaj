@@ -5,6 +5,7 @@ import MainLayout from "./layouts/Mainlayout";
 import Dashboard from "./pages/Dashboard";
 import Courses from "./pages/Courses";
 import Course from "./pages/Course";
+import Video from "./pages/Video";
 import Boards from "./pages/Boards";
 import Subjects from "./pages/Subjects";
 import Books from "./pages/Books";
@@ -12,6 +13,7 @@ import PastPapers from "./pages/PastPapers";
 import Teachers from "./pages/Teachers";
 import Profile from "./pages/Profile";
 import Wallet from "./pages/Wallet";
+import Chatbot from "./pages/Chatbot";
 import Login from "./pages/Login";
 import Otp from "./pages/Otp";
 import Register from "./pages/Register";
@@ -38,13 +40,17 @@ function App() {
       <Routes>
         {/* Public */}
         <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+        <Route path="/otp" element={<Otp />} />
+        <Route path="/chatbot" element={<Chatbot />} />
 
         {/* Layout */}
         <Route path="/" element={<MainLayout user={userData} />}>
           <Route index element={<Dashboard user={userData} />} />
           <Route path="dashboard" element={<Dashboard user={userData} />} />
           <Route path="courses" element={<Courses />} />
-          <Route path="course" element={<Course />} />
+          <Route path="course/:id" element={<Course />} />
+          <Route path="video/:id" element={<Video />} />
           <Route path="examination-boards" element={<Boards />} />
           <Route path="subjects" element={<Subjects />} />
           <Route path="books" element={<Books />} />

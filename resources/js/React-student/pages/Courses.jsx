@@ -173,7 +173,7 @@ export default function MyCourses() {
                   <span className="bg-indigo-50 text-indigo-700 font-semibold text-xs px-2.5 py-1 rounded-md border border-indigo-100">{course.board}</span>
                 </div>
 
-                <Link to="/course">
+                <Link to={`/course/${course.id}`}>
                   <h3 className="font-bold text-lg text-gray-900 mb-4 line-clamp-2 hover:text-indigo-600 transition-colors">
                     {course.title}
                   </h3>

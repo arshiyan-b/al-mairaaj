@@ -8,6 +8,10 @@ use Illuminate\Support\Facades\Http;
 class ChatbotController extends Controller
 {
 
+    public function index()
+    {
+        return view("chatbot.index");
+    }
     public function chat(Request $request)
     {
         // Get user question from frontend
@@ -15,9 +19,9 @@ class ChatbotController extends Controller
 
         // Call Ollama API
         $response = Http::timeout(120)->post('http://127.0.0.1:11434/api/generate', [
-            'model'  => 'llama3:8b',
+            'model' => 'llama3:8b',
             'prompt' => $question,
-            'stream' => false, 
+            'stream' => false,
         ]);
 
         // Decode JSON response
@@ -32,5 +36,5 @@ class ChatbotController extends Controller
         // Later, return as JSON to frontend
         // return response()->json(['question' => $question, 'answer' => $answer]);
     }
-    
+
 }

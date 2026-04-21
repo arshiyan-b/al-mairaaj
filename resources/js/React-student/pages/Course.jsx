@@ -1,6 +1,7 @@
 import React from "react";
 import { motion } from "framer-motion";
 import { BookOpen, User, GraduationCap, PlayCircle, Clock, CheckCircle } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const courseDetails = {
     title: "Mastering Advanced Mathematics",
@@ -130,7 +131,6 @@ const Course = () => {
                                         </span>
                                     </div>
                                 </div>
-
 
                             </motion.div>
                         ))}
