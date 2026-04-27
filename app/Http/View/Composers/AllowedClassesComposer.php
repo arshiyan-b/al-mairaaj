@@ -4,7 +4,7 @@ namespace App\Http\View\Composers;
 
 use Illuminate\View\View;
 use Illuminate\Support\Facades\Auth;
-use App\Models\AllowedClass;
+use App\Models\Teacher;
 
 class AllowedClassesComposer
 {
@@ -13,7 +13,12 @@ class AllowedClassesComposer
         $classes = collect();
 
         if (Auth::check()) {
-            $classes = AllowedClass::where('teacher_id', Auth::user()->teacher_id)->get();
+
+            $teacher = Teacher::where('user_id', Auth::user()->id)->first();
+
+            if ($teacher) {
+                $classes = $teacher->allowed_classes;
+            }
         }
 
         $view->with('classes', $classes);

@@ -9,7 +9,7 @@ class Student extends Model
 {
     use HasFactory;
 
-    protected $primaryKey = 'id'; 
+    protected $primaryKey = 'id';
     public $timestamps = true;
 
     protected $fillable = [
@@ -27,5 +27,10 @@ class Student extends Model
         'otp_sent',
         'otp_verified',
         'user_created',
+        'user_id',
     ];
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
 }

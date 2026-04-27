@@ -22,10 +22,9 @@ class TeacherController extends Controller
     public function __construct()
     {
         $this->middleware(function ($request, $next) {
-            $user = Auth::user();
+            $this->teacher = Teacher::where('user_id', Auth::user()->id)->first();
 
-            $this->teacher = Teacher::find($user->teacher_id);
-            $this->classes = AllowedClass::where('teacher_id', $this->teacher->teacher_id)->get();
+            $this->classes = AllowedClass::where('teacher_id', $this->teacher->id)->get();
             $this->subjects = Subject::all()->keyBy('subject_id');
             return $next($request);
         });
@@ -35,7 +34,7 @@ class TeacherController extends Controller
     {
         $classes = $this->classes->filter(function ($class) use ($board, $grade) {
             return $class->board === $board &&
-                in_array($grade, $class->grades);
+                in_array($grade, $class->grades_array);
         })->values();
 
         $subjectIds = $classes->pluck('subjects')->flatten()->unique();
@@ -48,73 +47,67 @@ class TeacherController extends Controller
     protected function getHighestOrder($board, $grade, $id)
     {
         return match ([$board, $grade]) {
-            ['caie', 'olevel']    => CaieOlevelVideo::where('video_course_id', $id)->max('video_order'),
-            ['pearson', 'igcse']   => PearsonIgcseVideo::where('video_course_id', $id)->max('video_order'),
-            default                => 0, // fallback
+            ['caie', 'olevel'] => CaieOlevelVideo::where('video_course_id', $id)->max('video_order'),
+            ['pearson', 'igcse'] => PearsonIgcseVideo::where('video_course_id', $id)->max('video_order'),
+            default => 0,
         };
     }
 
     public function dashboard()
-    {   
+    {
         return view('teacher.dashboard', [
             'teacher' => $this->teacher,
             'classes' => $this->classes,
         ]);
-
     }
     public function caie_olevel_index()
     {
         $subjects = $this->getSubjectsForBoardAndGrade('CAIE', 'O Level');
-                
+
         $courses = CaieCourse::where('course_teacher_id', $this->teacher->teacher_id)->where('course_qualification', 'olevel')->get();
 
         return view('teacher.courses.caie.olevel', [
-            'teacher'   => $this->teacher,
-            'subjects'  => $subjects,
-            'courses'   => $courses,
+            'teacher' => $this->teacher,
+            'subjects' => $subjects,
+            'courses' => $courses,
         ]);
     }
     public function caie_alevel_as_index()
     {
         $subjects = $this->getSubjectsForBoardAndGrade('CAIE', 'A Level (AS)');
-                
+
         $courses = CaieCourse::where('course_teacher_id', $this->teacher->teacher_id)->where('course_qualification', 'alevel_as')->get();
 
         return view('teacher.courses.caie.alevel_as', [
-            'teacher'   => $this->teacher,
-            'subjects'  => $subjects,
-            'courses'   => $courses,
+            'teacher' => $this->teacher,
+            'subjects' => $subjects,
+            'courses' => $courses,
         ]);
     }
     public function pearson_igcse_index()
     {
         $subjects = $this->getSubjectsForBoardAndGrade('Pearson', 'IGCSE');
-                
+
         $courses = PearsonCourse::where('course_teacher_id', $this->teacher->teacher_id)->where('course_qualification', 'igcse')->get();
 
         return view('teacher.courses.pearson.igcse', [
-            'teacher'   => $this->teacher,
-            'subjects'  => $subjects,
-            'courses'   => $courses,
+            'teacher' => $this->teacher,
+            'subjects' => $subjects,
+            'courses' => $courses,
         ]);
     }
     public function course_videos($board, $grade, $id)
     {
-        if ($board === "caie")
-        {
-            if ($grade === "olevel")
-            {
+        if ($board === "caie") {
+            if ($grade === "olevel") {
                 $videos = CaieOlevelVideo::where('video_course_id', $id)->get();
                 $course = CaieCourse::where('course_id', $id)->first();
                 $highestOrder = $this->getHighestOrder('caie', 'olevel', $id);
 
                 return view('teacher.courses.course_videos', compact('videos', 'course', 'highestOrder', 'board'));
             }
-        }
-        elseif ($board === "pearson")
-        {
-            if ($grade === "igcse")
-            {
+        } elseif ($board === "pearson") {
+            if ($grade === "igcse") {
                 $videos = PearsonIgcseVideo::where('video_course_id', $id)->get();
                 $course = PearsonCourse::where('course_id', $id)->first();
                 $highestOrder = $this->getHighestOrder('pearson', 'igcse', $id);
@@ -134,7 +127,7 @@ class TeacherController extends Controller
             env('VIMEO_ACCESS_TOKEN')
         );
 
-        
+
         try {
             if (!$request->hasFile('videoFile')) {
                 return back()->with('error', 'No video file uploaded.');
@@ -148,7 +141,7 @@ class TeacherController extends Controller
             $filePath = $uploadedFile->getPathname();
 
             $uri = $vimeo->upload($filePath, [
-                'name'        => $data['videoTitle'],
+                'name' => $data['videoTitle'],
                 'description' => $data['videoDescription'],
             ]);
 
@@ -168,13 +161,13 @@ class TeacherController extends Controller
             }
 
             $fullUrl = html_entity_decode($matches[1]);  // Decode &amp; to &
-            
+
             preg_match('/video\/(\d+)/', $fullUrl, $idMatch);
             if (!isset($idMatch[1])) {
                 return back()->with('error', 'Could not extract video ID.');
             }
 
-            $videoId = $idMatch[1]; 
+            $videoId = $idMatch[1];
 
         } catch (\Exception $e) {
             return back()->with('error', 'Vimeo upload failed: ' . $e->getMessage());
@@ -182,7 +175,7 @@ class TeacherController extends Controller
 
 
         $modelMap = [
-            'caie.olevel'   => CaieOlevelVideo::class,
+            'caie.olevel' => CaieOlevelVideo::class,
             'pearson.igcse' => PearsonIgcseVideo::class,
         ];
 
@@ -195,15 +188,15 @@ class TeacherController extends Controller
         $modelClass = $modelMap[$key];
 
         $video = new $modelClass([
-            'video_order'       => $data['videoOrder'],
-            'video_title'       => $data['videoTitle'],
-            'video_subject'     => $data['videoSubject'],
+            'video_order' => $data['videoOrder'],
+            'video_title' => $data['videoTitle'],
+            'video_subject' => $data['videoSubject'],
             'video_description' => $data['videoDescription'],
-            'video_price'       => 2,
-            'video_lang'        => $data['videoLanguage'],
-            'video_duration'    => $data['videoDuration'],
-            'video_link'        => $videoId,
-            'video_course_id'   => $id,
+            'video_price' => 2,
+            'video_lang' => $data['videoLanguage'],
+            'video_duration' => $data['videoDuration'],
+            'video_link' => $videoId,
+            'video_course_id' => $id,
         ]);
 
         $video->save();
@@ -214,8 +207,8 @@ class TeacherController extends Controller
 
     public function course_store(Request $request)
     {
-        if ( $request->courseBoard === "caie"){
-            
+        if ($request->courseBoard === "caie") {
+
             $validated = $request->validate([
                 'courseSubject' => 'required',
                 'coursePaper' => 'required',
@@ -232,9 +225,7 @@ class TeacherController extends Controller
                 'course_description' => $validated['courseDescription'],
                 'course_qualification' => $validated['courseQualification'],
             ]);
-        }   
-        elseif($request->courseBoard === "pearson")
-        {
+        } elseif ($request->courseBoard === "pearson") {
             $validated = $request->validate([
                 'courseSubject' => 'required',
                 'coursePaper' => 'required',
@@ -257,22 +248,21 @@ class TeacherController extends Controller
 
     public function mcq_store(Request $request)
     {
-        if ( $request->board === 'caie')
-        {
+        if ($request->board === 'caie') {
             $mcq = CaieMcq::create([
-                'video_id'      => $request->video_id,
-                'question'      => $request->question,
-                'option_a'      => $request->option_a,
-                'option_b'      => $request->option_b,
-                'option_c'      => $request->option_c,
-                'option_d'      => $request->option_d,
-                'correct_option'=> $request->correct_option,
+                'video_id' => $request->video_id,
+                'question' => $request->question,
+                'option_a' => $request->option_a,
+                'option_b' => $request->option_b,
+                'option_c' => $request->option_c,
+                'option_d' => $request->option_d,
+                'correct_option' => $request->correct_option,
             ]);
 
             CaieOlevelVideo::where('video_id', $request->video_id)->update([
-                'mcq_id'        => $mcq->mcq_id,
-                'minutes'       => $request->minutes,
-                'seconds'       => $request->seconds,
+                'mcq_id' => $mcq->mcq_id,
+                'minutes' => $request->minutes,
+                'seconds' => $request->seconds,
             ]);
         }
 

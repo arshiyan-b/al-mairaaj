@@ -4,12 +4,12 @@
 @endsection
 @section('content')
 
-<div class="container">
-    @if (session('success'))
-        <div class="alert alert-success mt-3 mx-3">
-            {{ session('success') }}
-        </div>
-    @endif
+    <div class="container">
+        @if (session('success'))
+            <div class="alert alert-success mt-3 mx-3">
+                {{ session('success') }}
+            </div>
+        @endif
         <div class="card">
             <div class="card-header">
                 <h2>Teacher Page</h2>
@@ -28,27 +28,81 @@
                             </tr>
                         </thead>
                         <tbody>
-                        @foreach ($teacherList as $teacher)
-                        <tr>
-                            <td>{{ $teacher->id }}</td>
-                            <td>{{ $teacher->name }}</td>
-                            <td>{{ $teacher->phone_no }}</td>
-                            <td>{{ $teacher->email }}</td>
-                            <td>{{ $teacher->cnic }}</td>
-                            <td>
-                                <a href="{{ route('admin.teachers_show', $teacher->id) }}" class="btn btn-sm btn-dark">
-                                    View Details
-                                </a>
-                            </td>
-                            <td>
-                        </tr>
-                        @endforeach
+                            @foreach ($teacherList as $teacher)
+                                <tr>
+                                    <td>{{ $teacher->id }}</td>
+                                    <td>{{ $teacher->name }}</td>
+                                    <td>{{ $teacher->phone_number }}</td>
+                                    <td>{{ $teacher->email }}</td>
+                                    <td>{{ $teacher->cnic }}</td>
+                                    <td>
+                                        <a href="{{ route('admin.teachers_show', $teacher->id) }}" class="btn btn-sm btn-dark">
+                                            View Details
+                                        </a>
+
+                                        @if ($teacher->user_created == 0)
+                                            <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal"
+                                                data-bs-target="#createUserModal{{ $teacher->id }}">
+                                                Create User
+                                            </button>
+                                        @endif
+                                    </td>
+                                </tr>
+
+                                <div class="modal fade" id="createUserModal{{ $teacher->id }}" tabindex="-1" aria-hidden="true">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+
+                                            <form action="{{ route('admin.teacher_create_user', $teacher->id) }}" method="POST">
+                                                @csrf
+
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title">Create User for {{ $teacher->name }}</h5>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                                </div>
+
+                                                <div class="modal-body">
+
+                                                    <div class="mb-3">
+                                                        <label>Name</label>
+                                                        <input type="text" name="name" class="form-control"
+                                                            value="{{ $teacher->name }}" required>
+                                                    </div>
+
+                                                    <div class="mb-3">
+                                                        <label>Email</label>
+                                                        <input type="email" name="email" class="form-control"
+                                                            value="{{ $teacher->email }}" required>
+                                                    </div>
+
+                                                    <div class="mb-3">
+                                                        <label>Password</label>
+                                                        <input type="password" name="password" class="form-control" required>
+                                                    </div>
+
+                                                </div>
+
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                                                        Close
+                                                    </button>
+                                                    <button type="submit" class="btn btn-primary">
+                                                        Create User
+                                                    </button>
+                                                </div>
+
+                                            </form>
+
+                                        </div>
+                                    </div>
+                                </div>
+                            @endforeach
                         </tbody>
                     </table>
-                </div>    
+                </div>
             </div>
         </div>
-</div>
+    </div>
 
 
 @endsection

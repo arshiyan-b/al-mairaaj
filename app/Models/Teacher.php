@@ -17,8 +17,8 @@ class Teacher extends Model
         'cnic',
         'gender',
         'city',
-        'phone_no',
-        'whatsapp_no',
+        'phone_number',
+        'whatsapp_number',
         'email',
         'address',
         'highest_degree',
@@ -33,15 +33,15 @@ class Teacher extends Model
         'allowed_grades',
         'allowed_subjects',
         'user_created',
+        'user_id',
     ];
-
-    public function courses()
+    public function user()
     {
-        return $this->hasMany(Course::class, 'course_teacher_id', 'teacher_id');
+        return $this->belongsTo(User::class);
     }
-    public function classes()
+    public function allowed_classes()
     {
-        return $this->hasMany(AllowedClass::class, 'teacher_id', 'teacher_id');
+        return $this->hasMany(AllowedClass::class);
     }
     public function getSubjectsListAttribute()
     {

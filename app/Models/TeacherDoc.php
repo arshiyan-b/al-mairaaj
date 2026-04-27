@@ -8,9 +8,8 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 class TeacherDoc extends Model
 {
     public $timestamps = true;
-    protected $table = 'teacher_docs';  
+    protected $table = 'teacher_docs';
     use HasFactory;
-    protected $primaryKey = 'doc_id';
 
     protected $fillable = [
         'teacher_id',

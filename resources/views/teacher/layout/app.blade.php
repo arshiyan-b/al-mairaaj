@@ -11,7 +11,7 @@
     <link href="https://cdn.lineicons.com/4.0/lineicons.css" rel="stylesheet" />
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-KK94CHFLLe+nY2dmCWGMq91rCGa5gtU4mk92HdvYe+M/SXH301p5ILy+dN9+nJOZ" crossorigin="anonymous">
-    
+
     <style>
         body {
             font-family: 'Poppins', sans-serif;
@@ -36,19 +36,19 @@
             transition: all 0.62s ease-in-out;
             background-color: #000000;
             display: flex;
-            flex-direction: column;  
-            max-height: 100vh;      
+            flex-direction: column;
+            max-height: 100vh;
             overflow-y: auto;
             overflow-x: hidden;
         }
 
 
-        #sidebar.expand  {
+        #sidebar.expand {
             width: 300px;
             min-width: 300px;
         }
 
-        #sidebar.expand ~ .main {
+        #sidebar.expand~.main {
             margin-left: 260px;
         }
 
@@ -61,7 +61,7 @@
             min-height: calc(100vh - 60px);
         }
 
-        #sidebar.expand ~ .main {
+        #sidebar.expand~.main {
             margin-left: 260px;
         }
 
@@ -88,7 +88,7 @@
             color: #FFF;
         }
 
-        #sidebar-heading{
+        #sidebar-heading {
             margin-top: 13px;
             font-size: 25px;
         }
@@ -130,7 +130,7 @@
         }
 
         .sidebar-item {
-            position: relative; 
+            position: relative;
         }
 
         #sidebar:not(.expand) .sidebar-item .sidebar-dropdown {
@@ -160,6 +160,7 @@
             transform: rotate(45deg);
             transition: all .2s ease-out;
         }
+
         .sidebar-footer form {
             display: block;
             width: 100%;
@@ -174,6 +175,7 @@
             border-left: 3px solid transparent;
             cursor: pointer;
         }
+
         #sidebar:not(.expand) .sidebar-footer span {
             display: none;
         }
@@ -191,20 +193,22 @@
             text-align: left;
             background: transparent;
             border: 0;
-        } 
+        }
+
         .sidebar-dropdown .sidebar-item {
-            padding-left: 20px; 
+            padding-left: 20px;
         }
 
         .sidebar-dropdown .sidebar-dropdown .sidebar-item {
-            padding-left: 30px; 
+            padding-left: 30px;
         }
 
         /* Mobile Responsiveness */
         @media (max-width: 768px) {
-            .main{
+            .main {
                 margin-left: 45px;
             }
+
             #sidebar {
                 width: 0;
             }
@@ -213,12 +217,12 @@
                 width: 200px;
             }
         }
+
         .form-control:focus,
         .form-control:hover {
             border-color: black !important;
             box-shadow: 0 0 0 0.25rem rgba(0, 128, 128, 0.52) !important;
         }
-
     </style>
 </head>
 
@@ -227,11 +231,13 @@
         <aside id="sidebar">
             <div class="d-flex">
                 <button class="toggle-btn" type="button">
-                    <img src="{{ asset('build/assets/book_logo.png') }}" alt="Icon" style="width: 36px; height: 36px;" class="ms-2">
+                    <img src="{{ asset('build/assets/book_logo.png') }}" alt="Icon" style="width: 36px; height: 36px;"
+                        class="ms-2">
                 </button>
                 <div class="sidebar-logo">
                     <a id="sidebar-heading">
-                        <img src="{{ asset('build/assets/AlMairaaj_logo.png') }}" alt="Al Mairaaj Logo" style="width: 210px; height: 56px;" class="mt-2">
+                        <img src="{{ asset('build/assets/AlMairaaj_logo.png') }}" alt="Al Mairaaj Logo"
+                            style="width: 210px; height: 56px;" class="mt-2">
                     </a>
                 </div>
             </div>
@@ -249,20 +255,23 @@
                         <span class="fs-6">Study Material</span>
                     </a>
 
-                    <ul id="studyMaterial" class="sidebar-dropdown list-unstyled collapse" data-bs-parent="#sidebar"> 
+                    <ul id="studyMaterial" class="sidebar-dropdown list-unstyled collapse" data-bs-parent="#sidebar">
                         <!-- Pearson Dropdown -->
                         <li class="sidebar-item">
                             <a href="#" class="sidebar-link collapsed has-dropdown" data-bs-toggle="collapse"
                                 data-bs-target="#pearsonDropdown" aria-expanded="false" aria-controls="pearsonDropdown">
                                 Pearson
                             </a>
-                            <ul id="pearsonDropdown" class="sidebar-dropdown list-unstyled collapse" data-bs-parent="#studyMaterial">
+                            <ul id="pearsonDropdown" class="sidebar-dropdown list-unstyled collapse"
+                                data-bs-parent="#studyMaterial">
                                 <li class="sidebar-item">
                                     <a href="#" class="sidebar-link collapsed has-dropdown" data-bs-toggle="collapse"
-                                        data-bs-target="#pearsonPastPapers" aria-expanded="false" aria-controls="pearsonPastPapers">
+                                        data-bs-target="#pearsonPastPapers" aria-expanded="false"
+                                        aria-controls="pearsonPastPapers">
                                         Past Papers
                                     </a>
-                                    <ul id="pearsonPastPapers" class="sidebar-dropdown list-unstyled collapse" data-bs-parent="#pearsonDropdown">
+                                    <ul id="pearsonPastPapers" class="sidebar-dropdown list-unstyled collapse"
+                                        data-bs-parent="#pearsonDropdown">
                                         <li class="sidebar-item">
                                             <a href="#" class="sidebar-link">Yearly Past Papers</a>
                                         </li>
@@ -283,7 +292,8 @@
                                 data-bs-target="#akuebDropdown" aria-expanded="false" aria-controls="akuebDropdown">
                                 AKU-EB
                             </a>
-                            <ul id="akuebDropdown" class="sidebar-dropdown list-unstyled collapse" data-bs-parent="#studyMaterial">
+                            <ul id="akuebDropdown" class="sidebar-dropdown list-unstyled collapse"
+                                data-bs-parent="#studyMaterial">
                                 <li class="sidebar-item">
                                     <a href="#" class="sidebar-link">Past Papers</a>
                                 </li>
@@ -303,99 +313,151 @@
                 </li>
 
                 <li class="sidebar-item">
-                    <a class="sidebar-link collapsed has-dropdown" data-bs-toggle="collapse"
-                    data-bs-target="#courses" aria-expanded="false" aria-controls="courses">
+                    <a class="sidebar-link collapsed has-dropdown" data-bs-toggle="collapse" data-bs-target="#courses"
+                        aria-expanded="false" aria-controls="courses">
+
                         <i class="bi bi-camera-video fs-4"></i>
                         <span class="fs-6">Courses</span>
                     </a>
 
-                    <ul id="courses" class="sidebar-dropdown list-unstyled collapse" data-bs-parent="#courses">
+                    {{-- COURSES LEVEL --}}
+                    <ul id="courses" class="sidebar-dropdown list-unstyled collapse" data-bs-parent="#sidebar">
+
+                        {{-- ================= P E A R S O N ================= --}}
                         @if($classes->contains('board', 'Pearson'))
                             <li class="sidebar-item">
-                                <a class="sidebar-link collapsed" data-bs-toggle="collapse" data-bs-target="#pearsonGrades" aria-expanded="false" aria-controls="pearsonGrades">
+
+                                <a class="sidebar-link collapsed has-dropdown" data-bs-toggle="collapse"
+                                    data-bs-target="#pearsonGrades" aria-expanded="false" aria-controls="pearsonGrades">
                                     Pearson
                                 </a>
-                                <ul id="pearsonGrades" class="sidebar-dropdown list-unstyled collapse">
-                                    @if($classes->contains(fn($c) => $c->board === 'Pearson' && in_array('IGCSE', (array) $c->grades)))                                        <li class="sidebar-item">
-                                            <a href="{{ route('teacher.pearson_igcse') }}" class="sidebar-link">IGCSE</a>
-                                        </li>
-                                    @endif
-                                    @if($classes->contains(fn($c) => $c->board === 'Pearson' && in_array('International A Level (AS)', (array) $c->grades)))
+
+                                <ul id="pearsonGrades" class="sidebar-dropdown list-unstyled collapse"
+                                    data-bs-parent="#courses">
+
+                                    @if($classes->contains(fn($c) => $c->board === 'Pearson' && in_array('IGCSE', $c->grades ?? [])))
                                         <li class="sidebar-item">
-                                            <a href="#" class="sidebar-link">International A Level (AS)</a>
+                                            <a href="{{ route('teacher.pearson_igcse') }}" class="sidebar-link">
+                                                IGCSE
+                                            </a>
                                         </li>
                                     @endif
-                                    @if($classes->contains(fn($c) => $c->board === 'Pearson' && in_array('International A Level (A2)', (array) $c->grades)))
+
+                                    @if($classes->contains(fn($c) => $c->board === 'Pearson' && in_array('International A Level (AS)', $c->grades ?? [])))
                                         <li class="sidebar-item">
-                                            <a href="#" class="sidebar-link">International A Level (A2)</a>
+                                            <a href="#" class="sidebar-link">
+                                                International A Level (AS)
+                                            </a>
                                         </li>
                                     @endif
-                                </ul>
-                            </li>   
-                        @endif
-                        @if($classes->contains('board', 'CAIE'))
-                            <li class="sidebar-item">
-                                <a class="sidebar-link collapsed" data-bs-toggle="collapse" data-bs-target="#caieGrades" aria-expanded="false" aria-controls="caieGrades">
-                                    CAIE
-                                </a>
-                                <ul id="caieGrades" class="sidebar-dropdown list-unstyled collapse">
-                                    @if($classes->contains(fn($c) => $c->board === 'CAIE' && in_array('O Level', (array) $c->grades)))
+
+                                    @if($classes->contains(fn($c) => $c->board === 'Pearson' && in_array('International A Level (A2)', $c->grades ?? [])))
                                         <li class="sidebar-item">
-                                            <a href="{{ route('teacher.caie_olevel') }}" class="sidebar-link">O Level</a>
+                                            <a href="#" class="sidebar-link">
+                                                International A Level (A2)
+                                            </a>
                                         </li>
                                     @endif
-                                    @if($classes->contains(fn($c) => $c->board === 'CAIE' && in_array('IGCSE', (array) $c->grades)))
-                                        <li class="sidebar-item">
-                                            <a href="#" class="sidebar-link">IGCSE</a>
-                                        </li>
-                                    @endif
-                                    @if($classes->contains(fn($c) => $c->board === 'CAIE' && in_array('A Level (A2)', (array) $c->grades)))
-                                        <li class="sidebar-item">
-                                            <a href="{{ route('teacher.caie_alevel_as') }}" class="sidebar-link">A Level (AS)</a>
-                                        </li>
-                                    @endif
-                                    @if($classes->contains(fn($c) => $c->board === 'CAIE' && in_array('A Level (A2)', (array) $c->grades)))
-                                        <li class="sidebar-item">
-                                            <a href="#" class="sidebar-link">A Level (A2)</a>
-                                        </li>
-                                    @endif
+
                                 </ul>
                             </li>
                         @endif
+
+
+                        {{-- ================= C A I E ================= --}}
+                        @if($classes->contains('board', 'CAIE'))
+                            <li class="sidebar-item">
+
+                                <a class="sidebar-link collapsed has-dropdown" data-bs-toggle="collapse"
+                                    data-bs-target="#caieGrades" aria-expanded="false" aria-controls="caieGrades">
+                                    CAIE
+                                </a>
+
+                                <ul id="caieGrades" class="sidebar-dropdown list-unstyled collapse"
+                                    data-bs-parent="#courses">
+
+                                    @if($classes->contains(fn($c) => $c->board === 'CAIE' && in_array('O Level', $c->grades ?? [])))
+                                        <li class="sidebar-item">
+                                            <a href="{{ route('teacher.caie_olevel') }}" class="sidebar-link">
+                                                O Level
+                                            </a>
+                                        </li>
+                                    @endif
+
+                                    @if($classes->contains(fn($c) => $c->board === 'CAIE' && in_array('IGCSE', $c->grades ?? [])))
+                                        <li class="sidebar-item">
+                                            <a href="#" class="sidebar-link">
+                                                IGCSE
+                                            </a>
+                                        </li>
+                                    @endif
+
+                                    @if($classes->contains(fn($c) => $c->board === 'CAIE' && in_array('A Level (AS)', $c->grades ?? [])))
+                                        <li class="sidebar-item">
+                                            <a href="{{ route('teacher.caie_alevel_as') }}" class="sidebar-link">
+                                                A Level (AS)
+                                            </a>
+                                        </li>
+                                    @endif
+
+                                    @if($classes->contains(fn($c) => $c->board === 'CAIE' && in_array('A Level (A2)', $c->grades ?? [])))
+                                        <li class="sidebar-item">
+                                            <a href="#" class="sidebar-link">
+                                                A Level (A2)
+                                            </a>
+                                        </li>
+                                    @endif
+
+                                </ul>
+                            </li>
+                        @endif
+
+
+                        {{-- ================= A K U - E B ================= --}}
                         @if($classes->contains('board', 'AKU - EB'))
                             <li class="sidebar-item">
-                                <a class="sidebar-link collapsed" data-bs-toggle="collapse" data-bs-target="#akuEbGrades" aria-expanded="false" aria-controls="akuEbGrades">
+
+                                <a class="sidebar-link collapsed has-dropdown" data-bs-toggle="collapse"
+                                    data-bs-target="#akuEbGrades" aria-expanded="false" aria-controls="akuEbGrades">
                                     AKU EB
                                 </a>
-                                <ul id="akuEbGrades" class="sidebar-dropdown list-unstyled collapse">
-                                    @if($classes->contains(fn($c) => $c->board === 'AKU - EB' && in_array('SSC I', (array) $c->grades)))
+
+                                <ul id="akuEbGrades" class="sidebar-dropdown list-unstyled collapse"
+                                    data-bs-parent="#courses">
+
+                                    @if($classes->contains(fn($c) => $c->board === 'AKU - EB' && in_array('SSC I', $c->grades ?? [])))
                                         <li class="sidebar-item">
                                             <a href="#" class="sidebar-link">SSC I</a>
                                         </li>
                                     @endif
-                                    @if($classes->contains(fn($c) => $c->board === 'AKU - EB' && in_array('SSC II', (array) $c->grades)))
+
+                                    @if($classes->contains(fn($c) => $c->board === 'AKU - EB' && in_array('SSC II', $c->grades ?? [])))
                                         <li class="sidebar-item">
                                             <a href="#" class="sidebar-link">SSC II</a>
                                         </li>
                                     @endif
-                                    @if($classes->contains(fn($c) => $c->board === 'AKU - EB' && in_array('HSSC I', (array) $c->grades)))
+
+                                    @if($classes->contains(fn($c) => $c->board === 'AKU - EB' && in_array('HSSC I', $c->grades ?? [])))
                                         <li class="sidebar-item">
                                             <a href="#" class="sidebar-link">HSSC I</a>
                                         </li>
                                     @endif
-                                    @if($classes->contains(fn($c) => $c->board === 'AKU - EB' && in_array('HSSC II', (array) $c->grades)))
+
+                                    @if($classes->contains(fn($c) => $c->board === 'AKU - EB' && in_array('HSSC II', $c->grades ?? [])))
                                         <li class="sidebar-item">
                                             <a href="#" class="sidebar-link">HSSC II</a>
                                         </li>
                                     @endif
+
                                 </ul>
                             </li>
                         @endif
+
                     </ul>
                 </li>
             </ul>
             <div class="sidebar-footer">
-                <form method="POST" action="{{ route('teacher.logout') }}" id="logout-form" class="w-100">
+                <form method="POST" action="{{ route('logout') }}" id="logout-form" class="w-100">
                     @csrf
                     <button type="submit" class="sidebar-link w-100 text-start border-0 bg-transparent text-white">
                         <i class="lni lni-exit"></i>
@@ -404,11 +466,11 @@
                 </form>
             </div>
         </aside>
-        
+
         <main class="main">
             @yield('content')
         </main>
-        
+
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"

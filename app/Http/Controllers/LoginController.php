@@ -52,6 +52,8 @@ class LoginController extends Controller
             'agree' => 'required|in:Yes,yes',
         ]);
 
+
+
         $teacher = Teacher::create([
             'name' => $request->teacher_name,
             'cnic' => $request->teacher_cnic,
@@ -75,7 +77,7 @@ class LoginController extends Controller
         if ($request->hasFile('resume')) {
             $path = $request->file('resume')->store('teacher_docs/resumes', 'public');
             TeacherDoc::create([
-                'teacher_id' => $teacher->teacher_id,
+                'teacher_id' => $teacher->id,
                 'type' => 'resume',
                 'file_path' => $path,
             ]);
@@ -84,13 +86,13 @@ class LoginController extends Controller
         if ($request->hasFile('picture')) {
             $path = $request->file('picture')->store('teacher_docs/pictures', 'public');
             TeacherDoc::create([
-                'teacher_id' => $teacher->teacher_id,
+                'teacher_id' => $teacher->id,
                 'type' => 'picture',
                 'file_path' => $path,
             ]);
         }
 
-        return redirect('login.two')->with('success', 'Teacher registered successfully!');
+        return redirect('login')->with('success', 'Teacher registered successfully!');
     }
 
     public function register()
@@ -229,17 +231,17 @@ class LoginController extends Controller
 
             $user = Auth::user();
 
-            if ($user->role === 'student') {
+            if ($user->role->name === 'student') {
                 return response()->json([
                     'status' => 'success',
                     'redirect' => route('student.dashboard'),
                 ]);
-            } elseif ($user->role === 'admin') {
+            } elseif ($user->role->name === 'admin') {
                 return response()->json([
                     'status' => 'success',
                     'redirect' => route('admin.dashboard'),
                 ]);
-            } elseif ($user->role === 'teacher') {
+            } elseif ($user->role->name === 'teacher') {
                 return response()->json([
                     'status' => 'success',
                     'redirect' => route('teacher.dashboard'),

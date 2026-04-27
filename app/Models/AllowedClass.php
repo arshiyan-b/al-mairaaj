@@ -25,6 +25,18 @@ class AllowedClass extends Model
     ];
     public function teacher()
     {
-        return $this->belongsTo(Teacher::class, 'teacher_id', 'teacher_id');
+        return $this->belongsTo(Teacher::class);
+    }
+
+    public function getGradesArrayAttribute()
+    {
+        $grades = is_string($this->grades) ? json_decode($this->grades, true) : $this->grades;
+        return is_array($grades) ? $grades : [];
+    }
+
+    public function getSubjectsArrayAttribute()
+    {
+        $subjects = is_string($this->subjects) ? json_decode($this->subjects, true) : $this->subjects;
+        return is_array($subjects) ? $subjects : [];
     }
 }
