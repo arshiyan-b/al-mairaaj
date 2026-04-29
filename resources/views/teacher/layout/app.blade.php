@@ -335,26 +335,20 @@
                                 <ul id="pearsonGrades" class="sidebar-dropdown list-unstyled collapse"
                                     data-bs-parent="#courses">
 
-                                    @if($classes->contains(fn($c) => $c->board === 'Pearson' && in_array('IGCSE', $c->grades ?? [])))
+                                    @if($classes->contains(fn($c) => $c->board === 'Pearson' && in_array('igcse', $c->grades ?? [])))
                                         <li class="sidebar-item">
-                                            <a href="{{ route('teacher.pearson_igcse') }}" class="sidebar-link">
+                                            <a href="{{ route('teacher.course.index', ['board' => 'Pearson', 'grade' => 'igcse']) }}"
+                                                class="sidebar-link">
                                                 IGCSE
                                             </a>
                                         </li>
                                     @endif
 
-                                    @if($classes->contains(fn($c) => $c->board === 'Pearson' && in_array('International A Level (AS)', $c->grades ?? [])))
+                                    @if($classes->contains(fn($c) => $c->board === 'Pearson' && in_array('ial', $c->grades ?? [])))
                                         <li class="sidebar-item">
-                                            <a href="#" class="sidebar-link">
-                                                International A Level (AS)
-                                            </a>
-                                        </li>
-                                    @endif
-
-                                    @if($classes->contains(fn($c) => $c->board === 'Pearson' && in_array('International A Level (A2)', $c->grades ?? [])))
-                                        <li class="sidebar-item">
-                                            <a href="#" class="sidebar-link">
-                                                International A Level (A2)
+                                            <a href="{{ route('teacher.course.index', ['board' => 'pearson', 'grade' => 'ial']) }}"
+                                                class="sidebar-link">
+                                                International A Level
                                             </a>
                                         </li>
                                     @endif
@@ -376,34 +370,29 @@
                                 <ul id="caieGrades" class="sidebar-dropdown list-unstyled collapse"
                                     data-bs-parent="#courses">
 
-                                    @if($classes->contains(fn($c) => $c->board === 'CAIE' && in_array('O Level', $c->grades ?? [])))
+                                    @if($classes->contains(fn($c) => $c->board === 'CAIE' && in_array('olevel', $c->grades ?? [])))
                                         <li class="sidebar-item">
-                                            <a href="{{ route('teacher.caie_olevel') }}" class="sidebar-link">
+                                            <a href="{{ route('teacher.course.index', ['board' => 'caie', 'grade' => 'olevel']) }}"
+                                                class="sidebar-link">
                                                 O Level
                                             </a>
                                         </li>
                                     @endif
 
-                                    @if($classes->contains(fn($c) => $c->board === 'CAIE' && in_array('IGCSE', $c->grades ?? [])))
+                                    @if($classes->contains(fn($c) => $c->board === 'CAIE' && in_array('igcse', $c->grades ?? [])))
                                         <li class="sidebar-item">
-                                            <a href="#" class="sidebar-link">
+                                            <a href="{{ route('teacher.course.index', ['board' => 'caie', 'grade' => 'igcse']) }}"
+                                                class="sidebar-link">
                                                 IGCSE
                                             </a>
                                         </li>
                                     @endif
 
-                                    @if($classes->contains(fn($c) => $c->board === 'CAIE' && in_array('A Level (AS)', $c->grades ?? [])))
+                                    @if($classes->contains(fn($c) => $c->board === 'CAIE' && in_array('alevel', $c->grades ?? [])))
                                         <li class="sidebar-item">
-                                            <a href="{{ route('teacher.caie_alevel_as') }}" class="sidebar-link">
-                                                A Level (AS)
-                                            </a>
-                                        </li>
-                                    @endif
-
-                                    @if($classes->contains(fn($c) => $c->board === 'CAIE' && in_array('A Level (A2)', $c->grades ?? [])))
-                                        <li class="sidebar-item">
-                                            <a href="#" class="sidebar-link">
-                                                A Level (A2)
+                                            <a href="{{ route('teacher.course.index', ['board' => 'caie', 'grade' => 'alevel']) }}"
+                                                class="sidebar-link">
+                                                A Level
                                             </a>
                                         </li>
                                     @endif

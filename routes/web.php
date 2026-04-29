@@ -71,6 +71,8 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
 Route::middleware(['auth', 'role:teacher'])->group(function () {
 
     Route::get('/teacher/dashboard', [TeacherController::class, 'dashboard'])->name('teacher.dashboard');
+    Route::get('/teacher/{board}/{grade}', [TeacherController::class, 'course_index'])->name('teacher.course.index');
+
 
     Route::get('/teacher/caie/olevel', [TeacherController::class, 'caie_olevel_index'])->name('teacher.caie_olevel');
     Route::get('/teacher/caie/alevel-as', [TeacherController::class, 'caie_alevel_as_index'])->name('teacher.caie_alevel_as');

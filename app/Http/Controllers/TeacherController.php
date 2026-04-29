@@ -22,26 +22,32 @@ class TeacherController extends Controller
     public function __construct()
     {
         $this->middleware(function ($request, $next) {
-            $this->teacher = Teacher::where('user_id', Auth::user()->id)->first();
 
+            $this->teacher = Teacher::where('user_id', Auth::user()->id)->first();
             $this->classes = AllowedClass::where('teacher_id', $this->teacher->id)->get();
             $this->subjects = Subject::all()->keyBy('subject_id');
+
             return $next($request);
         });
     }
-
     protected function getSubjectsForBoardAndGrade($board, $grade)
     {
-        $classes = $this->classes->filter(function ($class) use ($board, $grade) {
-            return $class->board === $board &&
-                in_array($grade, $class->grades_array);
-        })->values();
 
+        $classes = $this->classes->filter(function ($class) use ($board, $grade) {
+
+            $classBoard = $class->board;
+
+            $grades = $class->grades ?? [];
+
+            return $classBoard === $board &&
+                in_array($grade, $grades);
+        });
         $subjectIds = $classes->pluck('subjects')->flatten()->unique();
 
-        return $subjectIds->map(function ($id) {
-            return $this->subjects->get($id);
-        })->filter()->values();
+        return $subjectIds
+            ->map(fn($id) => $this->subjects->get($id))
+            ->filter()
+            ->values();
     }
 
     protected function getHighestOrder($board, $grade, $id)
@@ -60,40 +66,23 @@ class TeacherController extends Controller
             'classes' => $this->classes,
         ]);
     }
-    public function caie_olevel_index()
+
+    public function course_index($board, $grade)
     {
-        $subjects = $this->getSubjectsForBoardAndGrade('CAIE', 'O Level');
+        $subjects = $this->getSubjectsForBoardAndGrade($board, $grade);
 
-        $courses = CaieCourse::where('course_teacher_id', $this->teacher->teacher_id)->where('course_qualification', 'olevel')->get();
+        if ($board == "caie") {
+            $courses = CaieCourse::where('course_teacher_id', $this->teacher->id)->where('course_qualification', $grade)->get();
+        } elseif ($board == "pearson") {
+            $courses = PearsonCourse::where('course_teacher_id', $this->teacher->id)->where('course_qualification', $grade)->get();
+        }
 
-        return view('teacher.courses.caie.olevel', [
+        return view('teacher.courses.index', [
             'teacher' => $this->teacher,
             'subjects' => $subjects,
             'courses' => $courses,
-        ]);
-    }
-    public function caie_alevel_as_index()
-    {
-        $subjects = $this->getSubjectsForBoardAndGrade('CAIE', 'A Level (AS)');
-
-        $courses = CaieCourse::where('course_teacher_id', $this->teacher->teacher_id)->where('course_qualification', 'alevel_as')->get();
-
-        return view('teacher.courses.caie.alevel_as', [
-            'teacher' => $this->teacher,
-            'subjects' => $subjects,
-            'courses' => $courses,
-        ]);
-    }
-    public function pearson_igcse_index()
-    {
-        $subjects = $this->getSubjectsForBoardAndGrade('Pearson', 'IGCSE');
-
-        $courses = PearsonCourse::where('course_teacher_id', $this->teacher->teacher_id)->where('course_qualification', 'igcse')->get();
-
-        return view('teacher.courses.pearson.igcse', [
-            'teacher' => $this->teacher,
-            'subjects' => $subjects,
-            'courses' => $courses,
+            'board' => $board,
+            'grade' => $grade,
         ]);
     }
     public function course_videos($board, $grade, $id)

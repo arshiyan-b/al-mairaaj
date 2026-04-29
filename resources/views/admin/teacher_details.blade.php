@@ -167,16 +167,14 @@
                             <div class="mb-2">
                                 <label for="teacherGrades" class="form-label w-100">Grades</label>
                                 <select name="teacherGrades[]" class="form-control" id="teacherGrades" multiple>
-                                    <option value="SSC I">SSC I</option>
-                                    <option value="SSC II">SSC II</option>
-                                    <option value="HSSC I">HSSC I</option>
-                                    <option value="HSSC II">HSSC II</option>
-                                    <option value="O Level">O Level</option>
-                                    <option value="A Level (AS)">A Level (AS)</option>
-                                    <option value="A Level (A2)">A Level (A2)</option>
-                                    <option value="IGCSE">IGCSE</option>
-                                    <option value="International A Level (AS)">International A Level (AS)</option>
-                                    <option value="International A Level (A2)">International A Level (A2)</option>
+                                    <option value="ssc1">SSC I</option>
+                                    <option value="ssc2">SSC II</option>
+                                    <option value="hssc1">HSSC I</option>
+                                    <option value="hssc2">HSSC II</option>
+                                    <option value="olevel">O Level</option>
+                                    <option value="alevel">A Level</option>
+                                    <option value="igcse">IGCSE</option>
+                                    <option value="ialevel">International A Level</option>
                                 </select>
                             </div>
                             <div class="mb-3">
