@@ -5,29 +5,26 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class CaieCourse extends Model
+class AkuebCourse extends Model
 {
     use HasFactory;
-    protected $table = 'caie_courses';
+    protected $table = 'akueb_courses';
     public $timestamps = true;
+
     protected $fillable = [
         'title',
         'description',
-        'subject_id',
+        'subject',
         'paper',
-        'qualification_id',
+        'qualification',
         'teacher_id',
     ];
-    public function subject()
-    {
-        return $this->belongsTo(Subject::class);
-    }
-    public function qualification()
-    {
-        return $this->belongsTo(Qualification::class);
-    }
     public function teacher()
     {
         return $this->belongsTo(Teacher::class);
+    }
+    public function subject()
+    {
+        return $this->belongsTo(Subject::class);
     }
 }

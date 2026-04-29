@@ -11,6 +11,8 @@ use App\Models\Subject;
 use App\Models\Teacher;
 use App\Models\TeacherDoc;
 use App\Models\User;
+use App\Models\Board;
+use App\Models\Grade;
 use App\Mail\StudentRegistrationOTP;
 use Carbon\Carbon;
 
@@ -24,8 +26,10 @@ class LoginController extends Controller
 
     public function teacher_register(Request $request)
     {
+        $boards = Board::all();
+        $grades = Grade::all();
         $subjects = Subject::all();
-        return view('register_as_a_teacher', compact('subjects'));
+        return view('register_as_a_teacher', compact('boards', 'grades', 'subjects'));
     }
 
     public function teacher_register_store(Request $request)
@@ -51,8 +55,6 @@ class LoginController extends Controller
             'grades.*' => 'string|max:100',
             'agree' => 'required|in:Yes,yes',
         ]);
-
-
 
         $teacher = Teacher::create([
             'name' => $request->teacher_name,

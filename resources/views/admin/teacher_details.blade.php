@@ -158,30 +158,25 @@
                                 <label for="teacherBoards" class="form-label">Boards</label>
                                 <select name="teacherBoards" class="form-control" id="teacherBoards">
                                     <option value="" selected disabled>Select a Board</option>
-                                    <option value="CAIE">CAIE</option>
-                                    <option value="Pearson">Pearson</option>
-                                    <option value="AKU - EB">AKU - EB</option>
-                                    <option value="Federal Board">Federal Board</option>
+                                    @foreach ($boards as $board)
+                                        <option value="{{ $board->key }}">{{ $board->name }}</option>
+                                    @endforeach
                                 </select>
                             </div>
                             <div class="mb-2">
                                 <label for="teacherGrades" class="form-label w-100">Grades</label>
                                 <select name="teacherGrades[]" class="form-control" id="teacherGrades" multiple>
-                                    <option value="ssc1">SSC I</option>
-                                    <option value="ssc2">SSC II</option>
-                                    <option value="hssc1">HSSC I</option>
-                                    <option value="hssc2">HSSC II</option>
-                                    <option value="olevel">O Level</option>
-                                    <option value="alevel">A Level</option>
-                                    <option value="igcse">IGCSE</option>
-                                    <option value="ialevel">International A Level</option>
+                                    <option value="" selected disabled>Select a Grade</option>
+                                    @foreach ($grades as $grade)
+                                        <option value="{{ $grade->key }}">{{ $grade->name }}</option>
+                                    @endforeach
                                 </select>
                             </div>
                             <div class="mb-3">
                                 <label for="teacherSubjects" class="form-label">Subjects</label>
                                 <select name="teacherSubjects[]" class="form-control" id="teacherSubjects" multiple>
                                     @foreach ($subjects as $subject)
-                                        <option value="{{ $subject->subject_id }}">{{ $subject->subject_name }}</option>
+                                        <option value="{{ $subject->id }}">{{ $subject->name }}</option>
                                     @endforeach
                                 </select>
                             </div>

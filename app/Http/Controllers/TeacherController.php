@@ -2,16 +2,18 @@
 
 namespace App\Http\Controllers;
 use Illuminate\Support\Facades\Auth;
+use App\Models\Board;
+use App\Models\Qualification;
 use App\Models\Subject;
 use App\Models\Teacher;
 use App\Models\AllowedClass;
+use App\Models\AkuebCourse;
 use App\Models\CaieCourse;
 use App\Models\PearsonCourse;
 use App\Models\CaieOlevelVideo;
 use App\Models\PearsonIgcseVideo;
 use App\Models\CaieMcq;
 use Illuminate\Http\Request;
-use Vimeo\Vimeo;
 
 class TeacherController extends Controller
 {
@@ -25,22 +27,19 @@ class TeacherController extends Controller
 
             $this->teacher = Teacher::where('user_id', Auth::user()->id)->first();
             $this->classes = AllowedClass::where('teacher_id', $this->teacher->id)->get();
-            $this->subjects = Subject::all()->keyBy('subject_id');
+            $this->subjects = Subject::all()->keyBy('id');
 
             return $next($request);
         });
     }
-    protected function getSubjectsForBoardAndGrade($board, $grade)
+    protected function getSubjectsForBoardAndGrade($board, $qualification)
     {
 
-        $classes = $this->classes->filter(function ($class) use ($board, $grade) {
-
+        $classes = $this->classes->filter(function ($class) use ($board, $qualification) {
             $classBoard = $class->board;
-
-            $grades = $class->grades ?? [];
-
+            $qualifications = $class->qualifications ?? [];
             return $classBoard === $board &&
-                in_array($grade, $grades);
+                in_array($qualification, $qualifications);
         });
         $subjectIds = $classes->pluck('subjects')->flatten()->unique();
 
@@ -53,12 +52,11 @@ class TeacherController extends Controller
     protected function getHighestOrder($board, $grade, $id)
     {
         return match ([$board, $grade]) {
-            ['caie', 'olevel'] => CaieOlevelVideo::where('video_course_id', $id)->max('video_order'),
-            ['pearson', 'igcse'] => PearsonIgcseVideo::where('video_course_id', $id)->max('video_order'),
+            ['caie', 'olevel'] => CaieOlevelVideo::where('video_id', $id)->max('video_order'),
+            ['pearson', 'igcse'] => PearsonIgcseVideo::where('video_id', $id)->max('video_order'),
             default => 0,
         };
     }
-
     public function dashboard()
     {
         return view('teacher.dashboard', [
@@ -66,173 +64,86 @@ class TeacherController extends Controller
             'classes' => $this->classes,
         ]);
     }
-
-    public function course_index($board, $grade)
+    public function course_index($board, $qualification)
     {
-        $subjects = $this->getSubjectsForBoardAndGrade($board, $grade);
+        $subjects = $this->getSubjectsForBoardAndGrade($board, $qualification);
+        $board = Board::where('key', $board)->first();
+        $qualification = Qualification::where('key', $qualification)->first();
 
-        if ($board == "caie") {
-            $courses = CaieCourse::where('course_teacher_id', $this->teacher->id)->where('course_qualification', $grade)->get();
-        } elseif ($board == "pearson") {
-            $courses = PearsonCourse::where('course_teacher_id', $this->teacher->id)->where('course_qualification', $grade)->get();
+        if ($board->key == "caie") {
+            $courses = CaieCourse::where('teacher_id', $this->teacher->id)->where('qualification_id', $qualification->id)->get();
+        } elseif ($board->key == "pearson") {
+            $courses = PearsonCourse::where('teacher_id', $this->teacher->id)->where('qualification_id', $qualification->id)->get();
+        } elseif ($board->key == "akueb") {
+            $courses = AkuebCourse::where('teacher_id', $this->teacher->id)->where('qualification_id', $qualification->id)->get();
         }
-
         return view('teacher.courses.index', [
             'teacher' => $this->teacher,
             'subjects' => $subjects,
             'courses' => $courses,
             'board' => $board,
-            'grade' => $grade,
+            'qualification' => $qualification,
         ]);
     }
-    public function course_videos($board, $grade, $id)
-    {
-        if ($board === "caie") {
-            if ($grade === "olevel") {
-                $videos = CaieOlevelVideo::where('video_course_id', $id)->get();
-                $course = CaieCourse::where('course_id', $id)->first();
-                $highestOrder = $this->getHighestOrder('caie', 'olevel', $id);
-
-                return view('teacher.courses.course_videos', compact('videos', 'course', 'highestOrder', 'board'));
-            }
-        } elseif ($board === "pearson") {
-            if ($grade === "igcse") {
-                $videos = PearsonIgcseVideo::where('video_course_id', $id)->get();
-                $course = PearsonCourse::where('course_id', $id)->first();
-                $highestOrder = $this->getHighestOrder('pearson', 'igcse', $id);
-
-                return view('teacher.courses.course_videos', compact('videos', 'course', 'highestOrder', 'board'));
-            }
-        }
-    }
-    public function video_store(Request $request, $board, $grade, $id)
-    {
-
-        $data = $request->all();
-
-        $vimeo = new \Vimeo\Vimeo(
-            env('VIMEO_CLIENT_ID'),
-            env('VIMEO_CLIENT_SECRET'),
-            env('VIMEO_ACCESS_TOKEN')
-        );
-
-
-        try {
-            if (!$request->hasFile('videoFile')) {
-                return back()->with('error', 'No video file uploaded.');
-            }
-
-            $uploadedFile = $request->file('videoFile');
-            if (!$uploadedFile->isValid()) {
-                return back()->with('error', 'Uploaded file is not valid.');
-            }
-
-            $filePath = $uploadedFile->getPathname();
-
-            $uri = $vimeo->upload($filePath, [
-                'name' => $data['videoTitle'],
-                'description' => $data['videoDescription'],
-            ]);
-
-            // Request details from Vimeo
-            $details = $vimeo->request($uri, [], 'GET');
-
-            // Get the embed HTML
-            $embedHtml = $details['body']['embed']['html'] ?? null;
-            if (!$embedHtml) {
-                return back()->with('error', 'Could not retrieve embed HTML.');
-            }
-
-            // Extract video URL from embed HTML
-            preg_match('/src="([^"]+)"/', $embedHtml, $matches);
-            if (!isset($matches[1])) {
-                return back()->with('error', 'Could not extract video link.');
-            }
-
-            $fullUrl = html_entity_decode($matches[1]);  // Decode &amp; to &
-
-            preg_match('/video\/(\d+)/', $fullUrl, $idMatch);
-            if (!isset($idMatch[1])) {
-                return back()->with('error', 'Could not extract video ID.');
-            }
-
-            $videoId = $idMatch[1];
-
-        } catch (\Exception $e) {
-            return back()->with('error', 'Vimeo upload failed: ' . $e->getMessage());
-        }
-
-
-        $modelMap = [
-            'caie.olevel' => CaieOlevelVideo::class,
-            'pearson.igcse' => PearsonIgcseVideo::class,
-        ];
-
-        $key = strtolower($board) . '.' . strtolower($grade);
-
-        if (!isset($modelMap[$key])) {
-            return back()->with('error', 'Invalid board/grade combination.');
-        }
-
-        $modelClass = $modelMap[$key];
-
-        $video = new $modelClass([
-            'video_order' => $data['videoOrder'],
-            'video_title' => $data['videoTitle'],
-            'video_subject' => $data['videoSubject'],
-            'video_description' => $data['videoDescription'],
-            'video_price' => 2,
-            'video_lang' => $data['videoLanguage'],
-            'video_duration' => $data['videoDuration'],
-            'video_link' => $videoId,
-            'video_course_id' => $id,
-        ]);
-
-        $video->save();
-
-        return redirect()->back()->with('success', 'Video uploaded and saved successfully.');
-    }
-
-
     public function course_store(Request $request)
     {
-        if ($request->courseBoard === "caie") {
-
-            $validated = $request->validate([
-                'courseSubject' => 'required',
-                'coursePaper' => 'required',
-                'courseTitle' => 'required',
-                'courseDescription' => 'required',
-                'courseQualification' => 'required',
-            ]);
-
+        $board = Board::find($request->board);
+        if ($board->key === "caie") {
             CaieCourse::create([
-                'course_subject' => $validated['courseSubject'],
-                'course_paper' => $validated['coursePaper'],
-                'course_teacher_id' => $this->teacher->teacher_id,
-                'course_title' => $validated['courseTitle'],
-                'course_description' => $validated['courseDescription'],
-                'course_qualification' => $validated['courseQualification'],
+                'title' => $request->title,
+                'description' => $request->description,
+                'subject_id' => $request->subject,
+                'paper' => $request->paper,
+                'qualification_id' => $request->qualification,
+                'teacher_id' => $this->teacher->id,
             ]);
-        } elseif ($request->courseBoard === "pearson") {
-            $validated = $request->validate([
-                'courseSubject' => 'required',
-                'coursePaper' => 'required',
-                'courseTitle' => 'required',
-                'courseDescription' => 'required',
-                'courseQualification' => 'required',
-            ]);
-
+        } elseif ($board->key === "pearson") {
             PearsonCourse::create([
-                'course_subject' => $validated['courseSubject'],
-                'course_paper' => $validated['coursePaper'],
-                'course_teacher_id' => $this->teacher->teacher_id,
-                'course_title' => $validated['courseTitle'],
-                'course_description' => $validated['courseDescription'],
-                'course_qualification' => $validated['courseQualification'],
+                'title' => $request->title,
+                'description' => $request->description,
+                'subject_id' => $request->subject,
+                'paper' => $request->paper,
+                'qualification_id' => $request->qualification,
+                'teacher_id' => $this->teacher->id,
+            ]);
+        } elseif ($board->key === "akueb") {
+            AkuebCourse::create([
+                'title' => $request->title,
+                'description' => $request->description,
+                'subject_id' => $request->subject,
+                'paper' => $request->paper,
+                'qualification_id' => $request->qualification,
+                'teacher_id' => $this->teacher->id,
             ]);
         }
         return redirect()->back()->with('success', 'Course has been uploaded Created!');
+    }
+    public function course_show($board, $grade, $course)
+    {
+        if ($board == "caie") {
+            $course = CaieCourse::find($course);
+            if ($grade == "olevel") {
+                $videos = CaieOlevelVideo::where('video_id', $course->id)->get();
+            } elseif ($grade == "alevel") {
+                $videos = CaieAlevelVideo::where('video_id', $course->id)->get();
+            }
+        } elseif ($board == "pearson") {
+            $course = PearsonCourse::find($course);
+            if ($grade == "igcse") {
+                $videos = PearsonIgcseVideo::where('video_id', $course->id)->get();
+            } elseif ($grade == "alevel") {
+                $videos = PearsonAlevelVideo::where('video_id', $course->id)->get();
+            }
+        } elseif ($board == "akueb") {
+            $course = AkuebCourse::find($course);
+            if ($grade == "ssc1") {
+                $videos = AkuebSsc1Video::where('video_id', $course->id)->get();
+            } elseif ($grade == "alevel") {
+                $videos = AkuebSsc2Video::where('video_id', $course->id)->get();
+            }
+        }
+
+        return view('teacher.courses.show', compact('board', 'grade', 'course'));
     }
 
     public function mcq_store(Request $request)

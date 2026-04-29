@@ -13,6 +13,8 @@ use App\Models\User;
 use App\Models\Teacher;
 use App\Models\TeacherDoc;
 use App\Models\Student;
+use App\Models\Board;
+use App\Models\Grade;
 use App\Models\Subject;
 use App\Models\Book;
 use App\Models\PearsonCourse;
@@ -22,18 +24,20 @@ use App\Models\CaieOlevelVideo;
 
 class AdminController extends Controller
 {
+    protected $boards;
+    protected $grades;
     protected $subjects;
-
     public function __construct()
     {
         $this->middleware(function ($request, $next) {
 
+            $this->boards = Board::all();
+            $this->grades = Grade::all();
             $this->subjects = Subject::all();
 
             return $next($request);
         });
     }
-
     private function token(): string
     {
         return Cache::remember('google_access_token', 3500, function () {
@@ -91,9 +95,11 @@ class AdminController extends Controller
 
         return view('admin.teacher_details', [
             'teacher' => $teacher,
-            'subjects' => $this->subjects,
             'docs' => $docs,
             'classes' => $classes,
+            'boards' => $this->boards,
+            'grades' => $this->grades,
+            'subjects' => $this->subjects,
         ]);
     }
 

@@ -72,16 +72,9 @@ Route::middleware(['auth', 'role:teacher'])->group(function () {
 
     Route::get('/teacher/dashboard', [TeacherController::class, 'dashboard'])->name('teacher.dashboard');
     Route::get('/teacher/{board}/{grade}', [TeacherController::class, 'course_index'])->name('teacher.course.index');
-
-
-    Route::get('/teacher/caie/olevel', [TeacherController::class, 'caie_olevel_index'])->name('teacher.caie_olevel');
-    Route::get('/teacher/caie/alevel-as', [TeacherController::class, 'caie_alevel_as_index'])->name('teacher.caie_alevel_as');
-    Route::get('/teacher/pearson/igcse', [TeacherController::class, 'pearson_igcse_index'])->name('teacher.pearson_igcse');
-
-    Route::get('/teacher/{board}/{grade}/{id}/videos', [TeacherController::class, 'course_videos'])->name('teacher.course_videos');
-    Route::post('/teacher/video/store/{board}/{grade}/{id}', [TeacherController::class, 'video_store'])->name('teacher.video_store');
-
-    Route::post('/teacher/course/store', [TeacherController::class, 'course_store'])->name('teacher.course_store');
+    Route::post('/teacher/course/store', [TeacherController::class, 'course_store'])->name('teacher.course.store');
+    Route::get('/teacher/{board}/{grade}/{course}', [TeacherController::class, 'course_show'])->name('teacher.course.show');
+    Route::get('/teacher/{board}/{qualification}/{course}/video', [TeacherController::class, 'course_video'])->name('teacher.course.video');
 
     Route::post('/mcq/store', [TeacherController::class, 'mcq_store'])->name('mcq.store');
 });
