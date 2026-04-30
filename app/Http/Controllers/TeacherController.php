@@ -77,6 +77,9 @@ class TeacherController extends Controller
         } elseif ($board->key == "akueb") {
             $courses = AkuebCourse::where('teacher_id', $this->teacher->id)->where('qualification_id', $qualification->id)->get();
         }
+        $courses = $courses->load('subject')
+            ->groupBy(fn($course) => $course->subject->name);
+
         return view('teacher.courses.index', [
             'teacher' => $this->teacher,
             'subjects' => $subjects,
@@ -118,32 +121,33 @@ class TeacherController extends Controller
         }
         return redirect()->back()->with('success', 'Course has been uploaded Created!');
     }
-    public function course_show($board, $grade, $course)
+    public function course_show($board, $qualification, $course)
     {
         if ($board == "caie") {
             $course = CaieCourse::find($course);
-            if ($grade == "olevel") {
-                $videos = CaieOlevelVideo::where('video_id', $course->id)->get();
-            } elseif ($grade == "alevel") {
-                $videos = CaieAlevelVideo::where('video_id', $course->id)->get();
+            if ($qualification == "olevel") {
+                $videos = CaieOlevelVideo::where('course_id', $course->id)->get();
+            } elseif ($qualification == "alevel") {
+                $videos = CaieAlevelVideo::where('course_id', $course->id)->get();
             }
         } elseif ($board == "pearson") {
             $course = PearsonCourse::find($course);
-            if ($grade == "igcse") {
-                $videos = PearsonIgcseVideo::where('video_id', $course->id)->get();
-            } elseif ($grade == "alevel") {
-                $videos = PearsonAlevelVideo::where('video_id', $course->id)->get();
+            if ($qualification == "igcse") {
+                $videos = PearsonIgcseVideo::where('course_id', $course->id)->get();
+            } elseif ($qualification == "alevel") {
+                $videos = PearsonAlevelVideo::where('course_id', $course->id)->get();
             }
         } elseif ($board == "akueb") {
             $course = AkuebCourse::find($course);
-            if ($grade == "ssc1") {
-                $videos = AkuebSsc1Video::where('video_id', $course->id)->get();
-            } elseif ($grade == "alevel") {
-                $videos = AkuebSsc2Video::where('video_id', $course->id)->get();
+            if ($qualification == "ssc1") {
+                $videos = AkuebSsc1Video::where('course_id', $course->id)->get();
+            } elseif ($qualification == "ssc2") {
+                $videos = AkuebSsc2Video::where('course_id', $course->id)->get();
             }
         }
-
-        return view('teacher.courses.show', compact('board', 'grade', 'course'));
+        $qualification = Qualification::where('key', $qualification)->first();
+        $board = Board::where('key', $board)->first();
+        return view('teacher.courses.show', compact('board', 'qualification', 'course', 'videos'));
     }
 
     public function mcq_store(Request $request)

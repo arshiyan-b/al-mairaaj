@@ -8,26 +8,28 @@ use Illuminate\Database\Eloquent\Model;
 class PearsonIgcseVideo extends Model
 {
     use HasFactory;
-
     protected $table = 'pearson_igcse_videos';
     public $timestamps = true;
-    protected $primaryKey = 'video_id';
-
     protected $fillable = [
-        'video_id',
-        'video_order',
-        'video_title',
-        'video_subject',
-        'video_description',
-        'video_price',
-        'video_lang',
-        'video_duration',
-        'video_link',
-        'video_course_id',
+        'order_no',
+        'title',
+        'subject',
+        'description',
+        'price',
+        'language',
+        'duration',
+        'link',
+        'course_id',
+        'mcq_id',
+        'minutes',
+        'seconds',
     ];
-
     public function course()
     {
-        return $this->belongsTo(PearsonCourse::class, 'video_course_id'); 
+        return $this->belongsTo(PearsonCourse::class, 'video_course_id');
+    }
+    public function mcq()
+    {
+        return $this->belongsTo(PearsonMcq::class, 'mcq_id');
     }
 }

@@ -71,9 +71,9 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
 Route::middleware(['auth', 'role:teacher'])->group(function () {
 
     Route::get('/teacher/dashboard', [TeacherController::class, 'dashboard'])->name('teacher.dashboard');
-    Route::get('/teacher/{board}/{grade}', [TeacherController::class, 'course_index'])->name('teacher.course.index');
+    Route::get('/teacher/{board}/{qualification}', [TeacherController::class, 'course_index'])->name('teacher.course.index');
     Route::post('/teacher/course/store', [TeacherController::class, 'course_store'])->name('teacher.course.store');
-    Route::get('/teacher/{board}/{grade}/{course}', [TeacherController::class, 'course_show'])->name('teacher.course.show');
+    Route::get('/teacher/{board}/{qualification}/{course}', [TeacherController::class, 'course_show'])->name('teacher.course.show');
     Route::get('/teacher/{board}/{qualification}/{course}/video', [TeacherController::class, 'course_video'])->name('teacher.course.video');
 
     Route::post('/mcq/store', [TeacherController::class, 'mcq_store'])->name('mcq.store');

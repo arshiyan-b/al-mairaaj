@@ -3,40 +3,37 @@
     Courses
 @endsection
 @section('content')
-    @include('teacher.layout.alerts')
 
     <div class="container">
-        <div class="card">
-            <div class="card-header d-flex align-items-center justify-content-between">
-                <h5 class="text-uppercase">{{ $board->name }} | {{ $qualification->name }}</h5>
-                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addCourseModal">
-                    Add Course
-                </button>
-            </div>
+        @include('teacher.layout.alerts')
+        @foreach ($courses as $subjectName => $subjectCourses)
 
-            <div class="card-body">
-                <div class="row">
-                    @forelse ($courses as $course)
-
-                        <div class="col-md-4">
-                            <a class="card border-0 text-decoration-none" style="background-color: #F5F7FA;"
-                                href="{{ route('teacher.course.video', [$board, $qualification, $course->id]) }}">
-                                <div class="card-body">
-                                    <h4 class="fw-bold">{{ $course->title }}</h4>
-
+            <div class="card mb-2">
+                <div class="card-header d-flex align-items-center justify-content-between">
+                    <h5 class="text-uppercase">{{ $board->name }} | {{ $qualification->name }} | {{ $subjectName }}</h5>
+                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addCourseModal">
+                        Add Course
+                    </button>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        @foreach ($subjectCourses as $course)
+                            <div class="col-md-4">
+                                <div class="card p-3 mb-3">
+                                    <h3>{{ $course->title }}</h3>
+                                    <p>{{ $course->description }}</p>
+                                    <a class="btn btn-sm btn-outline-secondary"
+                                        href="{{ route('teacher.course.show', [$board->key, $qualification->key, $course->id]) }}">
+                                        View Details
+                                    </a>
                                 </div>
-                            </a>
-                        </div>
-
-                    @empty
-                        <div class="col-12 text-center py-5">
-                            <p>No courses found for this board and grade.</p>
-                        </div>
-                    @endforelse
+                            </div>
+                        @endforeach
+                    </div>
                 </div>
             </div>
 
-        </div>
+        @endforeach
     </div>
 
     <div class="modal fade" id="addCourseModal" tabindex="-1" aria-labelledby="addCourseModalLabel" aria-hidden="true">

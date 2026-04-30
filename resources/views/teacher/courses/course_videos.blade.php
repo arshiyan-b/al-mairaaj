@@ -3,10 +3,10 @@
     Course Videos
 @endsection
 @section('content')
-@include('teacher.layouts.alerts')
 
     <div class="container">
-        <div class="card">
+        @include('teacher.layouts.alerts')
+        <div class="card mb-2">
             <div class="card-header">
                 <button class="btn btn-dark" data-bs-toggle="modal" data-bs-target="#addVideo">Add Video</button>
             </div>
