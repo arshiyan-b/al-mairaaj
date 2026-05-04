@@ -11,19 +11,22 @@ class PearsonIgcseVideo extends Model
     protected $table = 'pearson_igcse_videos';
     public $timestamps = true;
     protected $fillable = [
-        'order_no',
+        'order',
         'title',
-        'subject',
+        'subject_id',
         'description',
         'price',
         'language',
         'duration',
-        'link',
         'course_id',
         'mcq_id',
         'minutes',
         'seconds',
     ];
+    public function subject()
+    {
+        return $this->belongsTo(Subject::class);
+    }
     public function course()
     {
         return $this->belongsTo(PearsonCourse::class, 'video_course_id');

@@ -52,25 +52,86 @@
         </div>
 
         <div class="card">
-            <div class="card-header">
+            <div class="card-header d-flex justify-content-between align-items-center">
                 <h3>Videos</h3>
+
+                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addVideoModal">
+                    Add Video
+                </button>
             </div>
 
             <div class="card-body">
-                <div class="row align-items-center">
-                    @foreach ($videos as $video)
-                        <div class="col-md-4">
-                            <div class="card p-3 mb-3">
-                                <a class="btn btn-outline-secondary"
-                                    href="{{ route('teacher.course.video', [$board->key, $qualification->key, $course->id, $video->id]) }}">
-                                    View Details
-                                </a>
+                <div class="card-body">
+                    <div class="list-group">
+
+                        @foreach ($videos as $video)
+
+                            <div class="list-group-item mb-2 border rounded">
+                                <h5 class="mb-1">{{ $video->title }}</h5>
+                                <p class="mb-0 text-muted">
+                                    {{ $video->description }}
+                                </p>
                             </div>
-                        </div>
-                    @endforeach
+
+                        @endforeach
+
+                    </div>
                 </div>
             </div>
+
         </div>
 
+    </div>
+
+    <div class="modal fade" id="addVideoModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+
+                <div class="modal-header">
+                    <h5 class="modal-title">Add Video</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+
+                <form action="{{ route('teacher.course.video.store') }}" method="POST" enctype="multipart/form-data">
+                    @csrf
+
+                    <div class="modal-body">
+
+                        <div class="mb-3">
+                            <label class="form-label">Title</label>
+                            <input type="text" name="title" class="form-control" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Description</label>
+                            <textarea name="description" class="form-control" rows="3" required></textarea>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Upload Video</label>
+                            <input type="file" name="file" class="form-control" accept="video/*" required>
+                        </div>
+
+                        <input type="hidden" name="course_id" value="{{ $course->id }}">
+                        <input type="hidden" name="qualification_id" value="{{ $qualification->id }}">
+                        <input type="hidden" name="board_id" value="{{ $board->id }}">
+                        <input type="hidden" name="subject_id" value="{{ $course->subject->id }}">
+
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                            Cancel
+                        </button>
+
+                        <button type="submit" class="btn btn-primary submit">
+                            Save Video
+                        </button>
+                    </div>
+
+                </form>
+
+            </div>
+        </div>
     </div>
 @endsection

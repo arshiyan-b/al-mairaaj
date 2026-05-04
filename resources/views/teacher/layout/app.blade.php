@@ -416,14 +416,18 @@
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
     <script>
-        const hamBurger = document.querySelector(".toggle-btn");
-
-        hamBurger.addEventListener("click", function () {
-            document.querySelector("#sidebar").classList.toggle("expand");
-        });
-
         document.addEventListener('DOMContentLoaded', function () {
-            // Collapse all siblings when a dropdown is opened
+
+            // Sidebar toggle
+            const hamBurger = document.querySelector(".toggle-btn");
+
+            if (hamBurger) {
+                hamBurger.addEventListener("click", function () {
+                    document.querySelector("#sidebar").classList.toggle("expand");
+                });
+            }
+
+            // Collapse siblings
             const allToggles = document.querySelectorAll('[data-bs-toggle="collapse"]');
 
             allToggles.forEach(toggle => {
@@ -444,8 +448,29 @@
                     }
                 });
             });
-        });
 
+            // Disable submit button
+            document.querySelectorAll('.submit').forEach(function (button) {
+
+                const form = button.closest('form');
+
+                if (!form) return;
+
+                form.addEventListener('submit', function (e) {
+
+                    if (button.disabled) {
+                        e.preventDefault();
+                        return;
+                    }
+
+                    button.disabled = true;
+                    button.innerText = 'Uploading...';
+
+                });
+
+            });
+
+        });
     </script>
 
 </body>

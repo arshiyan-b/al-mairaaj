@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
+use Illuminate\Http\Request;
+
 use App\Models\Board;
 use App\Models\Qualification;
 use App\Models\Subject;
@@ -13,7 +16,6 @@ use App\Models\PearsonCourse;
 use App\Models\CaieOlevelVideo;
 use App\Models\PearsonIgcseVideo;
 use App\Models\CaieMcq;
-use Illuminate\Http\Request;
 
 class TeacherController extends Controller
 {
@@ -150,6 +152,67 @@ class TeacherController extends Controller
         return view('teacher.courses.show', compact('board', 'qualification', 'course', 'videos'));
     }
 
+    public function course_video_store(Request $request)
+    {
+        $request->validate([
+            'title' => 'required|string|max:255',
+            'file' => 'required|file|mimes:mp4,mov,avi,webm|max:51200',
+            'course_id' => 'required',
+            'qualification_id' => 'required',
+            'board_id' => 'required',
+            'subject_id' => 'required',
+        ]);
+
+        $qualification = Qualification::find($request->qualification_id);
+        $board = Board::find($request->board_id);
+
+        if ($board->key == "caie") {
+            $course = CaieCourse::find($request->course_id);
+            if ($qualification->key == "olevel") {
+                $videoModel = CaieOlevelVideo::class;
+                $videos = CaieOlevelVideo::where('course_id', $request->course_id)->get();
+            } elseif ($qualification == "alevel") {
+                $videoModel = CaieAlevelVideo::class;
+                $videos = CaieAlevelVideo::where('course_id', $request->course_id)->get();
+            }
+        } elseif ($board == "pearson") {
+            $course = PearsonCourse::find($request->course_id);
+            if ($qualification == "igcse") {
+                $videoModel = PearsonIgcseVideo::class;
+                $videos = PearsonIgcseVideo::where('course_id', $request->course_id)->get();
+            } elseif ($qualification == "alevel") {
+                $videoModel = PearsonAlevelVideo::class;
+                $videos = PearsonAlevelVideo::where('course_id', $request->course_id)->get();
+            }
+        } elseif ($board == "akueb") {
+            $course = AkuebCourse::find($request->course_id);
+            if ($qualification == "ssc1") {
+                $videoModel = AkuebSsc1Video::class;
+                $videos = AkuebSsc1Video::where('course_id', $request->course_id)->get();
+            } elseif ($qualification == "ssc2") {
+                $videoModel = AkuebSsc2Video::class;
+                $videos = AkuebSsc2Video::where('course_id', $request->course_id)->get();
+            }
+        }
+        $subject = Subject::find($course->subject->id);
+
+        $file = $request->file('file');
+        $filename = Str::slug($request->title, '_');
+        $extension = $file->getClientOriginalExtension();
+        $finalName = $filename . '.' . $extension;
+        $path = $file->storeAs($board->key . '/' . $qualification->key . '/' . $subject->key, $finalName, 'private');
+
+        $videoModel::create([
+            'title' => $request->title,
+            'description' => $request->description,
+            'course_id' => $course->id,
+            'order' => 1,
+            'subject_id' => $request->subject_id,
+            'language' => 'urdu',
+        ]);
+
+        return back()->with('success', 'Video uploaded successfully!');
+    }
     public function mcq_store(Request $request)
     {
         if ($request->board === 'caie') {

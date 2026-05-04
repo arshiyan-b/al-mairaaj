@@ -11,20 +11,22 @@ class CaieOlevelVideo extends Model
     protected $table = 'caie_olevel_videos';
     public $timestamps = true;
     protected $fillable = [
-        'order_no',
+        'order',
         'title',
-        'subject',
+        'subject_id',
         'description',
         'price',
         'language',
         'duration',
-        'link',
         'course_id',
         'mcq_id',
         'minutes',
         'seconds',
     ];
-
+    public function subject()
+    {
+        return $this->belongsTo(Subject::class);
+    }
     public function course()
     {
         return $this->belongsTo(CaieCourse::class, 'course_id');
