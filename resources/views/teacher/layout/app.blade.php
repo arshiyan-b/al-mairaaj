@@ -248,62 +248,6 @@
                         <span class="fs-6">Dashboard</span>
                     </a>
                 </li>
-                <li class="sidebar-item">
-                    <a href="#" class="sidebar-link collapsed has-dropdown" data-bs-toggle="collapse"
-                        data-bs-target="#studyMaterial" aria-expanded="false" aria-controls="studyMaterial">
-                        <i class="bi bi-backpack fs-4"></i>
-                        <span class="fs-6">Study Material</span>
-                    </a>
-
-                    <ul id="studyMaterial" class="sidebar-dropdown list-unstyled collapse" data-bs-parent="#sidebar">
-                        <!-- Pearson Dropdown -->
-                        <li class="sidebar-item">
-                            <a href="#" class="sidebar-link collapsed has-dropdown" data-bs-toggle="collapse"
-                                data-bs-target="#pearsonDropdown" aria-expanded="false" aria-controls="pearsonDropdown">
-                                Pearson
-                            </a>
-                            <ul id="pearsonDropdown" class="sidebar-dropdown list-unstyled collapse"
-                                data-bs-parent="#studyMaterial">
-                                <li class="sidebar-item">
-                                    <a href="#" class="sidebar-link collapsed has-dropdown" data-bs-toggle="collapse"
-                                        data-bs-target="#pearsonPastPapers" aria-expanded="false"
-                                        aria-controls="pearsonPastPapers">
-                                        Past Papers
-                                    </a>
-                                    <ul id="pearsonPastPapers" class="sidebar-dropdown list-unstyled collapse"
-                                        data-bs-parent="#pearsonDropdown">
-                                        <li class="sidebar-item">
-                                            <a href="#" class="sidebar-link">Yearly Past Papers</a>
-                                        </li>
-                                        <li class="sidebar-item">
-                                            <a href="#" class="sidebar-link">Topical Past Papers</a>
-                                        </li>
-                                    </ul>
-                                </li>
-                                <li class="sidebar-item">
-                                    <a href="#" class="sidebar-link">Books</a>
-                                </li>
-                            </ul>
-                        </li>
-
-                        <!-- AKUEB Dropdown -->
-                        <li class="sidebar-item">
-                            <a href="#" class="sidebar-link collapsed has-dropdown" data-bs-toggle="collapse"
-                                data-bs-target="#akuebDropdown" aria-expanded="false" aria-controls="akuebDropdown">
-                                AKU-EB
-                            </a>
-                            <ul id="akuebDropdown" class="sidebar-dropdown list-unstyled collapse"
-                                data-bs-parent="#studyMaterial">
-                                <li class="sidebar-item">
-                                    <a href="#" class="sidebar-link">Past Papers</a>
-                                </li>
-                                <li class="sidebar-item">
-                                    <a href="#" class="sidebar-link">Books</a>
-                                </li>
-                            </ul>
-                        </li>
-                    </ul>
-                </li>
 
                 <li class="sidebar-item">
                     <a href="#" class="sidebar-link">
