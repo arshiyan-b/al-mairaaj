@@ -7,10 +7,8 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class TeacherDoc extends Model
 {
-    public $timestamps = true;
-    protected $table = 'teacher_docs';
     use HasFactory;
-
+    protected $table = 'teacher_docs';
     protected $fillable = [
         'teacher_id',
         'type',
@@ -19,7 +17,6 @@ class TeacherDoc extends Model
 
     public function teacher()
     {
-        return $this->belongsTo(Teacher::class, 'teacher_id', 'teacher_id');
+        return $this->belongsTo(Teacher::class);
     }
-
 }

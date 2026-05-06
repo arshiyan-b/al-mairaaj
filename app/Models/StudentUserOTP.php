@@ -8,9 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class StudentUserOtp extends Model
 {
     use HasFactory;
-
     protected $table = 'student_user_otps';
-
     protected $fillable = [
         'student_id',
         'email',
@@ -29,12 +27,10 @@ class StudentUserOtp extends Model
     protected $casts = [
         'expires_at' => 'datetime',
     ];
-
     public function student()
     {
-        return $this->belongsTo(Student::class, 'student_id');
+        return $this->belongsTo(Student::class);
     }
-
     public function isExpired()
     {
         return $this->expires_at && now()->greaterThan($this->expires_at);

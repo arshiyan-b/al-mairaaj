@@ -8,8 +8,6 @@ use Illuminate\Database\Eloquent\Model;
 class CaieOlevelVideo extends Model
 {
     use HasFactory;
-    protected $table = 'caie_olevel_videos';
-    public $timestamps = true;
     protected $fillable = [
         'order',
         'title',

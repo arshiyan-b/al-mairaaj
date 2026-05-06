@@ -8,10 +8,7 @@ use App\Models\Subject;
 
 class Teacher extends Model
 {
-    public $timestamps = true;
     use HasFactory;
-    protected $primaryKey = 'id';
-
     protected $fillable = [
         'name',
         'cnic',

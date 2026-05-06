@@ -8,23 +8,24 @@ use Illuminate\Database\Eloquent\Model;
 class AkuebCourse extends Model
 {
     use HasFactory;
-    protected $table = 'akueb_courses';
-    public $timestamps = true;
-
     protected $fillable = [
         'title',
         'description',
-        'subject',
+        'subject_id',
         'paper',
-        'qualification',
+        'qualification_id',
         'teacher_id',
     ];
-    public function teacher()
-    {
-        return $this->belongsTo(Teacher::class);
-    }
     public function subject()
     {
         return $this->belongsTo(Subject::class);
+    }
+    public function qualification()
+    {
+        return $this->belongsTo(Qualification::class);
+    }
+    public function teacher()
+    {
+        return $this->belongsTo(Teacher::class);
     }
 }

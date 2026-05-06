@@ -8,8 +8,6 @@ use Illuminate\Database\Eloquent\Model;
 class PearsonCourse extends Model
 {
     use HasFactory;
-    protected $table = 'pearson_courses';
-    public $timestamps = true;
     protected $fillable = [
         'title',
         'description',

@@ -8,8 +8,6 @@ use Illuminate\Database\Eloquent\Model;
 class PearsonIgcseVideo extends Model
 {
     use HasFactory;
-    protected $table = 'pearson_igcse_videos';
-    public $timestamps = true;
     protected $fillable = [
         'order',
         'title',
