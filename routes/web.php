@@ -106,6 +106,7 @@ Route::middleware(['auth', 'role:student'])->group(function () {
 
     // teachers
     Route::get('/teachers', [StudentController::class, 'teachers'])->name('student.teachers');
+    Route::get('/teacher/{id}', [StudentController::class, 'teacher'])->name('student.teacher');
 
     // profile
     Route::get('/profile', [StudentController::class, 'profile'])->name('student.profile');

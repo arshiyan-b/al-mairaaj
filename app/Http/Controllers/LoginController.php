@@ -99,7 +99,7 @@ class LoginController extends Controller
 
     public function register()
     {
-        return view('student.register');
+        return view('register');
     }
 
     public function register_authenticate(Request $request)
@@ -156,7 +156,7 @@ class LoginController extends Controller
         $email = $request->input('email') ?? $request->query('email');
 
         if ($email) {
-            return view('student.otp', compact('email'));
+            return view('otp', compact('email'));
         } else {
             return redirect()->route('register')
                 ->with('error', 'Email not found. Please start registration again.');
@@ -215,10 +215,6 @@ class LoginController extends Controller
                 'redirect' => route('login'),
             ]);
         }
-    }
-    public function login()
-    {
-        return view('student.login');
     }
 
     public function authenticate(Request $request)

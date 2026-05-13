@@ -31,7 +31,7 @@ const PastPapers = () => {
         transition={{ duration: 0.6 }}
       >
         <h1 className="text-3xl font-extrabold text-gray-800 tracking-tight">
-            Past Papers
+          Past Papers
         </h1>
         <p className="text-gray-500 mt-2 text-base max-w-2xl mx-auto">
           Browse past exam papers by subject and year to practice effectively.
@@ -80,10 +80,17 @@ const PastPapers = () => {
         {filteredPapers.map((paper, idx) => (
           <motion.div
             key={paper.id}
-            initial={{ opacity: 0, x: -40 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.5, delay: idx * 0.2 }}
-            whileHover={{ scale: 1.02 }}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{
+              duration: 0.35,
+              ease: "easeOut",
+              delay: idx * 0.05,
+            }}
+            whileHover={{
+              scale: 1.02,
+              transition: { duration: 0.15 }
+            }}
             className="flex items-center justify-between bg-white shadow-md rounded-xl p-5 hover:shadow-lg transition"
           >
             <div className="flex items-center gap-3">

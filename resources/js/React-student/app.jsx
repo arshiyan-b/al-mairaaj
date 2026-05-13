@@ -12,6 +12,7 @@ import Subjects from "./pages/Subjects";
 import Books from "./pages/Books";
 import PastPapers from "./pages/PastPapers";
 import Teachers from "./pages/Teachers";
+import Teacher from "./pages/Teacher";
 import Profile from "./pages/Profile";
 import Wallet from "./pages/Wallet";
 import Chatbot from "./pages/Chatbot";
@@ -57,6 +58,7 @@ function App() {
           <Route path="books" element={<Books />} />
           <Route path="past-papers" element={<PastPapers />} />
           <Route path="teachers" element={<Teachers />} />
+          <Route path="teacher/:id" element={<Teacher />} />
           <Route path="profile" element={<Profile user={userData} />} />
           <Route path="wallet" element={<Wallet user={userData} />} />
         </Route>

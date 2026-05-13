@@ -27,14 +27,13 @@ const Course = () => {
                 className="relative h-[480px] w-full bg-cover bg-center flex items-end pb-16"
                 style={{ backgroundImage: `url('${courseDetails.bgImage}')` }}
             >
-                {/* Dark Overlay for better text readability */}
                 <div className="absolute inset-0 bg-gradient-to-t from-gray-900 via-gray-900/80 to-black/30" />
 
                 <div className="relative z-10 max-w-5xl mx-auto px-6 w-full">
                     <motion.div
                         initial={{ opacity: 0, y: 30 }}
                         animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.6 }}
+                        transition={{ duration: 0.4 }}
                     >
                         <div className="flex flex-wrap items-center gap-3 mb-5">
                             <span className="bg-teal-500 text-white text-xs font-bold px-4 py-1.5 rounded-full uppercase tracking-wider shadow-sm">

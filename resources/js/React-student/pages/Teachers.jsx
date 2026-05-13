@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { Search, Filter, Star, BookOpen, Mail, Award, User } from "lucide-react";
+import { Link } from "react-router-dom";
+
 
 const teachersData = [
     {
@@ -148,9 +150,12 @@ export default function Teachers() {
 
                             {/* Teacher Info */}
                             <div className="pt-14 pb-6 px-6 flex flex-col items-center flex-1 text-center">
-                                <h3 className="text-xl font-bold text-gray-900 mb-1 group-hover:text-indigo-600 transition-colors">
+                                <Link
+                                    to={`/teacher/${teacher.id}`}
+                                    className="text-xl font-bold text-gray-900 mb-1 group-hover:text-indigo-600 transition-colors"
+                                >
                                     {teacher.name}
-                                </h3>
+                                </Link>
                                 <span className="text-xs font-bold text-teal-700 bg-teal-50 border border-teal-100 px-3 py-1 rounded-full uppercase tracking-wide mb-3">
                                     {teacher.subject}
                                 </span>
