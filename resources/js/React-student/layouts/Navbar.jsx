@@ -5,6 +5,7 @@ import { X } from "lucide-react";
 const navigationItems = [
   { label: "Dashboard", href: "/dashboard" },
   { label: "Courses", href: "/courses" },
+  { label: "Live Classes", href: "/live_classes" },
   { label: "Examination Boards", href: "/examination-boards" },
   { label: "Subjects", href: "/subjects" },
   { label: "Books", href: "/books" },

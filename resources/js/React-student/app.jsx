@@ -7,6 +7,7 @@ import Dashboard from "./pages/Dashboard";
 import Courses from "./pages/Courses";
 import Course from "./pages/Course";
 import Video from "./pages/Video";
+import LiveClasses from "./pages/LiveClasses";
 import Boards from "./pages/Boards";
 import Subjects from "./pages/Subjects";
 import Books from "./pages/Books";
@@ -53,6 +54,7 @@ function App() {
           <Route path="courses" element={<Courses />} />
           <Route path="course/:id" element={<Course />} />
           <Route path="video/:id" element={<Video />} />
+          <Route path="live_classes" element={<LiveClasses />} />
           <Route path="examination-boards" element={<Boards />} />
           <Route path="subjects" element={<Subjects />} />
           <Route path="books" element={<Books />} />

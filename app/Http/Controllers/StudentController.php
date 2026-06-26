@@ -24,6 +24,10 @@ class StudentController extends Controller
     {
         return view('student.courses.index', ['user' => auth()->user()]);
     }
+    public function live_classes()
+    {
+        return view('student.live_classes.index', ['user' => auth()->user()]);
+    }
     public function boards()
     {
         return view('student.boards.index');

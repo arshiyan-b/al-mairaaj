@@ -229,17 +229,17 @@ class LoginController extends Controller
 
             $user = Auth::user();
 
-            if ($user->role->name === 'student') {
+            if ($user->role === 'student') {
                 return response()->json([
                     'status' => 'success',
                     'redirect' => route('student.dashboard'),
                 ]);
-            } elseif ($user->role->name === 'admin') {
+            } elseif ($user->role === 'admin') {
                 return response()->json([
                     'status' => 'success',
                     'redirect' => route('admin.dashboard'),
                 ]);
-            } elseif ($user->role->name === 'teacher') {
+            } elseif ($user->role === 'teacher') {
                 return response()->json([
                     'status' => 'success',
                     'redirect' => route('teacher.dashboard'),

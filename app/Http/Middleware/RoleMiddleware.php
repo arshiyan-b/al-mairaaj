@@ -13,7 +13,7 @@ class RoleMiddleware
     {
         $user = Auth::user();
 
-        if (!$user || $user->role->name !== $role) {
+        if (!$user || $user->role !== $role) {
             abort(403, 'Unauthorized.');
         }
         return $next($request);
