@@ -52,27 +52,24 @@
                     <dt class="col-sm-3">Experience</dt>
                     <dd class="col-sm-9">{{ $teacher->experience }}</dd>
 
-                    <dt class="col-sm-3">Preferred Boards</dt>
+                    <dt class="col-sm-3">Preferred Grades</dt>
                     <dd class="col-sm-9">
-                        @foreach(explode(',', $teacher->preferred_board) as $board)
-                            <span class="badge bg-primary">{{ trim($board) }}</span>
-                        @endforeach
-                    </dd>
-
-                    <dt class="col-sm-3">Subjects</dt>
-                    <dd class="col-sm-9">
-                        @forelse($teacher->subjects_list as $subject)
-                            <span class="badge bg-success">{{ $subject->subject_name }}</span>
+                        @forelse($teacher->preferred_grades_list as $grade)
+                            <span class="badge bg-primary">
+                                {{ $grade->board->name }} - {{ $grade->name }}
+                            </span>
                         @empty
-                            <span class="text-muted">No subjects assigned</span>
+                            <span class="text-muted">No preferred grades selected.</span>
                         @endforelse
                     </dd>
 
-                    <dt class="col-sm-3">Grades</dt>
+                    <dt class="col-sm-3">Preferred Subjects</dt>
                     <dd class="col-sm-9">
-                        @foreach(explode(',', $teacher->grades) as $grade)
-                            <span class="badge bg-secondary">{{ trim($grade) }}</span>
-                        @endforeach
+                        @forelse($teacher->preferred_subjects_list as $subject)
+                            <span class="badge bg-success">{{ $subject->name }}</span>
+                        @empty
+                            <span class="text-muted">No preferred subjects selected.</span>
+                        @endforelse
                     </dd>
 
                     <dt class="col-sm-3">Documents</dt>
@@ -154,21 +151,12 @@
                         <form method="POST" action="{{ route('admin.teacher_assign_subjects', $teacher->id) }}">
                             @csrf
                             <input type="hidden" name="teacher_id" value="{{ $teacher->id }}">
-                            <div class="mb-3">
-                                <label for="teacherBoards" class="form-label">Boards</label>
-                                <select name="teacherBoards" class="form-control" id="teacherBoards">
-                                    <option value="" selected disabled>Select a Board</option>
-                                    @foreach ($boards as $board)
-                                        <option value="{{ $board->key }}">{{ $board->name }}</option>
-                                    @endforeach
-                                </select>
-                            </div>
+
                             <div class="mb-2">
                                 <label for="teacherGrades" class="form-label w-100">Grades</label>
                                 <select name="teacherGrades[]" class="form-control" id="teacherGrades" multiple>
-                                    <option value="" selected disabled>Select a Grade</option>
                                     @foreach ($grades as $grade)
-                                        <option value="{{ $grade->key }}">{{ $grade->name }}</option>
+                                        <option value="{{ $grade->id }}">{{ $grade->name }} - {{ $grade->board->name }}</option>
                                     @endforeach
                                 </select>
                             </div>
@@ -176,7 +164,7 @@
                                 <label for="teacherSubjects" class="form-label">Subjects</label>
                                 <select name="teacherSubjects[]" class="form-control" id="teacherSubjects" multiple>
                                     @foreach ($subjects as $subject)
-                                        <option value="{{ $subject->id }}">{{ $subject->name }}</option>
+                                        <option value="{{ $subject->slug }}">{{ $subject->name }}</option>
                                     @endforeach
                                 </select>
                             </div>

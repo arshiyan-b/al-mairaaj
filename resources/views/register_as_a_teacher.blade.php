@@ -82,6 +82,18 @@
 
 <body>
     <div class="container mt-5">
+        
+    @if (session('success'))
+        <div class="alert alert-success mt-3 mx-3">
+            {{ session('success') }}
+        </div>
+    @endif
+
+    @if (session('error'))
+        <div class="alert alert-danger mt-3 mx-3">
+            {{ session('error') }}
+        </div>
+    @endif
         <div class="card shadow">
             <div class="card-header bg-dark text-white">
                 <h4 class="mb-0">Teacher Registration</h4>
@@ -166,32 +178,25 @@
                             </select>
                         </div>
                         <div class="col-md-4">
-                            <label>Preferred Board</label>
-                            <select class="form-control" name="preferred_board[]" id="preferred_board" multiple required>
-                                @foreach ($boards as $board)
-                                    <option value="{{ $board->key }}">{{ $board->name }}</option>
+                            <label>Preferred Grades and Examination Boards</label>
+                            <select class="form-control" name="preferred_grades[]" id="preferred_grades" multiple required>
+                                @foreach ($grades as $grade)
+                                    <option value="{{ $grade->id }}">{{ $grade->name }} - {{ $grade->board->name }}</option>
                                 @endforeach
                             </select>
                         </div>
                         <div class="col-md-4">
-                            <label>Subjects</label>
-                            <select class="form-control" name="subjects[]" id="subjects" multiple required>
+                            <label>Preferred Subjects</label>
+                            <select class="form-control" name="preferred_subjects[]" id="preferred_subjects" multiple required>
                                 @foreach ($subjects as $subject)
-                                    <option value="{{ $subject->key }}">{{ $subject->name }}</option>
+                                    <option value="{{ $subject->id }}">{{ $subject->name }}</option>
                                 @endforeach
                             </select>
                         </div>
                     </div>
 
                     <div class="row mb-3">
-                        <div class="col-md-4">
-                            <label>Grades</label>
-                            <select class="form-control" name="grades[]" id="grades" multiple required>
-                                @foreach ($grades as $grade)
-                                    <option value="{{ $grade->key }}">{{ $grade->name }}</option>
-                                @endforeach
-                            </select>
-                        </div>
+
                         <div class="col-md-4">
                             <label for="resume">Upload Resume</label>
                             <input type="file" class="form-control" name="resume" id="resume" accept=".pdf,.doc,.docx"
@@ -228,7 +233,7 @@
                         </p>
                     </div>
                     <div class="form-check mb-3">
-                        <input type="checkbox" class="form-check-input" name="agree" value="yes" required>
+                        <input type="checkbox" class="form-check-input" name="agree" required>
                         <label class="form-check-label">I agree to the terms</label>
                     </div>
 
@@ -240,20 +245,14 @@
 
     <script>
         $(document).ready(function () {
-            $('#preferred_board').select2({
-                placeholder: "Select Preferred Board",
+            $('#preferred_grades').select2({
+                placeholder: "Select Preferred Grades",
                 allowClear: true,
                 tags: true
             });
 
-            $('#subjects').select2({
-                placeholder: "Select Subjects",
-                allowClear: true,
-                tags: true
-            });
-
-            $('#grades').select2({
-                placeholder: "Select Grade",
+            $('#preferred_subjects').select2({
+                placeholder: "Select Preferred Subjects",
                 allowClear: true,
                 tags: true
             });

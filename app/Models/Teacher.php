@@ -22,27 +22,24 @@ class Teacher extends Model
         'field_of_study',
         'university',
         'experience',
-        'preferred_board',
         'subjects',
-        'grades',
+        'preferred_grades',
+        'preferred_subjects',
         'agree',
-        'allowed_boards',
-        'allowed_grades',
-        'allowed_subjects',
-        'user_created',
         'user_id',
     ];
     public function user()
     {
         return $this->belongsTo(User::class);
     }
-    public function allowed_classes()
+    public function getPreferredGradesListAttribute()
     {
-        return $this->hasMany(AllowedClass::class);
+        $gradeIds = explode(',', $this->preferred_grades);
+        return Grade::whereIn('id', $gradeIds)->get();
     }
-    public function getSubjectsListAttribute()
+    public function getPreferredSubjectsListAttribute()
     {
-        $subjectKeys = explode(',', $this->subjects);
-        return Subject::whereIn('subject_key', $subjectKeys)->get();
+        $subjectIds = explode(',', $this->preferred_subjects);
+        return Subject::whereIn('id', $subjectIds)->get();
     }
 }

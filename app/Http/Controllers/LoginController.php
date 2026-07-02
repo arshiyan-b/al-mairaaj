@@ -5,6 +5,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Validator;
+
 use App\Models\Student;
 use App\Models\StudentUserOtp;
 use App\Models\Subject;
@@ -26,38 +28,41 @@ class LoginController extends Controller
 
     public function teacher_register(Request $request)
     {
-        $boards = Board::all();
         $grades = Grade::all();
         $subjects = Subject::all();
-        return view('register_as_a_teacher', compact('boards', 'grades', 'subjects'));
+
+        return view('register_as_a_teacher', compact('grades', 'subjects'));
     }
 
-    public function teacher_register_store(Request $request)
+    public function teacher_register_store (Request $request)
     {
         $request->validate([
             'teacher_name' => 'required|string|max:50',
-            'teacher_cnic' => 'required|string|max:15',
+            'teacher_cnic' => 'required|string|max:15|unique:teachers,cnic',
             'teacher_gender' => 'required|in:male,female,other',
             'teacher_phone_no' => 'required|string|max:15',
             'teacher_whatsapp_no' => 'required|string|max:15',
-            'teacher_email' => 'required|email|max:60',
+            'teacher_email' => 'required|email|max:60|unique:teachers,email',
             'teacher_city' => 'required|string|max:50',
             'teacher_address' => 'required|string|max:120',
             'highest_degree' => 'required|string|max:45',
             'field_of_study' => 'required|string|max:65',
             'university' => 'required|string|max:75',
-            'experience' => 'required|in:Less than 1 year,1-2 years,3-5 years,6-10 years,More than 10 years',
-            'preferred_board' => 'required|array',
-            'preferred_board.*' => 'string|max:120',
-            'subjects' => 'required|array',
-            'subjects.*' => 'string|max:255',
-            'grades' => 'required|array',
-            'grades.*' => 'string|max:100',
-            'agree' => 'required|in:Yes,yes',
+            'experience' => 'required',
+
+            'preferred_grades' => 'required|array|min:1',
+            'preferred_grades.*' => 'integer|exists:grades,id',
+
+            'preferred_subjects' => 'required|array|min:1',
+            'preferred_subjects.*' => 'string|max:255',
+
+            'resume' => 'required|file|mimes:pdf,doc,docx',
+            'picture' => 'required|image',
+            'agree' => 'required',
         ]);
 
         $teacher = Teacher::create([
-            'name' => $request->teacher_name,
+        'name' => $request->teacher_name,
             'cnic' => $request->teacher_cnic,
             'gender' => $request->teacher_gender,
             'phone_number' => $request->teacher_phone_no,
@@ -65,19 +70,19 @@ class LoginController extends Controller
             'email' => $request->teacher_email,
             'city' => $request->teacher_city,
             'address' => $request->teacher_address,
-            'degree' => $request->highest_degree,
+            'highest_degree' => $request->highest_degree,
             'field_of_study' => $request->field_of_study,
             'university' => $request->university,
             'experience' => $request->experience,
-            'preferred_board' => implode(',', $request->preferred_board ?? []),
-            'subjects' => implode(',', $request->subjects ?? []),
-            'grades' => implode(',', $request->grades ?? []),
-            'agree' => $request->agree,
+            'preferred_grades' => implode(',', $request->preferred_grades),
+            'preferred_subjects' => implode(',', $request->preferred_subjects),
+            'agree' => 'yes',
             'user_created' => 0,
         ]);
 
         if ($request->hasFile('resume')) {
             $path = $request->file('resume')->store('teacher_docs/resumes', 'public');
+
             TeacherDoc::create([
                 'teacher_id' => $teacher->id,
                 'type' => 'resume',
@@ -87,6 +92,7 @@ class LoginController extends Controller
 
         if ($request->hasFile('picture')) {
             $path = $request->file('picture')->store('teacher_docs/pictures', 'public');
+
             TeacherDoc::create([
                 'teacher_id' => $teacher->id,
                 'type' => 'picture',
@@ -94,7 +100,9 @@ class LoginController extends Controller
             ]);
         }
 
-        return redirect('login')->with('success', 'Teacher registered successfully!');
+        return redirect()
+            ->back()
+            ->with('success', 'Registration submitted successfully.');
     }
 
     public function register()

@@ -14,11 +14,11 @@ class AllowedClass extends Model
     protected $fillable = [
         'teacher_id',
         'board',
-        'qualifications',
+        'grades',
         'subjects',
     ];
     protected $casts = [
-        'qualifications' => 'array',
+        'grades' => 'array',
         'subjects' => 'array',
     ];
     public function teacher()

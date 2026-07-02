@@ -24,14 +24,12 @@ use App\Models\CaieOlevelVideo;
 
 class AdminController extends Controller
 {
-    protected $boards;
     protected $grades;
     protected $subjects;
     public function __construct()
     {
         $this->middleware(function ($request, $next) {
 
-            $this->boards = Board::all();
             $this->grades = Grade::all();
             $this->subjects = Subject::all();
 
@@ -81,7 +79,7 @@ class AdminController extends Controller
     public function teacher()
     {
         $teacherList = Teacher::all();
-        return view('admin.teacher', [
+        return view('admin.teacher.index', [
             'teacherList' => $teacherList,
             'subjects' => $this->subjects,
         ]);
@@ -93,31 +91,84 @@ class AdminController extends Controller
         $docs = TeacherDoc::where('teacher_id', $id)->get();
         $classes = AllowedClass::where('teacher_id', $id)->get();
 
-        return view('admin.teacher_details', [
+        return view('admin.teacher.details', [
             'teacher' => $teacher,
             'docs' => $docs,
             'classes' => $classes,
-            'boards' => $this->boards,
             'grades' => $this->grades,
             'subjects' => $this->subjects,
         ]);
     }
 
-    public function teacher_assign_subjects(Request $request, $id)
+    public function teacher_assign_subjects(Request $request, Teacher $teacher)
     {
-        $validated = $request->validate([
-            'teacher_id' => 'required|exists:teachers,id',
-            'teacherBoards' => 'required|string',
+        $request->validate([
             'teacherGrades' => 'required|array|min:1',
+            'teacherGrades.*' => 'exists:grades,id',
+
             'teacherSubjects' => 'required|array|min:1',
+            'teacherSubjects.*' => 'exists:subjects,slug',
         ]);
-        AllowedClass::create([
-            'teacher_id' => $validated['teacher_id'],
-            'board' => $validated['teacherBoards'],
-            'grades' => $validated['teacherGrades'],
-            'subjects' => $validated['teacherSubjects'],
-        ]);
-        return redirect()->back()->with('success', 'Subjects and grades assigned successfully.');
+
+        // Load grades with their boards
+        $grades = Grade::with('board')
+            ->whereIn('id', $request->teacherGrades)
+            ->get();
+
+        // Group selected grades by board
+        $grouped = $grades->groupBy(function ($grade) {
+            return $grade->board->slug;
+        });
+
+        foreach ($grouped as $boardSlug => $boardGrades) {
+
+            $gradeSlugs = $boardGrades
+                ->pluck('slug')
+                ->unique()
+                ->values()
+                ->toArray();
+
+            $subjects = collect($request->teacherSubjects)
+                ->unique()
+                ->values()
+                ->toArray();
+
+            $allowedClass = AllowedClass::where('teacher_id', $teacher->id)
+                ->where('board', $boardSlug)
+                ->first();
+
+            if ($allowedClass) {
+
+                $existingGrades = collect($allowedClass->qualifications ?? []);
+                $existingSubjects = collect($allowedClass->subjects ?? []);
+
+                $allowedClass->update([
+                    'qualifications' => $existingGrades
+                        ->merge($gradeSlugs)
+                        ->unique()
+                        ->values()
+                        ->toArray(),
+
+                    'subjects' => $existingSubjects
+                        ->merge($subjects)
+                        ->unique()
+                        ->values()
+                        ->toArray(),
+                ]);
+
+            } else {
+
+                AllowedClass::create([
+                    'teacher_id' => $teacher->id,
+                    'board'      => $request->teacherBoards,
+                    'grades'     => json_encode($request->grades), // or $request->grades
+                    'subjects'   => json_encode($request->subjects),
+                ]);
+
+            }
+        }
+
+        return back()->with('success', 'Classes assigned successfully.');
     }
     public function teacher_class_destroy($id)
     {

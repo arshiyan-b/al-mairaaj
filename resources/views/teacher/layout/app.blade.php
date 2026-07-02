@@ -361,25 +361,25 @@
                                 <ul id="akuebQualifications" class="sidebar-dropdown list-unstyled collapse"
                                     data-bs-parent="#courses">
 
-                                    @if($classes->contains(fn($c) => $c->board === 'akueb' && in_array('SSC I', $c->qualifications ?? [])))
+                                    @if($classes->contains(fn($c) => $c->board === 'akueb' && in_array('ssc-i', $c->qualifications ?? [])))
                                         <li class="sidebar-item">
                                             <a href="#" class="sidebar-link">SSC I</a>
                                         </li>
                                     @endif
 
-                                    @if($classes->contains(fn($c) => $c->board === 'akueb' && in_array('SSC II', $c->qualifications ?? [])))
+                                    @if($classes->contains(fn($c) => $c->board === 'akueb' && in_array('ssc-ii', $c->qualifications ?? [])))
                                         <li class="sidebar-item">
                                             <a href="#" class="sidebar-link">SSC II</a>
                                         </li>
                                     @endif
 
-                                    @if($classes->contains(fn($c) => $c->board === 'akueb' && in_array('HSSC I', $c->qualifications ?? [])))
+                                    @if($classes->contains(fn($c) => $c->board === 'akueb' && in_array('hssc-i', $c->qualifications ?? [])))
                                         <li class="sidebar-item">
                                             <a href="#" class="sidebar-link">HSSC I</a>
                                         </li>
                                     @endif
 
-                                    @if($classes->contains(fn($c) => $c->board === 'akueb' && in_array('HSSC II', $c->qualifications ?? [])))
+                                    @if($classes->contains(fn($c) => $c->board === 'akueb' && in_array('hssc-ii', $c->qualifications ?? [])))
                                         <li class="sidebar-item">
                                             <a href="#" class="sidebar-link">HSSC II</a>
                                         </li>
