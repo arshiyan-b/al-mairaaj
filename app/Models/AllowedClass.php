@@ -13,16 +13,20 @@ class AllowedClass extends Model
 
     protected $fillable = [
         'teacher_id',
+        'grade_id',
         'board',
-        'grades',
+        'grade',
         'subjects',
     ];
     protected $casts = [
-        'grades' => 'array',
         'subjects' => 'array',
     ];
     public function teacher()
     {
         return $this->belongsTo(Teacher::class);
+    }
+    public function grade()
+    {
+        return $this->belongsTo(Grade::class);
     }
 }

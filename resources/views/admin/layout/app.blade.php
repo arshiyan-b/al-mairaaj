@@ -262,6 +262,7 @@
                         <span class="fs-6">Teacher</span>
                     </a>
                 </li>
+
                 <li class="sidebar-item">
                     <a class="sidebar-link collapsed has-dropdown" data-bs-toggle="collapse"
                         data-bs-target="#studyMaterial" aria-expanded="false" aria-controls="studyMaterial">
@@ -270,115 +271,93 @@
                     </a>
 
                     <ul id="studyMaterial" class="sidebar-dropdown list-unstyled collapse" data-bs-parent="#sidebar">
-                        
-                        <!-- Pearson Dropdown -->
-                        <li class="sidebar-item">
-                            <a class="sidebar-link collapsed has-dropdown" data-bs-toggle="collapse"
-                                data-bs-target="#pearsonDropdown" aria-expanded="false" aria-controls="pearsonDropdown">
-                                Pearson
-                            </a>
-                            <ul id="pearsonDropdown" class="sidebar-dropdown list-unstyled collapse" data-bs-parent="#studyMaterial">
-                                <li class="sidebar-item">
-                                    <a class="sidebar-link collapsed has-dropdown" data-bs-toggle="collapse"
-                                        data-bs-target="#pearsonPastPapers" aria-expanded="false" aria-controls="pearsonPastPapers">
-                                        Past Papers
-                                    </a>
-                                    <ul id="pearsonPastPapers" class="sidebar-dropdown list-unstyled collapse" data-bs-parent="#pearsonDropdown">
-                                        <li class="sidebar-item">
-                                            <a href="#" class="sidebar-link">Yearly Past Papers</a>
-                                        </li>
-                                        <li class="sidebar-item">
-                                            <a href="#" class="sidebar-link">Topical Past Papers</a>
-                                        </li>
-                                    </ul>
-                                </li>
-                                <li class="sidebar-item">
-                                    <a href="{{ route('admin.pearson_books') }}" class="sidebar-link">Books</a>
-                                </li>
-                            </ul>
-                        </li>
-
-                        <!-- AKUEB Dropdown -->
-                        <li class="sidebar-item">
-                            <a class="sidebar-link collapsed has-dropdown" data-bs-toggle="collapse"
-                                data-bs-target="#akuebDropdown" aria-expanded="false" aria-controls="akuebDropdown">
-                                AKU-EB
-                            </a>
-                            <ul id="akuebDropdown" class="sidebar-dropdown list-unstyled collapse" data-bs-parent="#studyMaterial">
-                                <li class="sidebar-item">
-                                    <a href="#" class="sidebar-link">Past Papers</a>
-                                </li>
-                                <li class="sidebar-item">
-                                    <a href="#" class="sidebar-link">Books</a>
-                                </li>
-                            </ul>
-                        </li>
+                        @foreach ($boards as $board)
+                            <li class="sidebar-item">
+                                <a class="sidebar-link collapsed has-dropdown" data-bs-toggle="collapse"
+                                    data-bs-target="#{{ $board->slug }}Dropdown" aria-expanded="false"
+                                    aria-controls="{{ $board->slug }}Dropdown">
+                                    {{ $board->name }}
+                                </a>
+                                <ul id="{{ $board->slug }}Dropdown" class="sidebar-dropdown list-unstyled collapse" data-bs-parent="#studyMaterial">
+                                    <li class="sidebar-item">
+                                        <a class="sidebar-link collapsed has-dropdown" data-bs-toggle="collapse"
+                                            data-bs-target="#{{ $board->slug }}PastPapers" aria-expanded="false"
+                                            aria-controls="{{ $board->slug }}PastPapers">
+                                            Past Papers
+                                        </a>
+                                        <ul id="{{ $board->slug }}PastPapers" class="sidebar-dropdown list-unstyled collapse" data-bs-parent="#{{ $board->slug }}Dropdown">
+                                            <li class="sidebar-item">
+                                                <a href="#" class="sidebar-link">Yearly Past Papers</a>
+                                            </li>
+                                            <li class="sidebar-item">
+                                                <a href="#" class="sidebar-link">Topical Past Papers</a>
+                                            </li>
+                                        </ul>
+                                    </li>
+                                    <li class="sidebar-item">
+                                        <a href="{{ route('admin.books.index', ['board' => $board->slug]) }}" class="sidebar-link">Books</a>
+                                    </li>
+                                </ul>
+                            </li>
+                        @endforeach
                     </ul>
                 </li>
+                
                 <li class="sidebar-item">
                     <a class="sidebar-link collapsed has-dropdown" data-bs-toggle="collapse"
-                    data-bs-target="#courses" aria-expanded="false" aria-controls="courses">
+                        data-bs-target="#courses" aria-expanded="false" aria-controls="courses">
                         <i class="bi bi-camera-video fs-4"></i>
                         <span class="fs-6">Courses</span>
                     </a>
-                    
+
                     <ul id="courses" class="sidebar-dropdown list-unstyled collapse" data-bs-parent="#courses">
-                        <li class="sidebar-item">
-                            <a class="sidebar-link collapsed" data-bs-toggle="collapse" data-bs-target="#pearsonGrades" aria-expanded="false" aria-controls="pearsonGrades">
-                                Pearson
-                            </a>
-                            <ul id="pearsonGrades" class="sidebar-dropdown list-unstyled collapse">
+                        @foreach ($boards as $board)
                             <li class="sidebar-item">
-                                    <a href="{{ route('admin.pearson_igcse_courses') }}" class="sidebar-link">IGCSE</a>
-                                </li>
-                                <li class="sidebar-item">
-                                    <a href="#" class="sidebar-link">International A Level (AS)</a>
-                                </li>
-                                <li class="sidebar-item">
-                                    <a href="#" class="sidebar-link">International A Level (A2)</a>
-                                </li>
-                            </ul>
-                        </li>
-                        <li class="sidebar-item">
-                            <a class="sidebar-link collapsed" data-bs-toggle="collapse" data-bs-target="#caieGrades" aria-expanded="false" aria-controls="caieGrades">
-                                CAIE
-                            </a>
-                            <ul id="caieGrades" class="sidebar-dropdown list-unstyled collapse">
-                                <li class="sidebar-item">
-                                    <a href="{{ route('admin.caie_olevel_courses') }}" class="sidebar-link">O Level</a>
-                                </li>
-                                <li class="sidebar-item">
-                                    <a href="#" class="sidebar-link">IGCSE</a>
-                                </li>
-                                <li class="sidebar-item">
-                                    <a href="#" class="sidebar-link">A Level (AS)</a>
-                                </li>
-                                <li class="sidebar-item">
-                                    <a href="#" class="sidebar-link">A Level (A2)</a>
-                                </li>
-                            </ul>
-                        </li>
-                        <li class="sidebar-item">
-                            <a class="sidebar-link collapsed" data-bs-toggle="collapse" data-bs-target="#akuEbGrades" aria-expanded="false" aria-controls="akuEbGrades">
-                                AKU EB
-                            </a>
-                            <ul id="akuEbGrades" class="sidebar-dropdown list-unstyled collapse">
-                                <li class="sidebar-item">
-                                    <a href="#" class="sidebar-link">SSC I</a>
-                                </li>
-                                <li class="sidebar-item">
-                                    <a href="#" class="sidebar-link">SSC II</a>
-                                </li>
-                                <li class="sidebar-item">
-                                    <a href="#" class="sidebar-link">HSSC I</a>
-                                </li>
-                                <li class="sidebar-item">
-                                    <a href="#" class="sidebar-link">HSSC II</a>
-                                </li>
-                            </ul>
-                        </li>
+                                <a class="sidebar-link collapsed" data-bs-toggle="collapse"
+                                    data-bs-target="#{{ $board->slug }}CourseGrades" aria-expanded="false"
+                                    aria-controls="{{ $board->slug }}CourseGrades">
+                                    {{ $board->name }}
+                                </a>
+                                <ul id="{{ $board->slug }}CourseGrades" class="sidebar-dropdown list-unstyled collapse">
+                                    @foreach ($board->grades as $grade)
+                                        <li class="sidebar-item">
+                                            <a href="{{ route('admin.course.index', ['board' => $board->slug, 'grade' => $grade->slug]) }}"
+                                                class="sidebar-link">{{ $grade->name }}</a>
+                                        </li>
+                                    @endforeach
+                                </ul>
+                            </li>
+                        @endforeach
                     </ul>
                 </li>
+
+                <li class="sidebar-item">
+                    <a class="sidebar-link collapsed has-dropdown" data-bs-toggle="collapse" data-bs-target="#liveClasses"
+                        aria-expanded="false" aria-controls="liveClasses">
+                        <i class="bi bi-play-circle fs-4"></i>
+                        <span class="fs-6">Live Classes</span>
+                    </a>
+                    <ul id="liveClasses" class="sidebar-dropdown list-unstyled collapse" data-bs-parent="#sidebar">
+                        @foreach ($boards as $board)
+                            <li class="sidebar-item">
+                                <a class="sidebar-link collapsed" data-bs-toggle="collapse"
+                                    data-bs-target="#{{ $board->slug }}LiveGrades" aria-expanded="false"
+                                    aria-controls="{{ $board->slug }}LiveGrades">
+                                    {{ $board->name }}
+                                </a>
+                                <ul id="{{ $board->slug }}LiveGrades" class="sidebar-dropdown list-unstyled collapse">
+                                    @foreach ($board->grades as $grade)
+                                        <li class="sidebar-item">
+                                            <a href="{{ route('admin.live_classes.index', ['board' => $board->slug, 'grade' => $grade->slug]) }}"
+                                                class="sidebar-link">{{ $grade->name }}</a>
+                                        </li>
+                                    @endforeach
+                                </ul>
+                            </li>
+                        @endforeach
+                    </ul>
+                </li>
+
                 <li class="sidebar-item">
                     <a href="#" class="sidebar-link">
                         <i class="bi bi-chat-square-text fs-4"></i>

@@ -42,27 +42,18 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::post('admin/teacher/{id}/assign-subjects', [AdminController::class, 'teacher_assign_subjects'])->name('admin.teacher_assign_subjects');
     Route::delete('admin/teacher/{id}/class-destroy', [AdminController::class, 'teacher_class_destroy'])->name('admin.teacher_class_destroy');
     Route::post('/admin/teacher/{id}/create-user', [AdminController::class, 'teacher_create_user'])->name('admin.teacher_create_user');
-
     Route::post('/admin/teachers/user', [AdminController::class, 'teacher_user'])->name('admin.teacher_user');
 
-    Route::get('/admin/pearson/books', [AdminController::class, 'pearson_books'])->name('admin.pearson_books');
-    Route::post('/admin/pearson/books', [AdminController::class, 'pearson_books_store'])->name('admin.pearson_books_store');
+    Route::get('/admin/books/{board}', [AdminController::class, 'books_index'])->name('admin.books.index');
 
-    Route::get('/admin/pearson/igcse/courses', [AdminController::class, 'pearson_igcse_courses'])->name('admin.pearson_igcse_courses');
-    Route::post('/admin/pearson/igcse/courses/store', [AdminController::class, 'pearson_courses_store'])->name('admin.pearson_courses_store');
 
-    Route::get('/admin/pearson/igcse/courses/{id}', [AdminController::class, 'pearson_courses_show'])->name('admin.pearson_course_details');
-    Route::post('/admin/pearson/igcse/video/store', [AdminController::class, 'pearson_igcse_video_store'])->name('admin.pearson_igcse_video_store');
+    Route::get('/admin/courses/{board}/{grade}', [AdminController::class, 'course_index'])->name('admin.course.index');
 
-    Route::get('/admin/caie/olevel/courses', [AdminController::class, 'caie_olevel_courses'])->name('admin.caie_olevel_courses');
-    Route::post('/admin/caie/olevel/courses/store', [AdminController::class, 'caie_courses_store'])->name('admin.caie_courses_store');
+    Route::get('/admin/live_classes/{board}/{grade}', [AdminController::class, 'live_classes_index'])->name('admin.live_classes.index');
 
-    Route::get('/admin/caie/olevel/courses/{id}', [AdminController::class, 'caie_courses_show'])->name('admin.caie_course_details');
-    Route::post('/admin/caie/olevel/video/store', [AdminController::class, 'caie_olevel_video_store'])->name('admin.caie_olevel_video_store');
-
+    Route::get('/admin/announcements', [AnnouncementController::class, 'index'])->name('admin.announcement.index');
 
     Route::get('admin/demo', [AdminController::class, 'demo']);
-
     Route::post('/video/track', [AdminController::class, 'trackWatchTime'])->name('video.track');
 });
 
@@ -71,7 +62,7 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
 Route::middleware(['auth', 'role:teacher'])->group(function () {
 
     Route::get('/teacher/dashboard', [TeacherController::class, 'dashboard'])->name('teacher.dashboard');
-    Route::get('/teacher/{board}/{qualification}', [TeacherController::class, 'course_index'])->name('teacher.course.index');
+    Route::get('/teacher/{board}/{qualification}', [TeacherController::class, 'class_index'])->name('teacher.class.index');
     Route::post('/teacher/course/store', [TeacherController::class, 'course_store'])->name('teacher.course.store');
     Route::get('/teacher/{board}/{qualification}/{course}', [TeacherController::class, 'course_show'])->name('teacher.course.show');
     Route::post('/teacher/course/video/store', [TeacherController::class, 'course_video_store'])->name('teacher.course.video.store');

@@ -66,7 +66,7 @@ class TeacherController extends Controller
             'classes' => $this->classes,
         ]);
     }
-    public function course_index($board, $qualification)
+    public function class_index($board, $qualification)
     {
         $subjects = $this->getSubjectsForBoardAndGrade($board, $qualification);
         $board = Board::where('key', $board)->first();
@@ -82,7 +82,7 @@ class TeacherController extends Controller
         $courses = $courses->load('subject')
             ->groupBy(fn($course) => $course->subject->name);
 
-        return view('teacher.courses.index', [
+        return view('teacher.class.index', [
             'teacher' => $this->teacher,
             'subjects' => $subjects,
             'courses' => $courses,

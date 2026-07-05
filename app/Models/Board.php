@@ -12,4 +12,9 @@ class Board extends Model
         'name',
         'slug',
     ];
+
+    public function grades()
+    {
+        return $this->hasMany(Grade::class);
+    }
 }

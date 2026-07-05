@@ -1,6 +1,6 @@
 @extends('admin.layout.app')
 @section('title')
-    Teacher Details - {{ $teacher->teacher_name }}
+    Teacher Details {{ $teacher->teacher_name }}
 @endsection
 @section('content')
 
@@ -96,30 +96,12 @@
                     @foreach ($classes as $class)
                         <div class="border rounded p-3 mb-3">
                             <p><strong>Board:</strong> {{ $class->board }}</p>
-
-                            <p>
-                                <strong>Grades:</strong>
-                                @php
-                                    $grades = is_string($class->grades) ? json_decode($class->grades, true) : $class->grades;
-                                @endphp
-
-                                @if (is_array($grades))
-                                    @foreach ($grades as $grade)
-                                        <span class="badge bg-primary">{{ $grade }}</span>
-                                    @endforeach
-                                @else
-                                    <span class="text-danger">Invalid grades data</span>
-                                @endif
-                            </p>
+                            <p><strong>Grade:</strong> <span class="badge bg-primary">{{ $class->grade }}</span></p>
 
                             <p>
                                 <strong>Subjects:</strong>
-                                @php
-                                    $subjectIds = is_string($class->subjects) ? json_decode($class->subjects, true) : $class->subjects;
-                                @endphp
-
-                                @foreach($subjects->whereIn('subject_id', $subjectIds) as $subject)
-                                    <span class="badge bg-success">{{ $subject->subject_name }}</span>
+                                @foreach($subjects->whereIn('slug', $class->subjects ?? []) as $subject)
+                                    <span class="badge bg-success">{{ $subject->name }}</span>
                                 @endforeach
                             </p>
 
@@ -144,7 +126,7 @@
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title" id="createTeacherClassLabel">Create a new user</h5>
+                        <h5 class="modal-title" id="createTeacherClassLabel">Allow teacher classes </h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">

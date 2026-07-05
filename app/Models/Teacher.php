@@ -32,6 +32,10 @@ class Teacher extends Model
     {
         return $this->belongsTo(User::class);
     }
+    public function allowed_classes()
+    {
+        return $this->hasMany(AllowedClass::class);
+    }
     public function getPreferredGradesListAttribute()
     {
         $gradeIds = explode(',', $this->preferred_grades);

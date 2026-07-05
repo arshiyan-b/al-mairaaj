@@ -17,10 +17,10 @@ class AllowedClassesComposer
             $teacher = Teacher::where('user_id', Auth::user()->id)->first();
 
             if ($teacher) {
-                $classes = $teacher->allowed_classes;
+                $classes = $teacher->allowed_classes()->with('grade')->get();
             }
         }
 
-        $view->with('classes', $classes);
+        $view->with('classes', $classes ?? collect());
     }
 }

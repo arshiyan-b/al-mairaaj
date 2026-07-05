@@ -30,7 +30,7 @@ class AdminController extends Controller
     {
         $this->middleware(function ($request, $next) {
 
-            $this->grades = Grade::all();
+            $this->grades = Grade::with('board')->get();
             $this->subjects = Subject::all();
 
             return $next($request);
@@ -110,47 +110,36 @@ class AdminController extends Controller
             'teacherSubjects.*' => 'exists:subjects,slug',
         ]);
 
-        // Load grades with their boards
+        $teacher = Teacher::findOrFail($request->teacher_id);
+
         $grades = Grade::with('board')
             ->whereIn('id', $request->teacherGrades)
             ->get();
 
-        // Group selected grades by board
-        $grouped = $grades->groupBy(function ($grade) {
-            return $grade->board->slug;
-        });
+        $subjectSlugs = collect($request->teacherSubjects)
+            ->unique()
+            ->values()
+            ->toArray();
 
-        foreach ($grouped as $boardSlug => $boardGrades) {
+        foreach ($grades as $grade) {
 
-            $gradeSlugs = $boardGrades
-                ->pluck('slug')
-                ->unique()
-                ->values()
-                ->toArray();
+            $boardSlug = $grade->board->slug;
+            $gradeSlug = $grade->slug;
 
-            $subjects = collect($request->teacherSubjects)
-                ->unique()
-                ->values()
-                ->toArray();
-
+            // Check if a row already exists for this teacher + board + grade
             $allowedClass = AllowedClass::where('teacher_id', $teacher->id)
                 ->where('board', $boardSlug)
+                ->where('grade', $gradeSlug)
                 ->first();
 
             if ($allowedClass) {
 
-                $existingGrades = collect($allowedClass->qualifications ?? []);
+                // Merge subjects into the existing row
                 $existingSubjects = collect($allowedClass->subjects ?? []);
 
                 $allowedClass->update([
-                    'qualifications' => $existingGrades
-                        ->merge($gradeSlugs)
-                        ->unique()
-                        ->values()
-                        ->toArray(),
-
                     'subjects' => $existingSubjects
-                        ->merge($subjects)
+                        ->merge($subjectSlugs)
                         ->unique()
                         ->values()
                         ->toArray(),
@@ -158,13 +147,13 @@ class AdminController extends Controller
 
             } else {
 
+                // Create a new row for this board + grade
                 AllowedClass::create([
                     'teacher_id' => $teacher->id,
-                    'board'      => $request->teacherBoards,
-                    'grades'     => json_encode($request->grades), // or $request->grades
-                    'subjects'   => json_encode($request->subjects),
+                    'board'      => $boardSlug,
+                    'grade'      => $gradeSlug,
+                    'subjects'   => $subjectSlugs,
                 ]);
-
             }
         }
 
@@ -182,13 +171,11 @@ class AdminController extends Controller
     {
         $teacher = Teacher::findOrFail($id);
 
-        $teacher_role = Role::where('name', 'teacher')->value('id');
-
         $user = new User();
         $user->name = $teacher->name;
         $user->email = $request->email;
         $user->password = Hash::make($request->password);
-        $user->role_id = $teacher_role;
+        $user->role = 'teacher';
         $user->save();
 
         $teacher->user_created = true;
@@ -223,228 +210,25 @@ class AdminController extends Controller
         return redirect()->back()->with('success', 'Teacher added successfully!');
     }
 
-    public function pearson_books()
+     public function books_index($board)
     {
-        $subjects = $this->subjects;
-        $books = Book::where('board', 'pearson')->get();
-        $board = 'pearson';
-        return view('admin.study_material.books', compact('subjects', 'books', 'board'));
+
+        dd($board);
+        return view('admin.books.index', compact('board'));
     }
 
-
-    public function pearson_books_store(Request $request)
+    public function course_index($board, $grade)
     {
-        $request->validate([
-            'pdfUpload' => 'required|file|mimes:pdf|max:10240',
-            'subject' => 'required|string',
-            'qualification' => 'required|string',
-            'category' => 'required|string',
-        ]);
 
-        if (!$request->hasFile('pdfUpload')) {
-            return back()->with('error', 'No file uploaded.');
-        }
-
-        $access_token = $this->token(); // already working
-        $folder_id = config('services.google.folder_id');
-        $file = $request->file('pdfUpload');
-
-        $file_name = $file->getClientOriginalName();
-        $mime_type = $file->getMimeType();
-        $file_path = $file->getRealPath();
-
-        $boundary = Str::random(32);
-        $eol = "\r\n";
-
-        // Metadata for the file, including the folder ID
-        $metadata = json_encode([
-            'name' => $file_name,
-            'parents' => [$folder_id],
-        ]);
-
-        // Multipart body with metadata + file content
-        $body =
-            "--{$boundary}{$eol}" .
-            "Content-Type: application/json; charset=UTF-8{$eol}{$eol}" .
-            $metadata . $eol .
-            "--{$boundary}{$eol}" .
-            "Content-Type: {$mime_type}{$eol}{$eol}" .
-            file_get_contents($file_path) . $eol .
-            "--{$boundary}--";
-
-        // Send the POST request to Drive
-        $response = Http::withToken($access_token)
-            ->withHeaders([
-                'Content-Type' => "multipart/related; boundary={$boundary}",
-            ])
-            ->withBody($body, "multipart/related; boundary={$boundary}")
-            ->post('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart');
-
-        if ($response->failed()) {
-            return back()->with('error', 'Google Drive upload failed: ' . $response->body());
-        }
-
-        $driveFile = $response->json();
-
-        Book::create([
-            'drive_id' => $driveFile['id'],
-            'book_name' => $file_name,
-            'category' => $request->input('category'),
-            'board' => $request->input('board'),
-            'grade' => $request->input('qualification'),
-            'subject_id' => $request->input('subject'),
-        ]);
-
-        return back()->with('success', "File uploaded to Google Drive! File ID: {$driveFile['id']}");
+        dd($board, $grade);
+        return view('admin.courses.index', compact('board', 'grade'));
     }
 
-    public function pearson_igcse_courses(Request $request)
-    {
-        $teacherList = Teacher::all();
-        $courses = PearsonCourse::where('course_qualification', 'igcse')->get();
-
-        return view('admin.courses.pearson_igcse', [
-            'teacherList' => $teacherList,
-            'courses' => $courses,
-            'subjects' => $this->subjects,
-        ]);
-    }
-    public function pearson_courses_store(Request $request)
+    public function live_classes_index($board, $grade)
     {
 
-        $validated = $request->validate([
-            'courseSubject' => 'required',
-            'coursePaper' => 'required',
-            'courseTeacher' => 'required',
-            'courseTitle' => 'required',
-            'courseDescription' => 'required',
-            'courseQualification' => 'required',
-        ]);
-
-        PearsonCourse::create([
-            'course_subject' => $validated['courseSubject'],
-            'course_paper' => $validated['coursePaper'],
-            'course_teacher_id' => $validated['courseTeacher'],
-            'course_title' => $validated['courseTitle'],
-            'course_description' => $validated['courseDescription'],
-            'course_qualification' => $validated['courseQualification'],
-        ]);
-
-        return redirect()->back()->with('success', 'Course has been uploaded Successfully!');
-    }
-    public function pearson_courses_show($id)
-    {
-        $course = PearsonCourse::where('course_id', $id)->get()->first();
-
-        $highestOrder = PearsonIgcseVideo::where('video_course_id', $course->course_id)->max('video_order');
-
-        if ($course->course_qualification == 'igcse') {
-            $videos = PearsonIgcseVideo::where('video_course_id', $course->course_id)->orderBy('video_order', 'asc')->get();
-        }
-
-        return view('admin.courses.pearson_details', compact('course', 'videos', 'highestOrder'));
-    }
-
-    public function pearson_igcse_video_store(Request $request)
-    {
-        $validated = $request->validate([
-            'videoTitle' => 'required',
-            'videoDescription' => 'required',
-            'videoLink' => 'required',
-            'videoLanguage' => 'required',
-            'videoOrder' => 'required',
-            'videoPrice' => 'required',
-            'videoDuration' => 'required',
-            'videoSubject' => 'required',
-            'videoCourseID' => 'required',
-        ]);
-
-        PearsonIgcseVideo::create([
-            'video_title' => $validated['videoTitle'],
-            'video_description' => $validated['videoDescription'],
-            'video_link' => $validated['videoLink'],
-            'video_lang' => $validated['videoLanguage'],
-            'video_order' => $validated['videoOrder'],
-            'video_price' => $validated['videoPrice'],
-            'video_duration' => $validated['videoDuration'],
-            'video_subject' => $validated['videoSubject'],
-            'video_course_id' => $validated['videoCourseID'],
-        ]);
-
-        return redirect()->back()->with('success', 'Video has been uploaded Successfully!');
-    }
-    public function caie_olevel_courses(Request $request)
-    {
-        $teacherList = Teacher::all();
-        $courses = CaieCourse::where('course_qualification', 'olevel')->get();
-
-        return view('admin.courses.caie_olevel', [
-            'teacherList' => $teacherList,
-            'courses' => $courses,
-            'subjects' => $this->subjects,
-        ]);
-    }
-    public function caie_courses_store(Request $request)
-    {
-        $validated = $request->validate([
-            'courseSubject' => 'required',
-            'coursePaper' => 'required',
-            'courseTeacher' => 'required',
-            'courseTitle' => 'required',
-            'courseDescription' => 'required',
-            'courseQualification' => 'required',
-        ]);
-
-        CaieCourse::create([
-            'course_subject' => $validated['courseSubject'],
-            'course_paper' => $validated['coursePaper'],
-            'course_teacher_id' => $validated['courseTeacher'],
-            'course_title' => $validated['courseTitle'],
-            'course_description' => $validated['courseDescription'],
-            'course_qualification' => $validated['courseQualification'],
-        ]);
-
-        return redirect()->back()->with('success', 'Course has been uploaded Created!');
-    }
-
-    public function caie_courses_show($id)
-    {
-        $course = CaieCourse::where('course_id', $id)->get()->first();
-
-        $highestOrder = CaieOlevelVideo::where('video_course_id', $course->course_id)->max('video_order');
-
-        if ($course->course_qualification == 'olevel') {
-            $videos = CaieOlevelVideo::where('video_course_id', $course->course_id)->orderBy('video_order', 'asc')->get();
-        }
-        return view('admin.courses.caie_details', compact('course', 'videos', 'highestOrder'));
-    }
-    public function caie_olevel_video_store(Request $request)
-    {
-        $validated = $request->validate([
-            'videoTitle' => 'required',
-            'videoDescription' => 'required',
-            'videoLink' => 'required',
-            'videoLanguage' => 'required',
-            'videoOrder' => 'required',
-            'videoPrice' => 'required',
-            'videoDuration' => 'required',
-            'videoSubject' => 'required',
-            'videoCourseID' => 'required',
-        ]);
-
-        CaieOlevelVideo::create([
-            'video_title' => $validated['videoTitle'],
-            'video_description' => $validated['videoDescription'],
-            'video_link' => $validated['videoLink'],
-            'video_lang' => $validated['videoLanguage'],
-            'video_order' => $validated['videoOrder'],
-            'video_price' => $validated['videoPrice'],
-            'video_duration' => $validated['videoDuration'],
-            'video_subject' => $validated['videoSubject'],
-            'video_course_id' => $validated['videoCourseID'],
-        ]);
-
-        return redirect()->back()->with('success', 'Video has been uploaded Successfully!');
+        dd($board, $grade);
+        return view('admin.live_classes.index', compact('board', 'grade'));
     }
 
     public function demo()
