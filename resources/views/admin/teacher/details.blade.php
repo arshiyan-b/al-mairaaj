@@ -99,10 +99,14 @@
                             <p><strong>Grade:</strong> <span class="badge bg-primary">{{ $class->grade }}</span></p>
 
                             <p>
-                                <strong>Subjects:</strong>
-                                @foreach($subjects->whereIn('slug', $class->subjects ?? []) as $subject)
-                                    <span class="badge bg-success">{{ $subject->name }}</span>
-                                @endforeach
+                                <p>
+                                    <strong>Subjects:</strong>
+                                    @forelse ($class->curriculum_subjects as $subject)
+                                        <span class="badge bg-success">{{ $subject->name }}</span>
+                                    @empty
+                                        <span class="text-muted">No subjects assigned</span>
+                                    @endforelse
+                                </p>
                             </p>
 
                             <form action="{{ route('admin.teacher_class_destroy', $class->id) }}" method="POST"
@@ -129,51 +133,83 @@
                         <h5 class="modal-title" id="createTeacherClassLabel">Allow teacher classes </h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
-                    <div class="modal-body">
-                        <form method="POST" action="{{ route('admin.teacher_assign_subjects', $teacher->id) }}">
-                            @csrf
+                    
+                    <form method="POST" action="{{ route('admin.teacher_assign_subjects', $teacher->id) }}">
+                        @csrf
+                        <div class="modal-body">
                             <input type="hidden" name="teacher_id" value="{{ $teacher->id }}">
 
-                            <div class="mb-2">
-                                <label for="teacherGrades" class="form-label w-100">Grades</label>
-                                <select name="teacherGrades[]" class="form-control" id="teacherGrades" multiple>
-                                    @foreach ($grades as $grade)
-                                        <option value="{{ $grade->id }}">{{ $grade->name }} - {{ $grade->board->name }}</option>
-                                    @endforeach
-                                </select>
+                            <div class="mb-2"> 
+                                <label for="teacherGrades" class="form-label w-100">Grade</label> 
+                                <select name="teacherGrades" class="form-control" id="teacherGrades"> 
+                                    <option value="">Select Grade</option>
+                                    @foreach ($grades as $grade) 
+                                        <option value="{{ $grade->id }}">{{ $grade->name }} - {{ $grade->board->name }}</option> 
+                                    @endforeach 
+                                </select> 
                             </div>
                             <div class="mb-3">
                                 <label for="teacherSubjects" class="form-label">Subjects</label>
-                                <select name="teacherSubjects[]" class="form-control" id="teacherSubjects" multiple>
-                                    @foreach ($subjects as $subject)
-                                        <option value="{{ $subject->slug }}">{{ $subject->name }}</option>
+                                <select name="teacherSubjects[]" class="form-control" id="teacherSubjects" multiple disabled>
+                                    @foreach ($curriculumSubjects as $subject)
+                                        <option value="{{ $subject->id }}" data-grade-id="{{ $subject->grade_id }}">
+                                            {{ $subject->code }} - {{ $subject->name }}
+                                        </option>
                                     @endforeach
                                 </select>
                             </div>
+                        </div>
+                        <div class="modal-footer">
                             <button type="submit" class="btn btn-dark">Submit</button>
-                        </form>
-                    </div>
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>
+    </div>
 
-        <script>
-            $(document).ready(function () {
-                $('#createTeacherClass').on('shown.bs.modal', function () {
-                    $('#teacherSubjects').select2({
-                        dropdownParent: $('#createTeacherClass'),
-                        placeholder: "Select Subject(s)",
-                        allowClear: true,
-                        tags: true
-                    });
-                    $('#teacherGrades').select2({
-                        dropdownParent: $('#createTeacherClass'),
-                        placeholder: "Select Grades(s)",
-                        allowClear: true,
-                        tags: true
-                    });
+    <script>
+        $(document).ready(function () {
+            $('#createTeacherClass').on('shown.bs.modal', function () {
+                $('#teacherSubjects').select2({
+                    dropdownParent: $('#createTeacherClass'),
+                    placeholder: "Select Subject(s)",
+                    allowClear: true,
+                });
+                $('#teacherGrades').select2({
+                    dropdownParent: $('#createTeacherClass'),
+                    placeholder: "Select Grade",
+                    allowClear: true,
                 });
             });
-        </script>
+
+            // Cache the full, unfiltered list of subject options once
+            var $allSubjectOptions = $('#teacherSubjects option[data-grade-id]').clone();
+
+            function filterSubjectsByGrade(gradeId) {
+                var $subjectSelect = $('#teacherSubjects');
+
+                $subjectSelect.empty();
+
+                if (!gradeId) {
+                    $subjectSelect.prop('disabled', true).trigger('change');
+                    return;
+                }
+
+                var $matching = $allSubjectOptions.filter(function () {
+                    return $(this).data('grade-id') == gradeId;
+                });
+
+                $subjectSelect
+                    .append($matching.clone())
+                    .prop('disabled', false)
+                    .trigger('change');
+            }
+
+            $('#teacherGrades').on('change', function () {
+                filterSubjectsByGrade($(this).val());
+            });
+        });
+    </script>
 
 @endsection

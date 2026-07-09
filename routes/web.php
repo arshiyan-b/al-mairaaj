@@ -49,7 +49,12 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
 
     Route::get('/admin/courses/{board}/{grade}', [AdminController::class, 'course_index'])->name('admin.course.index');
 
-    Route::get('/admin/live_classes/{board}/{grade}', [AdminController::class, 'live_classes_index'])->name('admin.live_classes.index');
+    Route::get('/admin/live_class_batches/{board}/{grade}', [AdminController::class, 'live_class_batches_index'])->name('admin.live_class_batches.index');
+    Route::post('/admin/live_class_batches/{board}/{grade}/store', [AdminController::class, 'live_class_batches_store'])->name('admin.live_class_batches.store');
+    Route::get('/admin/live_class_batches/{board}/{grade}/{batch}', [AdminController::class, 'live_class_batches_show'])->name('admin.live_class_batches.show');
+    Route::get('/admin/live_class_batches/{board}/{grade}/{batch}/edit', [AdminController::class, 'live_class_batches_edit'])->name('admin.live_class_batches.edit');
+    Route::put('/admin/live_class_batches/{board}/{grade}/{batch}', [AdminController::class, 'live_class_batches_update'])->name('admin.live_class_batches.update');
+    Route::delete('/admin/live_class_batches/{board}/{grade}/{batch}', [AdminController::class, 'live_class_batches_destroy'])->name('admin.live_class_batches.destroy');
 
     Route::get('/admin/announcements', [AnnouncementController::class, 'index'])->name('admin.announcement.index');
 

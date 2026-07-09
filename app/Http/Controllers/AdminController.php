@@ -8,6 +8,8 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Cache;
 use App\Models\AllowedClass;
+use App\Models\Batch;
+use App\Models\CurriculumSubject;
 use App\Models\Role;
 use App\Models\User;
 use App\Models\Teacher;
@@ -90,6 +92,7 @@ class AdminController extends Controller
         $teacher = Teacher::where('id', $id)->first();
         $docs = TeacherDoc::where('teacher_id', $id)->get();
         $classes = AllowedClass::where('teacher_id', $id)->get();
+        $curriculumSubjects = CurriculumSubject::all()->keyBy('id');
 
         return view('admin.teacher.details', [
             'teacher' => $teacher,
@@ -97,64 +100,59 @@ class AdminController extends Controller
             'classes' => $classes,
             'grades' => $this->grades,
             'subjects' => $this->subjects,
+            'curriculumSubjects' => $curriculumSubjects,
         ]);
     }
 
     public function teacher_assign_subjects(Request $request, Teacher $teacher)
     {
         $request->validate([
-            'teacherGrades' => 'required|array|min:1',
-            'teacherGrades.*' => 'exists:grades,id',
+            'teacherGrades' => 'required|exists:grades,id',
 
             'teacherSubjects' => 'required|array|min:1',
-            'teacherSubjects.*' => 'exists:subjects,slug',
+            'teacherSubjects.*' => 'exists:curriculum_subjects,id',
         ]);
 
         $teacher = Teacher::findOrFail($request->teacher_id);
 
-        $grades = Grade::with('board')
-            ->whereIn('id', $request->teacherGrades)
-            ->get();
+        $grade = Grade::with('board')->findOrFail($request->teacherGrades);
 
-        $subjectSlugs = collect($request->teacherSubjects)
+        $subjectIds = collect($request->teacherSubjects)
             ->unique()
             ->values()
             ->toArray();
 
-        foreach ($grades as $grade) {
+        $boardSlug = $grade->board->slug;
+        $gradeSlug = $grade->slug;
 
-            $boardSlug = $grade->board->slug;
-            $gradeSlug = $grade->slug;
+        // Check if a row already exists for this teacher + grade
+        $allowedClass = AllowedClass::where('teacher_id', $teacher->id)
+            ->where('grade_id', $grade->id)
+            ->first();
 
-            // Check if a row already exists for this teacher + board + grade
-            $allowedClass = AllowedClass::where('teacher_id', $teacher->id)
-                ->where('board', $boardSlug)
-                ->where('grade', $gradeSlug)
-                ->first();
+        if ($allowedClass) {
 
-            if ($allowedClass) {
+            // Merge subject ids into the existing row
+            $existingSubjectIds = collect($allowedClass->curriculum_subject_ids ?? []);
 
-                // Merge subjects into the existing row
-                $existingSubjects = collect($allowedClass->subjects ?? []);
+            $allowedClass->update([
+                'curriculum_subject_ids' => $existingSubjectIds
+                    ->merge($subjectIds)
+                    ->unique()
+                    ->values()
+                    ->toArray(),
+            ]);
 
-                $allowedClass->update([
-                    'subjects' => $existingSubjects
-                        ->merge($subjectSlugs)
-                        ->unique()
-                        ->values()
-                        ->toArray(),
-                ]);
+        } else {
 
-            } else {
-
-                // Create a new row for this board + grade
-                AllowedClass::create([
-                    'teacher_id' => $teacher->id,
-                    'board'      => $boardSlug,
-                    'grade'      => $gradeSlug,
-                    'subjects'   => $subjectSlugs,
-                ]);
-            }
+            // Create a new row for this grade
+            AllowedClass::create([
+                'teacher_id'              => $teacher->id,
+                'grade_id'                => $grade->id,
+                'board'                   => $boardSlug,
+                'grade'                   => $gradeSlug,
+                'curriculum_subject_ids'  => $subjectIds,
+            ]);
         }
 
         return back()->with('success', 'Classes assigned successfully.');
@@ -224,11 +222,47 @@ class AdminController extends Controller
         return view('admin.courses.index', compact('board', 'grade'));
     }
 
-    public function live_classes_index($board, $grade)
+    public function live_class_batches_index($board, $grade)
     {
+        $grade = Grade::where('slug', $grade)->whereHas('board', function ($query) use ($board) {
+            $query->where('slug', $board);
+        })->firstOrFail();
+        $board = Board::where('slug', $board)->firstOrFail();
+        $curriculum_subjects = CurriculumSubject::where('grade_id', $grade->id)->get();
 
-        dd($board, $grade);
-        return view('admin.live_classes.index', compact('board', 'grade'));
+        $teachers = Teacher::whereHas('allowed_classes', function ($query) use ($grade) {
+            $query->where('grade_id', $grade->id);
+        })->with(['allowed_classes' => function ($query) use ($grade) {
+            $query->where('grade_id', $grade->id);
+        }])->get();
+
+        $batches = Batch::where('grade_id', $grade->id)
+            ->with(['teacher', 'grade', 'curriculumSubject'])
+            ->get();
+
+        return view('admin.live_classes.index', compact('board', 'grade', 'curriculum_subjects', 'teachers', 'batches'));
+    }
+
+    public function live_class_batches_store(Request $request, $board, $grade)
+    {
+        $request->validate([
+            'teacher_id' => 'required|exists:teachers,id',
+            'grade_id' => 'required|exists:grades,id',
+            'curriculum_subject_id' => 'required|exists:curriculum_subjects,id',
+            'title' => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'price' => 'nullable|numeric|min:0',
+            'start_date' => 'required|date',
+            'end_date' => 'required|date|after_or_equal:start_date',
+            'duration_weeks' => 'required|integer|min:1',
+            'total_classes' => 'required|integer|min:1',
+            'status' => 'required|in:active,inactive'
+        ]);
+
+        $batch = Batch::create($request->all());
+
+        return redirect()->route('admin.live_class_batches.index', ['board' => $board, 'grade' => $grade])
+                         ->with('success', 'Batch created successfully.');
     }
 
     public function demo()

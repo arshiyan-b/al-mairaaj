@@ -332,12 +332,12 @@
                 </li>
 
                 <li class="sidebar-item">
-                    <a class="sidebar-link collapsed has-dropdown" data-bs-toggle="collapse" data-bs-target="#liveClasses"
-                        aria-expanded="false" aria-controls="liveClasses">
+                    <a class="sidebar-link collapsed has-dropdown" data-bs-toggle="collapse" data-bs-target="#liveClassBatches"
+                        aria-expanded="false" aria-controls="liveClassBatches">
                         <i class="bi bi-play-circle fs-4"></i>
-                        <span class="fs-6">Live Classes</span>
+                        <span class="fs-6">Live Class Batches</span>
                     </a>
-                    <ul id="liveClasses" class="sidebar-dropdown list-unstyled collapse" data-bs-parent="#sidebar">
+                    <ul id="liveClassBatches" class="sidebar-dropdown list-unstyled collapse" data-bs-parent="#sidebar">
                         @foreach ($boards as $board)
                             <li class="sidebar-item">
                                 <a class="sidebar-link collapsed" data-bs-toggle="collapse"
@@ -348,7 +348,7 @@
                                 <ul id="{{ $board->slug }}LiveGrades" class="sidebar-dropdown list-unstyled collapse">
                                     @foreach ($board->grades as $grade)
                                         <li class="sidebar-item">
-                                            <a href="{{ route('admin.live_classes.index', ['board' => $board->slug, 'grade' => $grade->slug]) }}"
+                                            <a href="{{ route('admin.live_class_batches.index', ['board' => $board->slug, 'grade' => $grade->slug]) }}"
                                                 class="sidebar-link">{{ $grade->name }}</a>
                                         </li>
                                     @endforeach
@@ -440,6 +440,25 @@
                     if (!sidebar.classList.contains('expand')) {
                         sidebar.classList.add('expand');
                     }
+                });
+            });
+        });
+
+        document.addEventListener("DOMContentLoaded", function () {
+            document.querySelectorAll('form').forEach(function (form) {
+                form.addEventListener('submit', function () {
+                    const submitBtns = form.querySelectorAll('button[type="submit"]');
+
+                    submitBtns.forEach(function (btn) {
+                        // store original content so it can be restored if needed later
+                        btn.dataset.originalText = btn.innerHTML;
+
+                        btn.disabled = true;
+                        btn.innerHTML = `
+                            <span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
+                            Submitting...
+                        `;
+                    });
                 });
             });
         });

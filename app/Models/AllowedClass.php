@@ -16,10 +16,10 @@ class AllowedClass extends Model
         'grade_id',
         'board',
         'grade',
-        'subjects',
+        'curriculum_subject_ids',
     ];
     protected $casts = [
-        'subjects' => 'array',
+        'curriculum_subject_ids' => 'array',
     ];
     public function teacher()
     {
@@ -28,5 +28,12 @@ class AllowedClass extends Model
     public function grade()
     {
         return $this->belongsTo(Grade::class);
+    }
+    public function getCurriculumSubjectsAttribute()
+    {
+        return CurriculumSubject::whereIn(
+            'id',
+            $this->curriculum_subject_ids ?? []
+        )->get();
     }
 }
