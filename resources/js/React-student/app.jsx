@@ -36,6 +36,18 @@ if (!userData) {
   }
 }
 
+// Safely parse subjects/grades/boards data (only present on the Subjects page)
+let subjectsData = [];
+let gradesData = [];
+let boardsData = [];
+try {
+  subjectsData = el?.dataset?.subjects ? JSON.parse(el.dataset.subjects) : [];
+  gradesData = el?.dataset?.grades ? JSON.parse(el.dataset.grades) : [];
+  boardsData = el?.dataset?.boards ? JSON.parse(el.dataset.boards) : [];
+} catch (err) {
+  console.error("Failed to parse subjects/grades/boards data:", err);
+}
+
 // Main App Component
 function App() {
   return (
@@ -56,7 +68,12 @@ function App() {
           <Route path="video/:id" element={<Video />} />
           <Route path="live_classes" element={<LiveClasses />} />
           <Route path="examination-boards" element={<Boards />} />
-          <Route path="subjects" element={<Subjects />} />
+          <Route
+            path="subjects"
+            element={
+              <Subjects subjects={subjectsData} grades={gradesData} boards={boardsData} />
+            }
+          />
           <Route path="books" element={<Books />} />
           <Route path="past-papers" element={<PastPapers />} />
           <Route path="teachers" element={<Teachers />} />

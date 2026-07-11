@@ -20,43 +20,47 @@
             </button>
         </div>
         <div class="card-body">
-            @if ($batches->isEmpty())
-                <p>No batches found for this grade.</p>
-            @else
-                <table class="table table-bordered">
-                    <thead>
+           
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Teacher</th>
+                        <th>Subject</th>
+                        <th>Title</th>
+                        <th>Start Date</th>
+                        <th>End Date</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @forelse ($batches as $index => $batch)
                         <tr>
-                            <th>Teacher</th>
-                            <th>Subject</th>
-                            <th>Title</th>
-                            <th>Start Date</th>
-                            <th>End Date</th>
-                            <th>Status</th>
-                            <th>Actions</th>
+                            <td>{{ $index + 1 }}</td>
+                            <td>{{ $batch->teacher->name }}</td>
+                            <td>{{ $batch->curriculumSubject->name }}</td>
+                            <td>{{ $batch->title }}</td>
+                            <td>{{ $batch->start_date }}</td>
+                            <td>{{ $batch->end_date }}</td>
+                            <td>{{ ucfirst($batch->status) }}</td>
+                            <td>
+                                <a href="{{ route('admin.live_class_batches.show', ['board' => $board->slug, 'grade' => $grade->slug, 'batch' => $batch->id]) }}" class="btn btn-primary btn-sm">View</a>
+                                <a href="{{ route('admin.live_class_batches.edit', ['board' => $board->slug, 'grade' => $grade->slug, 'batch' => $batch->id]) }}" class="btn btn-warning btn-sm">Edit</a>
+                                <form action="{{ route('admin.live_class_batches.destroy', ['board' => $board->slug, 'grade' => $grade->slug, 'batch' => $batch->id]) }}" method="POST" style="display:inline-block;">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete this batch?')">Delete</button>
+                                </form>
+                            </td>
                         </tr>
-                    </thead>
-                    <tbody>
-                        @foreach ($batches as $batch)
-                            <tr>
-                                <td>{{ $batch->teacher->name }}</td>
-                                <td>{{ $batch->curriculumSubject->name }}</td>
-                                <td>{{ $batch->title }}</td>
-                                <td>{{ $batch->start_date }}</td>
-                                <td>{{ $batch->end_date }}</td>
-                                <td>{{ ucfirst($batch->status) }}</td>
-                                <td>
-                                    <a href="{{ route('admin.live_class_batches.show', ['board' => $board->slug, 'grade' => $grade->slug, 'batch' => $batch->id]) }}" class="btn btn-primary btn-sm">View</a>
-                                    <a href="{{ route('admin.live_class_batches.edit', ['board' => $board->slug, 'grade' => $grade->slug, 'batch' => $batch->id]) }}" class="btn btn-warning btn-sm">Edit</a>
-                                    <form action="{{ route('admin.live_class_batches.destroy', ['board' => $board->slug, 'grade' => $grade->slug, 'batch' => $batch->id]) }}" method="POST" style="display:inline-block;">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete this batch?')">Delete</button>
-                                    </form>
-                            </tr>
-                        @endforeach
-                    </tbody>
-                </table>
-            @endif
+                    @empty
+                        <tr>
+                            <td colspan="8" class="text-center">No batches found.</td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
                 
         </div>
     </div>

@@ -2,14 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\CaieCourse;
-use App\Models\CaieOlevelVideo;
-use App\Models\PearsonCourse;
-use App\Models\PearsonIgcseVideo;
-use App\Models\Student;
+use App\Models\Board;
+use App\Models\CurriculumSubject;
+use App\Models\Grade;
 use App\Models\Teacher;
-use App\Models\StudentUserOtp;
-use App\Models\User;
+
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -34,7 +31,11 @@ class StudentController extends Controller
     }
     public function subjects()
     {
-        return view('student.subjects.index');
+        $curriculum_subjects = CurriculumSubject::with('grade.board')->orderBy('name')->get();
+        $grades = Grade::with('board')->get();
+        $boards = Board::all();
+
+        return view('student.subjects.index', compact('curriculum_subjects', 'grades', 'boards'));
     }
     public function books()
     {
@@ -51,7 +52,7 @@ class StudentController extends Controller
     public function teacher($id)
     {
         $teacher = Teacher::find($id);
-        return view('student.teachers.show', ['teacher' => $teacher]);
+        return view('student.teachers.index', compact('teacher'));
     }
     public function profile()
     {

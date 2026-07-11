@@ -9,49 +9,53 @@
     {{-- Batch info card --}}
     <div class="card mb-4">
         <div class="card-header d-flex justify-content-between align-items-center">
-            <h5 class="mb-0">{{ $batch->title }}</h5>
-            <span class="badge bg-{{ $batch->status === 'active' ? 'success' : 'secondary' }} text-capitalize">
-                {{ $batch->status }}
-            </span>
+            <h5 class="mb-0">Batch Description</h5>
         </div>
         <div class="card-body">
-            <div class="row mb-2">
-                <div class="col-md-3">
-                    <strong>Subject</strong>
-                    <p class="mb-0">{{ $batch->curriculumSubject->name }}</p>
-                </div>
-                <div class="col-md-3">
-                    <strong>Teacher</strong>
-                    <p class="mb-0">{{ $batch->teacher->name }}</p>
-                </div>
-                <div class="col-md-3">
-                    <strong>Price</strong>
-                    <p class="mb-0">{{ $batch->price }}</p>
-                </div>
-                <div class="col-md-3">
-                    <strong>Total Classes</strong>
-                    <p class="mb-0">{{ $batch->total_classes }}</p>
-                </div>
-            </div>
-
-            <div class="row mb-2">
-                <div class="col-md-3">
-                    <strong>Start Date</strong>
-                    <p class="mb-0">{{ $batch->formatted_start_date }}</p>
-                </div>
-                <div class="col-md-3">
-                    <strong>End Date</strong>
-                    <p class="mb-0">{{ $batch->formatted_end_date }}</p>
-                </div>
-                <div class="col-md-3">
-                    <strong>Description</strong>
-                    <p class="mb-0">{{ $batch->title }}</p>
-                </div>
-                <div class="col-md-3">
-                    <strong>Description</strong>
-                    <p class="mb-0">{{ $batch->description }}</p>
-                </div>
-            </div>
+            <table class="table table-bordered table-sm mb-0">
+                <tbody>
+                    <tr>
+                        <th class="w-25 text-muted">Title</th>
+                        <td>{{ $batch->title }}</td>
+                    </tr>
+                    <tr>
+                        <th class="text-muted">Status</th>
+                        <td>
+                            <span class="badge bg-{{ $batch->status === 'active' ? 'success' : 'secondary' }} text-capitalize">
+                                {{ $batch->status }}
+                            </span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th class="text-muted">Subject</th>
+                        <td>{{ $batch->curriculumSubject->name }}</td>
+                    </tr>
+                    <tr>
+                        <th class="text-muted">Teacher</th>
+                        <td>{{ $batch->teacher->name }}</td>
+                    </tr>
+                    <tr>
+                        <th class="text-muted">Price</th>
+                        <td>{{ $batch->price }}</td>
+                    </tr>
+                    <tr>
+                        <th class="text-muted">Total Classes</th>
+                        <td>{{ $batch->total_classes }}</td>
+                    </tr>
+                    <tr>
+                        <th class="text-muted">Start Date</th>
+                        <td>{{ $batch->formatted_start_date }}</td>
+                    </tr>
+                    <tr>
+                        <th class="text-muted">End Date</th>
+                        <td>{{ $batch->formatted_end_date }}</td>
+                    </tr>
+                    <tr>
+                        <th class="text-muted">Description</th>
+                        <td>{{ $batch->description }}</td>
+                    </tr>
+                </tbody>
+            </table>
         </div>
     </div>
 
@@ -63,44 +67,44 @@
             </button>
         </div>
         <div class="card-body mx-4">
-            @if ($live_classes->isEmpty())
-                <div class="p-4 text-center text-muted">
-                    No live classes scheduled yet for this batch.
-                </div>
-            @else
-                <div class="table-responsive">
-                    <table class="table table-bordered mb-0">
-                        <thead>
+            <div class="table-responsive">
+                <table class="table table-bordered mb-0">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Title</th>
+                            <th>Description</th>
+                            <th>Start Time</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @forelse ($live_classes as $index => $liveClass)
                             <tr>
-                                <th>#</th>
-                                <th>Title</th>
-                                <th>Description</th>
-                                <th>Start Time</th>
-                                <th>Status</th>
-                                <th>Actions</th>
+                                <td>{{ $index + 1 }}</td>
+                                <td>{{ $liveClass->title }}</td>
+                                <td>{{ $liveClass->description }}</td>
+                                <td>{{ $liveClass->formatted_class_date }}</td>
+                                <td>
+                                    <span class="badge bg-{{ $liveClass->status === 'completed' ? 'success' : ($liveClass->status === 'live' ? 'danger' : 'secondary') }} text-capitalize">
+                                        {{ $liveClass->status ?? 'scheduled' }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <a href="#" class="btn btn-sm btn-outline-secondary">View</a>
+                                </td>
                             </tr>
-                        </thead>
-                        <tbody>
-                            @foreach ($live_classes as $index => $liveClass)
-                                <tr>
-                                    <td>{{ $index + 1 }}</td>
-                                    <td>{{ $liveClass->title }}</td>
-                                    <td>{{ $liveClass->description }}</td>
-                                    <td>{{ $liveClass->formatted_class_date }}</td>
-                                    <td>
-                                        <span class="badge bg-{{ $liveClass->status === 'completed' ? 'success' : ($liveClass->status === 'live' ? 'danger' : 'secondary') }} text-capitalize">
-                                            {{ $liveClass->status ?? 'scheduled' }}
-                                        </span>
-                                    </td>
-                                    <td>
-                                        <a href="#" class="btn btn-sm btn-outline-secondary">View</a>
-                                    </td>
-                                </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
-                </div>
-            @endif
+                        @empty
+                            <tr>
+                                <td colspan="6" class="text-center text-muted">
+                                    No live classes found.
+                                </td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 
