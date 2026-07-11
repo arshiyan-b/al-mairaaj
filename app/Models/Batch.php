@@ -20,7 +20,6 @@ class Batch extends Model
         'price',
         'start_date',
         'end_date',
-        'duration_weeks',
         'total_classes',
         'status',
     ];

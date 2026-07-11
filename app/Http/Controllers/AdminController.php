@@ -245,7 +245,14 @@ class AdminController extends Controller
 
     public function live_class_batches_store(Request $request, $board, $grade)
     {
-        $request->validate([
+        $grade = Grade::where('slug', $grade)
+            ->whereHas('board', function ($query) use ($board) {
+                $query->where('slug', $board);
+            })->firstOrFail();
+
+        $request->merge(['grade_id' => $grade->id]);
+
+        $validated = $request->validate([
             'teacher_id' => 'required|exists:teachers,id',
             'grade_id' => 'required|exists:grades,id',
             'curriculum_subject_id' => 'required|exists:curriculum_subjects,id',
@@ -254,15 +261,16 @@ class AdminController extends Controller
             'price' => 'nullable|numeric|min:0',
             'start_date' => 'required|date',
             'end_date' => 'required|date|after_or_equal:start_date',
-            'duration_weeks' => 'required|integer|min:1',
             'total_classes' => 'required|integer|min:1',
-            'status' => 'required|in:active,inactive'
         ]);
 
-        $batch = Batch::create($request->all());
+        $batch = Batch::create($validated);
 
-        return redirect()->route('admin.live_class_batches.index', ['board' => $board, 'grade' => $grade])
-                         ->with('success', 'Batch created successfully.');
+        return redirect()->route('admin.live_class_batches.index', [
+                'board' => $board,
+                'grade' => $grade->slug,
+            ])
+            ->with('success', 'Batch created successfully.');
     }
 
     public function demo()

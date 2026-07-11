@@ -26,7 +26,6 @@
                 <table class="table table-bordered">
                     <thead>
                         <tr>
-                            <th>Batch Name</th>
                             <th>Teacher</th>
                             <th>Subject</th>
                             <th>Title</th>
@@ -39,7 +38,6 @@
                     <tbody>
                         @foreach ($batches as $batch)
                             <tr>
-                                <td>{{ $batch->name }}</td>
                                 <td>{{ $batch->teacher->name }}</td>
                                 <td>{{ $batch->curriculumSubject->name }}</td>
                                 <td>{{ $batch->title }}</td>
@@ -47,9 +45,9 @@
                                 <td>{{ $batch->end_date }}</td>
                                 <td>{{ ucfirst($batch->status) }}</td>
                                 <td>
-                                    <a href="{{ route('admin.live_classes.show', ['board' => $board->id, 'grade' => $grade->id, 'batch' => $batch->id]) }}" class="btn btn-primary btn-sm">View</a>
-                                    <a href="{{ route('admin.live_classes.edit', ['board' => $board->id, 'grade' => $grade->id, 'batch' => $batch->id]) }}" class="btn btn-warning btn-sm">Edit</a>
-                                    <form action="{{ route('admin.live_classes.destroy', ['board' => $board->id, 'grade' => $grade->id, 'batch' => $batch->id]) }}" method="POST" style="display:inline-block;">
+                                    <a href="{{ route('admin.live_class_batches.show', ['board' => $board->id, 'grade' => $grade->id, 'batch' => $batch->id]) }}" class="btn btn-primary btn-sm">View</a>
+                                    <a href="{{ route('admin.live_class_batches.edit', ['board' => $board->id, 'grade' => $grade->id, 'batch' => $batch->id]) }}" class="btn btn-warning btn-sm">Edit</a>
+                                    <form action="{{ route('admin.live_class_batches.destroy', ['board' => $board->id, 'grade' => $grade->id, 'batch' => $batch->id]) }}" method="POST" style="display:inline-block;">
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete this batch?')">Delete</button>
@@ -76,8 +74,8 @@
             </div>
 
             <form action="{{ route('admin.live_class_batches.store', [
-                    'board' => $board->id,
-                    'grade' => $grade->id
+                    'board' => $board->slug,
+                    'grade' => $grade->slug
                 ]) }}" method="POST">
                 @csrf
 
