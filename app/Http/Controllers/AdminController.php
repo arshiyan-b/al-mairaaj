@@ -222,57 +222,6 @@ class AdminController extends Controller
         return view('admin.courses.index', compact('board', 'grade'));
     }
 
-    public function live_class_batches_index($board, $grade)
-    {
-        $grade = Grade::where('slug', $grade)->whereHas('board', function ($query) use ($board) {
-            $query->where('slug', $board);
-        })->firstOrFail();
-        $board = Board::where('slug', $board)->firstOrFail();
-        $curriculum_subjects = CurriculumSubject::where('grade_id', $grade->id)->get();
-
-        $teachers = Teacher::whereHas('allowed_classes', function ($query) use ($grade) {
-            $query->where('grade_id', $grade->id);
-        })->with(['allowed_classes' => function ($query) use ($grade) {
-            $query->where('grade_id', $grade->id);
-        }])->get();
-
-        $batches = Batch::where('grade_id', $grade->id)
-            ->with(['teacher', 'grade', 'curriculumSubject'])
-            ->get();
-
-        return view('admin.live_classes.index', compact('board', 'grade', 'curriculum_subjects', 'teachers', 'batches'));
-    }
-
-    public function live_class_batches_store(Request $request, $board, $grade)
-    {
-        $grade = Grade::where('slug', $grade)
-            ->whereHas('board', function ($query) use ($board) {
-                $query->where('slug', $board);
-            })->firstOrFail();
-
-        $request->merge(['grade_id' => $grade->id]);
-
-        $validated = $request->validate([
-            'teacher_id' => 'required|exists:teachers,id',
-            'grade_id' => 'required|exists:grades,id',
-            'curriculum_subject_id' => 'required|exists:curriculum_subjects,id',
-            'title' => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'price' => 'nullable|numeric|min:0',
-            'start_date' => 'required|date',
-            'end_date' => 'required|date|after_or_equal:start_date',
-            'total_classes' => 'required|integer|min:1',
-        ]);
-
-        $batch = Batch::create($validated);
-
-        return redirect()->route('admin.live_class_batches.index', [
-                'board' => $board,
-                'grade' => $grade->slug,
-            ])
-            ->with('success', 'Batch created successfully.');
-    }
-
     public function demo()
     {
         $videoId = 123;

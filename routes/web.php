@@ -4,6 +4,8 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AnnouncementController;
 use App\Http\Controllers\ChatbotController;
 use App\Http\Controllers\CourseController;
+use App\Http\Controllers\LiveClassBatchController;
+use App\Http\Controllers\LiveClassController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\StudentController;
@@ -49,12 +51,16 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
 
     Route::get('/admin/courses/{board}/{grade}', [AdminController::class, 'course_index'])->name('admin.course.index');
 
-    Route::get('/admin/live_class_batches/{board}/{grade}', [AdminController::class, 'live_class_batches_index'])->name('admin.live_class_batches.index');
-    Route::post('/admin/live_class_batches/{board}/{grade}/store', [AdminController::class, 'live_class_batches_store'])->name('admin.live_class_batches.store');
-    Route::get('/admin/live_class_batches/{board}/{grade}/{batch}', [AdminController::class, 'live_class_batches_show'])->name('admin.live_class_batches.show');
-    Route::get('/admin/live_class_batches/{board}/{grade}/{batch}/edit', [AdminController::class, 'live_class_batches_edit'])->name('admin.live_class_batches.edit');
-    Route::put('/admin/live_class_batches/{board}/{grade}/{batch}', [AdminController::class, 'live_class_batches_update'])->name('admin.live_class_batches.update');
-    Route::delete('/admin/live_class_batches/{board}/{grade}/{batch}', [AdminController::class, 'live_class_batches_destroy'])->name('admin.live_class_batches.destroy');
+    Route::get('/admin/live_class_batches/{board}/{grade}', [LiveClassBatchController::class, 'index'])->name('admin.live_class_batches.index');
+    Route::post('/admin/live_class_batches/{board}/{grade}/store', [LiveClassBatchController::class, 'store'])->name('admin.live_class_batches.store');
+    Route::get('/admin/live_class_batches/{board}/{grade}/{batch}', [LiveClassBatchController::class, 'show'])->name('admin.live_class_batches.show');
+    Route::get('/admin/live_class_batches/{board}/{grade}/{batch}/edit', [LiveClassBatchController::class, 'edit'])->name('admin.live_class_batches.edit');
+    Route::put('/admin/live_class_batches/{board}/{grade}/{batch}', [LiveClassBatchController::class, 'update'])->name('admin.live_class_batches.update');
+    Route::delete('/admin/live_class_batches/{board}/{grade}/{batch}', [LiveClassBatchController::class, 'destroy'])->name('admin.live_class_batches.destroy');
+
+    Route::get('/admin/live_class/{live_class}', [LiveClassController::class, 'index'])->name('admin.live_classes.index');
+    Route::post('/admin/live_class/store', [LiveClassController::class, 'store'])->name('admin.live_classes.store');
+
 
     Route::get('/admin/announcements', [AnnouncementController::class, 'index'])->name('admin.announcement.index');
 

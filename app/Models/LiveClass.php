@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Carbon\Carbon;
 
 class LiveClass extends Model
 {
@@ -13,9 +14,6 @@ class LiveClass extends Model
 
     protected $fillable = [
         'batch_id',
-        'teacher_id',
-        'grade_id',
-        'curriculum_subject_id',
         'title',
         'description',
         'meeting_provider',
@@ -29,23 +27,19 @@ class LiveClass extends Model
         'status',
     ];
     
+    protected $appends = [
+        'formatted_class_date',
+    ];
+
     public function batch()
     {
         return $this->belongsTo(Batch::class);
     }
 
-    public function teacher()
+    public function getFormattedClassDateAttribute()
     {
-        return $this->belongsTo(Teacher::class);
-    }
-
-    public function grade()
-    {
-        return $this->belongsTo(Grade::class);
-    }
-
-    public function curriculum_subject()
-    {
-        return $this->belongsTo(CurriculumSubject::class, 'curriculum_subject_id');
+        return $this->class_date
+            ? Carbon::parse($this->class_date)->format('d M Y')
+            : null;
     }
 }

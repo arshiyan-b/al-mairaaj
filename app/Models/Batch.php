@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Carbon\Carbon;
 
 class Batch extends Model
 {
@@ -24,6 +25,11 @@ class Batch extends Model
         'status',
     ];
 
+    protected $appends = [
+        'formatted_start_date',
+        'formatted_end_date',
+    ];
+
     public function teacher()
     {
         return $this->belongsTo(Teacher::class);
@@ -42,5 +48,20 @@ class Batch extends Model
     public function liveClasses()
     {
         return $this->hasMany(LiveClass::class, 'batch_id');
+    }
+    // Formatted Start Date
+    public function getFormattedStartDateAttribute()
+    {
+        return $this->start_date
+            ? Carbon::parse($this->start_date)->format('d M Y')
+            : null;
+    }
+
+    // Formatted End Date
+    public function getFormattedEndDateAttribute()
+    {
+        return $this->end_date
+            ? Carbon::parse($this->end_date)->format('d M Y')
+            : null;
     }
 }
