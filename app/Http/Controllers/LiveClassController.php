@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\AllowedClass;
 use App\Models\Batch;
 use App\Models\CurriculumSubject;
+use App\Models\Enrollment;
 use App\Models\Role;
 use App\Models\User;
 use App\Models\Teacher;
@@ -53,6 +54,16 @@ class LiveClassController extends Controller
         LiveClass::create($validated);
 
         return redirect()->back()->with('success', 'Live class created successfully.');
+    }
+
+    public function student_live_classes_data()
+    {
+        $enrollments = Enrollment::with('batch.teacher', 'batch.curriculum_subject.grade.board')
+            ->where('student_id', auth()->user()->student->id)->get();
+        $live_today = LiveClass::whereDate('class_date', now()->toDateString())->get();
+        $upcoming_live_classes = LiveClass::whereDate('class_date', '>', now()->toDateString())->get();
+
+        return response()->json($enrollments);
     }
     
 }
