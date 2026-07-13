@@ -1,7 +1,6 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\AnnouncementController;
 use App\Http\Controllers\ChatbotController;
 use App\Http\Controllers\CourseController;
 use App\Http\Controllers\LiveClassBatchController;
@@ -60,9 +59,6 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
 
     Route::get('/admin/live_class/{live_class}', [LiveClassController::class, 'index'])->name('admin.live_classes.index');
     Route::post('/admin/live_class/store', [LiveClassController::class, 'store'])->name('admin.live_classes.store');
-
-
-    Route::get('/admin/announcements', [AnnouncementController::class, 'index'])->name('admin.announcement.index');
 
     Route::get('admin/demo', [AdminController::class, 'demo']);
     Route::post('/video/track', [AdminController::class, 'trackWatchTime'])->name('video.track');

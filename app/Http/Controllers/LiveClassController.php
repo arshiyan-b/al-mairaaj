@@ -58,12 +58,43 @@ class LiveClassController extends Controller
 
     public function student_live_classes_data()
     {
-        $enrollments = Enrollment::with('batch.teacher', 'batch.curriculum_subject.grade.board')
-            ->where('student_id', auth()->user()->student->id)->get();
-        $live_today = LiveClass::whereDate('class_date', now()->toDateString())->get();
-        $upcoming_live_classes = LiveClass::whereDate('class_date', '>', now()->toDateString())->get();
+        $student = auth()->user()->student;
 
-        return response()->json($enrollments);
+        $enrollments = Enrollment::with([
+                'batch:id,title,status,start_date,end_date,total_classes,teacher_id,curriculum_subject_id',
+                'batch.teacher:id,name',
+                'batch.curriculumSubject:id,name,grade_id',
+                'batch.curriculumSubject.grade:id,name,board_id',
+                'batch.curriculumSubject.grade.board:id,name',
+            ])
+            ->where('student_id', $student->id)
+            ->get();
+
+        $batchIds = $enrollments->pluck('batch_id');
+
+        $liveClasses = LiveClass::with('batch:id,title')
+            ->whereIn('batch_id', $batchIds)
+            ->whereDate('class_date', '>=', now()->toDateString())
+            ->orderBy('class_date')
+            ->orderBy('start_time')
+            ->get();
+
+        $today = now()->toDateString();
+        $liveToday = $liveClasses->filter(fn ($c) => $c->class_date->toDateString() === $today)->values();
+        $upcomingLiveClasses = $liveClasses->filter(fn ($c) => $c->class_date->toDateString() > $today)
+            ->take(10)
+            ->values();
+
+        return response()->json([
+            'student' => $student,
+            'enrollments' => $enrollments,
+            'live_today' => $liveToday,
+            'upcoming_live_classes' => $upcomingLiveClasses,
+            'stats' => [
+                'active_batches' => $enrollments->count(),
+                'live_today_count' => $liveToday->count(),
+                'upcoming_count' => $upcomingLiveClasses->count(),
+            ],
+        ]);
     }
-    
 }

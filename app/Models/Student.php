@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 
 class Student extends Model
 {
@@ -25,8 +26,20 @@ class Student extends Model
         'user_created',
         'user_id',
     ];
+
+    protected $appends = ['full_name'];
+
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    protected function fullName(): Attribute
+    {
+        return Attribute::make(
+            get: fn () => collect([$this->first_name, $this->middle_name, $this->last_name])
+                ->filter()
+                ->implode(' '),
+        );
     }
 }
