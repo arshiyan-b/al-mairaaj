@@ -26,10 +26,11 @@ class StudentController extends Controller
     }
     public function live_classes()
     {
-        $batches = Batch::with('teacher', 'curriculum_subject.grade.board')->where('status', 'active')->get();
-        $student = Student::where('user_id', auth()->id())->first();
-        $enrollments = Enrollment::with('batch.teacher', 'batch.curriculum_subject.grade.board')->where('student_id', $student->id)->get();
-        return view('student.live_classes.index', compact('batches', 'enrollments'));
+        return view('student.live_classes.index');
+    }
+    public function browse_live_classes()
+    {
+        return view('student.live_classes.browse');
     }
     public function boards()
     {

@@ -92,6 +92,7 @@ Route::middleware(['auth', 'role:student'])->group(function () {
 
     // live classes
     Route::get('/live_classes', [StudentController::class, 'live_classes'])->name('student.live_classes');
+    Route::get('/browse_live_classes', [StudentController::class, 'browse_live_classes'])->name('student.browse_live_classes');
 
     // boards
     Route::get('/examination-boards', [StudentController::class, 'boards'])->name('student.boards');

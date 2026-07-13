@@ -75,7 +75,7 @@ const Subjects = ({ subjects = [], grades = [], boards = [] }) => {
           Filters
         </h2>
 
-        <div className="flex flex-col md:flex-row items-center gap-4 w-full">
+        <div className="grid grid-cols-1 md:grid-cols-[2fr_1fr_1fr_1fr] gap-4 w-full">
           {/* Search */}
           <div className="relative w-full flex-1">
             <Search className="absolute left-3 top-2.5 text-gray-400 w-4 h-4" />

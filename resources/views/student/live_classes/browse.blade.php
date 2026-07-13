@@ -1,7 +1,7 @@
 @extends('student.layout.app')
 
 @section('title')
-    Live Classes
+    Browse Live Classes
 @endsection
 
 @section('content')

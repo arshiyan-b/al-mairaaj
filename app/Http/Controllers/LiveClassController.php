@@ -97,4 +97,37 @@ class LiveClassController extends Controller
             ],
         ]);
     }
+
+    public function browse_live_classes_data()
+    {
+        $batches = Batch::with([
+            'teacher:id,name',
+            'curriculumSubject:id,name,code,grade_id',
+            'curriculumSubject.grade:id,name,board_id',
+            'curriculumSubject.grade.board:id,name',
+        ])
+            ->where('status', 'active')
+            ->get();
+
+        $boards = Board::select('id', 'name')->get();
+
+        $grades = Grade::with('board:id,name')
+            ->select('id', 'name', 'board_id')
+            ->get();
+
+        $subjects = CurriculumSubject::with('grade:id,name,board_id')
+            ->select('id', 'name', 'code', 'grade_id')
+            ->get();
+
+        $enrolledIds = Enrollment::where('student_id', auth()->user()->student->id)
+            ->pluck('batch_id');
+
+        return response()->json([
+            'batches'      => $batches,
+            'boards'       => $boards,
+            'grades'       => $grades,
+            'subjects'     => $subjects,
+            'enrolledIds'  => $enrolledIds,
+        ]);
+    }
 }
