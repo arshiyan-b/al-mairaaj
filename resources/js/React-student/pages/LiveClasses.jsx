@@ -6,6 +6,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
 import { motion, AnimatePresence } from "framer-motion";
+import { Link } from "react-router-dom";
 import {
   ArrowRight,
   CalendarDays,
@@ -142,13 +143,15 @@ function EnrollCard() {
         <p className="mt-1 text-xs text-indigo-100/90">
           Browse open batches across boards and grades, then enroll in a couple of clicks.
         </p>
-        <Button className="group relative mt-4 w-full overflow-hidden bg-white text-indigo-700 hover:bg-indigo-50 transition-colors">
-          <span className="relative z-10 flex items-center justify-center gap-2">
-            Get Enrolled
-            <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
-          </span>
-          <span className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-indigo-100/60 to-transparent transition-transform duration-700 group-hover:translate-x-full" />
-        </Button>
+        <Link to="/browse_live_classes">
+          <Button className="group relative mt-4 w-full overflow-hidden bg-white text-indigo-700 hover:bg-indigo-50 transition-colors">
+            <span className="relative z-10 flex items-center justify-center gap-2">
+              Get Enrolled
+              <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
+            </span>
+            <span className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-indigo-100/60 to-transparent transition-transform duration-700 group-hover:translate-x-full" />
+          </Button>
+        </Link>
       </CardContent>
     </Card>
   );

@@ -106,28 +106,19 @@ class LiveClassController extends Controller
             'curriculumSubject.grade:id,name,board_id',
             'curriculumSubject.grade.board:id,name',
         ])
-            ->where('status', 'active')
+            ->whereIn('status', ['active', 'pending'])
             ->get();
-
         $boards = Board::select('id', 'name')->get();
-
-        $grades = Grade::with('board:id,name')
-            ->select('id', 'name', 'board_id')
-            ->get();
-
-        $subjects = CurriculumSubject::with('grade:id,name,board_id')
-            ->select('id', 'name', 'code', 'grade_id')
-            ->get();
-
-        $enrolledIds = Enrollment::where('student_id', auth()->user()->student->id)
-            ->pluck('batch_id');
+        $grades = Grade::with('board:id,name')->get();
+        $subjects = CurriculumSubject::with('grade:id,name,board_id')->get();
+        $enrollments = Enrollment::where('student_id', auth()->user()->student->id)->get();
 
         return response()->json([
             'batches'      => $batches,
             'boards'       => $boards,
             'grades'       => $grades,
             'subjects'     => $subjects,
-            'enrolledIds'  => $enrolledIds,
+            'enrollments'  => $enrollments,
         ]);
     }
 }
