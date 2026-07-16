@@ -16,6 +16,7 @@ use App\Models\User;
 use App\Models\Board;
 use App\Models\Grade;
 use App\Mail\StudentRegistrationOTP;
+use App\Mail\Wallet;
 use Carbon\Carbon;
 
 class LoginController extends Controller
@@ -196,13 +197,20 @@ class LoginController extends Controller
                 $otpRecord->update(['status' => 'verified']);
                 $student = Student::where('email', $request->email)->first();
                 User::create([
-                    'name' => trim(collect([$student->first_name, $student->middle_name, $student->last_name])->filter()->join(' ')),
+                    'name' => $student->full_name,
                     'email' => $student->email,
                     'password' => $otpRecord->password,
                     'role' => 'student',
                     'student_id' => $student->id,
                     'created_at' => now(),
                     'email_verified_at' => now(),
+                ]);
+
+                Wallet::create([
+                    'student_id' => $student->id,
+                    'balance' => 0,
+                    'currency' => 'PKR',
+                    'status' => 'active',
                 ]);
 
                 return response()->json([

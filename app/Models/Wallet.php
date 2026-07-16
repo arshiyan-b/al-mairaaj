@@ -8,12 +8,19 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 class Wallet extends Model
 {
     use HasFactory;
+    
     protected $fillable = [
         'user_id',
         'student_id',
         'balance',
         'status',
     ];
+
+    protected $hidden = [
+        'created_at',
+        'updated_at',
+    ];
+
     public function user()
     {
         return $this->belongsTo(User::class);
@@ -21,5 +28,9 @@ class Wallet extends Model
     public function student()
     {
         return $this->belongsTo(Student::class);
+    }
+    public function transactions()
+    {
+        return $this->hasMany(WalletTransaction::class);
     }
 }

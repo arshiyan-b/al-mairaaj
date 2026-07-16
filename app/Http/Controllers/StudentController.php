@@ -35,14 +35,7 @@ class StudentController extends Controller
     }
     public function live_class_batch($id)
     {
-        $batch = Batch::with(['teacher', 'curriculumSubject.grade.board'])->findOrFail($id);
-
-        $live_classes = LiveClass::where('batch_id', $batch->id)
-            ->orderBy('class_date')
-            ->orderBy('start_time')
-            ->get();
-
-        return view('student.live_classes.batch', compact('batch', 'live_classes'));
+        return view('student.live_classes.batch');
     }
     public function boards()
     {
@@ -64,10 +57,9 @@ class StudentController extends Controller
     {
         return view('student.teachers.index');
     }
-    public function teacher($id)
+    public function teacher()
     {
-        $teacher = Teacher::find($id);
-        return view('student.teachers.index', compact('teacher'));
+        return view('student.teachers.profile');
     }
     public function profile()
     {

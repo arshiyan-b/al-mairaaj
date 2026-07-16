@@ -10,6 +10,8 @@ use App\Models\Grade;
 use App\Models\LiveClass;
 use App\Models\Student;
 use App\Models\Teacher;
+use App\Models\Wallet;
+use App\Models\WalletTransaction;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -17,7 +19,14 @@ use Illuminate\Support\Facades\Hash;
 
 class ApiController extends Controller
 {
+    public function student_wallet_data()
+    {
+        $wallet = Wallet::with('transactions')
+            ->where('student_id', auth()->user()->student->id)
+            ->first();
 
+        return response()->json($wallet);
+    }
     public function student_subjects_data()
     {
         $curriculum_subjects = CurriculumSubject::with('grade.board')->orderBy('name')->get();
@@ -29,6 +38,40 @@ class ApiController extends Controller
             'grades' => $grades,
             'boards' => $boards,
         ]);
+    }
+    public function student_teachers_data()
+    {   
+        $curriculum_subjects = CurriculumSubject::with('grade.board')->orderBy('name')->get();
+        $grades = Grade::with('board')->get();
+        $boards = Board::all();
+        $teachers = Teacher::with([
+            'allowed_classes.grade.board',
+        ])->get();
+
+        return response()->json([
+            'curriculum_subjects' => $curriculum_subjects,
+            'grades' => $grades,
+            'boards' => $boards,
+            'teachers' => $teachers,
+        ]);
+    }
+    public function student_teacher_profile_data($id)
+    {
+        $teacher = Teacher::with(['allowed_classes.grade.board',])->find($id);
+        $batches = Batch::with([
+            'teacher:id,name',
+            'curriculumSubject:id,name,code,grade_id',
+            'curriculumSubject.grade:id,name,board_id',
+            'curriculumSubject.grade.board:id,name',
+        ])
+            ->where('teacher_id', $teacher->id)
+            ->get();
+
+        return response()->json($teacher);
+        // return response()->json([
+        //     'teacher' => $teacher,
+        //     'batches' => $batches,
+        // ]); 
     }
     public function student_live_classes_data()
     {

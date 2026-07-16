@@ -6,7 +6,12 @@ use App\Http\Controllers\LiveClassController;
 
 Route::middleware(['web', 'auth'])->prefix('student')->group(function () {
 
+    Route::get('/wallet-data', [ApiController::class, 'student_wallet_data'])->name('student.wallet.data');
+
     Route::get('/subjects-data', [ApiController::class, 'student_subjects_data'])->name('student.subjects.data');
+
+    Route::get('/teachers-data', [ApiController::class, 'student_teachers_data'])->name('student.teachers.data');
+    Route::get('/teacher-profile-data/{id}', [ApiController::class, 'student_teacher_profile_data'])->name('student.teacher_profile.data');
 
     Route::get('/live-classes-data', [ApiController::class, 'student_live_classes_data'])->name('student.live_classes.data');
     Route::get('/browse-live-classes-data', [ApiController::class, 'browse_live_classes_data'])->name('student.browse_live_classes.data');

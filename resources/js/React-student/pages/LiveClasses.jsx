@@ -19,6 +19,8 @@ import {
 const fadeUp = { hidden: { opacity: 0, y: 16 }, show: { opacity: 1, y: 0 } };
 const stagger = { hidden: {}, show: { transition: { staggerChildren: 0.06 } } };
 
+const serif = { fontFamily: "'Fraunces', serif" };
+
 const LiveClasses = () => {
   const navigate = useNavigate();
 
@@ -56,39 +58,45 @@ const LiveClasses = () => {
   return (
     <div className="min-h-screen bg-[#F7F6F2] px-4 py-6 dark:bg-[#0F1120] md:px-8 md:py-10">
       <div className="mx-auto max-w-6xl">
+        {/* Hero */}
         <motion.div
-          className="mb-8 flex flex-wrap items-center justify-between gap-4"
+          className="relative mb-8 overflow-hidden rounded-2xl bg-gradient-to-br from-indigo-600 via-indigo-500 to-violet-500 p-6 shadow-md md:p-8"
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
         >
-          <div>
-            <h1 className="text-3xl font-semibold text-gray-800">
-              My Live Class Batches
-            </h1>
-            <p className="mt-1 text-sm text-gray-500">
-              Your enrolled batches and upcoming live sessions.
-            </p>
+          <div className="pointer-events-none absolute -right-10 -top-16 h-56 w-56 rounded-full bg-white/10 blur-2xl" />
+          <div className="pointer-events-none absolute -bottom-16 left-10 h-40 w-40 rounded-full bg-white/10 blur-2xl" />
+
+          <div className="relative flex flex-wrap items-center justify-between gap-4">
+            <div>
+              <h1 className="text-3xl font-semibold text-white">
+                My Live Class Batches
+              </h1>
+              <p className="mt-1 text-sm text-indigo-100">
+                Your enrolled batches and upcoming live sessions, all in one place.
+              </p>
+            </div>
+            <Button
+              variant="secondary"
+              onClick={() => navigate("/browse_live_classes")}
+              className="flex items-center gap-2 bg-white text-indigo-700 hover:bg-indigo-50"
+            >
+              <Compass className="h-4 w-4" /> Browse batches
+            </Button>
           </div>
-          <Button
-            variant="outline"
-            onClick={() => navigate("/browse_live_classes")}
-            className="flex items-center gap-2"
-          >
-            <Compass className="h-4 w-4" /> Browse batches
-          </Button>
         </motion.div>
 
         {/* Stats */}
         {stats && (
           <motion.div
-            className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-3"
+            className="mb-10 grid grid-cols-1 gap-4 sm:grid-cols-3"
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4, delay: 0.05 }}
           >
             <StatCard icon={BookOpen} label="Active batches" value={stats.active_batches} />
-            <StatCard icon={Radio} label="Live today" value={stats.live_today_count} accent />
+            <StatCard icon={Radio} label="Live today" value={stats.live_today_count} accent pulse={stats.live_today_count > 0} />
             <StatCard icon={CalendarDays} label="Upcoming" value={stats.upcoming_count} />
           </motion.div>
         )}
@@ -102,12 +110,19 @@ const LiveClasses = () => {
             transition={{ duration: 0.4, delay: 0.1 }}
           >
             <h2 className="mb-4 flex items-center gap-2 text-lg font-semibold text-gray-800">
-              <Radio className="h-4 w-4 text-amber-500" /> Live Today
+              <span className="relative flex h-2.5 w-2.5">
+                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-amber-400 opacity-75" />
+                <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-amber-500" />
+              </span>
+              Live Today
             </h2>
             <div className="space-y-3">
               {liveToday.map((c) => (
-                <Card key={c.id} className="rounded-xl border-l-4 border-amber-500 shadow-sm">
-                  <CardContent className="flex flex-wrap items-center justify-between gap-4 p-5">
+                <Card
+                  key={c.id}
+                  className="overflow-hidden rounded-xl border-l-4 border-amber-500 shadow-sm transition hover:shadow-md"
+                >
+                  <CardContent className="flex flex-wrap items-center justify-between gap-4 bg-gradient-to-r from-amber-50/60 to-transparent p-5">
                     <div>
                       <h4 className="text-sm font-semibold text-gray-800">{c.title}</h4>
                       <p className="text-xs text-gray-500">{c.batch?.title}</p>
@@ -120,7 +135,7 @@ const LiveClasses = () => {
                     <Button
                       size="sm"
                       onClick={() => navigate(`/live_class_batch/${c.batch_id}`)}
-                      className="bg-amber-500 text-white hover:bg-amber-600"
+                      className="bg-amber-500 text-white shadow-sm hover:bg-amber-600"
                     >
                       Go to batch
                     </Button>
@@ -138,9 +153,16 @@ const LiveClasses = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4, delay: 0.15 }}
         >
-          <h2 className="mb-4 text-lg font-semibold text-gray-800" style={{ fontFamily: "'Fraunces', serif" }}>
-            My Batches
-          </h2>
+          <div className="mb-4 flex items-center justify-between">
+            <h2 className="text-lg font-semibold text-gray-800">
+              My Batches
+            </h2>
+            {enrollments.length > 0 && (
+              <span className="text-xs font-medium text-gray-400">
+                {enrollments.length} enrolled
+              </span>
+            )}
+          </div>
 
           {enrollments.length === 0 ? (
             <div className="rounded-xl border border-dashed border-gray-200 bg-white/60 px-6 py-12 text-center">
@@ -169,11 +191,12 @@ const LiveClasses = () => {
 
                   return (
                     <motion.div key={enrollment.id} variants={fadeUp} transition={{ duration: 0.3 }} layout>
-                      <Card className="h-full rounded-xl shadow-sm transition hover:-translate-y-1 hover:shadow-lg">
+                      <Card className="group h-full overflow-hidden rounded-xl shadow-sm transition hover:-translate-y-1 hover:shadow-lg">
+                        <div className="h-1 w-full bg-gradient-to-r from-indigo-500 to-violet-400" />
                         <CardContent className="flex h-full flex-col p-5">
                           <div className="flex items-start justify-between">
-                            <Avatar className="h-9 w-9">
-                              <AvatarFallback className="bg-indigo-100 text-indigo-600">
+                            <Avatar className="h-9 w-9 ring-2 ring-indigo-50">
+                              <AvatarFallback className="bg-indigo-100 font-semibold text-indigo-600">
                                 {batch.title?.charAt(0) ?? "B"}
                               </AvatarFallback>
                             </Avatar>
@@ -197,9 +220,10 @@ const LiveClasses = () => {
 
                           <Button
                             onClick={() => navigate(`/live_class_batch/${batch.id}`)}
-                            className="mt-4 flex w-full items-center justify-center gap-2 bg-indigo-600 text-white hover:bg-indigo-700"
+                            className="mt-4 flex w-full items-center justify-center gap-2 bg-indigo-600 text-white transition group-hover:bg-indigo-700"
                           >
-                            View Batch <ArrowRight className="h-3.5 w-3.5" />
+                            View Batch
+                            <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
                           </Button>
                         </CardContent>
                       </Card>
@@ -217,7 +241,7 @@ const LiveClasses = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4, delay: 0.2 }}
         >
-          <h2 className="mb-4 text-lg font-semibold text-gray-800" style={{ fontFamily: "'Fraunces', serif" }}>
+          <h2 className="mb-4 text-lg font-semibold text-gray-800">
             Upcoming Classes
           </h2>
 
@@ -229,7 +253,7 @@ const LiveClasses = () => {
           ) : (
             <div className="space-y-3">
               {upcoming.map((c) => (
-                <Card key={c.id} className="rounded-xl shadow-sm">
+                <Card key={c.id} className="rounded-xl shadow-sm transition hover:shadow-md">
                   <CardContent className="flex flex-wrap items-center justify-between gap-4 p-5">
                     <div>
                       <h4 className="text-sm font-semibold text-gray-800">{c.title}</h4>
@@ -261,16 +285,22 @@ const LiveClasses = () => {
   );
 };
 
-function StatCard({ icon: Icon, label, value, accent }) {
+function StatCard({ icon: Icon, label, value, accent, pulse }) {
   return (
-    <Card className="rounded-xl shadow-sm">
+    <Card className="overflow-hidden rounded-xl shadow-sm transition hover:shadow-md">
       <CardContent className="flex items-center gap-4 p-5">
         <div
-          className={`flex h-10 w-10 items-center justify-center rounded-lg ${
+          className={`relative flex h-11 w-11 items-center justify-center rounded-lg ${
             accent ? "bg-amber-50 text-amber-500" : "bg-indigo-50 text-indigo-600"
           }`}
         >
           <Icon className="h-5 w-5" />
+          {pulse && (
+            <span className="absolute -right-1 -top-1 flex h-3 w-3">
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-amber-400 opacity-75" />
+              <span className="relative inline-flex h-3 w-3 rounded-full bg-amber-500" />
+            </span>
+          )}
         </div>
         <div>
           <p className="text-xs text-gray-400">{label}</p>
@@ -285,7 +315,7 @@ function LiveClassesSkeleton() {
   return (
     <div className="min-h-screen bg-[#F7F6F2] px-4 py-6 dark:bg-[#0F1120] md:px-8 md:py-10">
       <div className="mx-auto max-w-6xl space-y-8">
-        <Skeleton className="h-10 w-72 rounded-lg" />
+        <Skeleton className="h-28 rounded-2xl" />
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
           {Array.from({ length: 3 }).map((_, i) => (
             <Skeleton key={i} className="h-20 rounded-xl" />

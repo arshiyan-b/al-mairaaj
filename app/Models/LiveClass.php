@@ -26,6 +26,11 @@ class LiveClass extends Model
         'duration',
         'status',
     ];
+
+    protected $hidden = [
+        'created_at',
+        'updated_at',
+    ];
     
     protected $appends = [
         'formatted_class_date',

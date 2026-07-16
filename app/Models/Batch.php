@@ -25,6 +25,11 @@ class Batch extends Model
         'status',
     ];
 
+    protected $hidden = [
+        'created_at',
+        'updated_at',
+    ];
+
     protected $appends = [
         'formatted_start_date',
         'formatted_end_date',
