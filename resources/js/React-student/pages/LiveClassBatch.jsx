@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { Link, useParams, useNavigate } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -118,7 +118,15 @@ const LiveClassBatch = () => {
                   <p className="flex items-center gap-1 text-xs text-gray-400">
                     <GraduationCap className="h-3.5 w-3.5" /> Teacher
                   </p>
-                  <p className="mt-1 font-medium text-gray-700">{batch.teacher?.name ?? "—"}</p>
+
+                  <Link
+                    to={`/teacher/${batch.teacher?.id}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="mt-1 inline-block font-medium text-blue-600 hover:text-blue-800 hover:underline"
+                  >
+                    {batch.teacher?.name ?? "—"}
+                  </Link>
                 </div>
 
                 <div>

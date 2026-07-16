@@ -35,7 +35,8 @@ class StudentController extends Controller
     }
     public function live_class_batch($id)
     {
-        return view('student.live_classes.batch');
+        $batchTitle = Batch::where('id', $id)->value('title');
+        return view('student.live_classes.batch', compact('batchTitle'));
     }
     public function boards()
     {
