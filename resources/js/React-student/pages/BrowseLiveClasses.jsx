@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -9,24 +10,17 @@ import { Search, Filter, BookOpen, Users, CheckCircle2 } from "lucide-react";
 
 const PAGE_SIZE = 9;
 
-const fadeUp = {
-  hidden: { opacity: 0, y: 16 },
-  show: { opacity: 1, y: 0 },
-};
-
-const stagger = {
-  hidden: {},
-  show: { transition: { staggerChildren: 0.06 } },
-};
+const fadeUp = { hidden: { opacity: 0, y: 16 }, show: { opacity: 1, y: 0 } };
+const stagger = { hidden: {}, show: { transition: { staggerChildren: 0.06 } } };
 
 const BrowseLiveClasses = () => {
+  const navigate = useNavigate();
   const [batches, setBatches] = useState(null);
   const [boards, setBoards] = useState([]);
   const [grades, setGrades] = useState([]);
   const [subjects, setSubjects] = useState([]);
 
   const [error, setError] = useState(null);
-  const [enrollingId, setEnrollingId] = useState(null);
   const [enrolledIds, setEnrolledIds] = useState([]);
 
   const [search, setSearch] = useState("");
@@ -51,18 +45,19 @@ const BrowseLiveClasses = () => {
       .catch((err) => setError(err.message));
   }, []);
 
-  const filteredGrades = boardId
-    ? grades.filter((g) => String(g.board_id) === String(boardId))
-    : grades;
-
   const availableSubjectsForDropdown = subjects.filter((subject) => {
-    const matchesBoard = !boardId || String(subject.grade?.board_id) === String(boardId);
+    const subjectBoardId = subject.grade?.board_id;
+    const matchesBoard = !boardId || String(subjectBoardId) === String(boardId);
     const matchesGrade = !gradeId || String(subject.grade_id) === String(gradeId);
     return matchesBoard && matchesGrade;
   });
 
+  const filteredGrades = boardId
+    ? grades.filter((g) => String(g.board_id) === String(boardId))
+    : grades;
+
   const filteredBatches = (batches || []).filter((batch) => {
-    const subject = batch.curriculumSubject;
+    const subject = batch.curriculum_subject;
     const batchBoardId = subject?.grade?.board_id;
     const batchGradeId = subject?.grade_id;
     const batchSubjectId = subject?.id;
@@ -79,26 +74,6 @@ const BrowseLiveClasses = () => {
 
   const visibleBatches = filteredBatches.slice(0, visibleCount);
   const hasMore = visibleCount < filteredBatches.length;
-
-  const handleEnroll = (batchId) => {
-    setEnrollingId(batchId);
-    fetch("/api/student/enroll", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Accept: "application/json",
-        "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]')?.content,
-      },
-      body: JSON.stringify({ batch_id: batchId }),
-    })
-      .then((res) => res.json().then((data) => ({ ok: res.ok, data })))
-      .then(({ ok, data }) => {
-        if (!ok) throw new Error(data.message || "Enrollment failed");
-        setEnrolledIds((prev) => [...prev, batchId]);
-      })
-      .catch((err) => alert(err.message))
-      .finally(() => setEnrollingId(null));
-  };
 
   if (error) {
     return (
@@ -119,7 +94,7 @@ const BrowseLiveClasses = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
         >
-          <h1 className="text-3xl font-semibold text-gray-800">Browse Live Classes</h1>
+          <h1 className="text-3xl font-semibold text-gray-800">Browse Live Class Batches</h1>
           <p className="mx-auto mt-2 max-w-2xl text-sm text-gray-500">
             Find open batches across boards and grades, and enroll to start attending live sessions.
           </p>
@@ -137,21 +112,23 @@ const BrowseLiveClasses = () => {
             Filters
           </h2>
 
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-[2fr_1fr_1fr_1fr]">
-            <div className="relative w-full">
-              <Search className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
-              <input
-                type="text"
-                placeholder="Search batches or subjects..."
-                value={search}
-                onChange={(e) => {
-                  setSearch(e.target.value);
-                  setVisibleCount(PAGE_SIZE);
-                }}
-                className="w-full rounded-lg border border-gray-200 py-2 pl-9 pr-3 text-sm outline-none transition focus:ring-2 focus:ring-indigo-500"
-              />
-            </div>
+          {/* Row 1: Search */}
+          <div className="relative w-full mb-4">
+            <Search className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
+            <input
+              type="text"
+              placeholder="Search batches or subjects..."
+              value={search}
+              onChange={(e) => {
+                setSearch(e.target.value);
+                setVisibleCount(PAGE_SIZE);
+              }}
+              className="w-full rounded-lg border border-gray-200 py-2 pl-9 pr-3 text-sm outline-none transition focus:ring-2 focus:ring-indigo-500"
+            />
+          </div>
 
+          {/* Row 2: Dropdowns */}
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
             <select
               value={boardId}
               onChange={(e) => {
@@ -164,7 +141,7 @@ const BrowseLiveClasses = () => {
             >
               <option value="">All Boards</option>
               {boards.map((b) => (
-                <option key={b.id} value={b.id}>{b.name}</option>
+                <option key={b.id} value={String(b.id)}>{b.name}</option>
               ))}
             </select>
 
@@ -179,7 +156,7 @@ const BrowseLiveClasses = () => {
             >
               <option value="">All Grades</option>
               {filteredGrades.map((g) => (
-                <option key={g.id} value={g.id}>
+                <option key={g.id} value={String(g.id)}>
                   {boardId ? g.name : `${g.board?.name} - ${g.name}`}
                 </option>
               ))}
@@ -195,7 +172,7 @@ const BrowseLiveClasses = () => {
             >
               <option value="">All Subjects</option>
               {availableSubjectsForDropdown.map((s) => (
-                <option key={s.id} value={s.id}>{s.code} - {s.name}</option>
+                <option key={s.id} value={String(s.id)}>{s.code} - {s.name}</option>
               ))}
             </select>
           </div>
@@ -217,9 +194,8 @@ const BrowseLiveClasses = () => {
           >
             <AnimatePresence>
               {visibleBatches.map((batch) => {
-                const subject = batch.curriculumSubject;
+                const subject = batch.curriculum_subject;
                 const isEnrolled = enrolledIds.includes(batch.id);
-                const isEnrolling = enrollingId === batch.id;
 
                 return (
                   <motion.div key={batch.id} variants={fadeUp} transition={{ duration: 0.3 }} layout>
@@ -231,7 +207,9 @@ const BrowseLiveClasses = () => {
                               {batch.title?.charAt(0) ?? "B"}
                             </AvatarFallback>
                           </Avatar>
-                          <Badge className="bg-emerald-50 text-emerald-600 hover:bg-emerald-50">Open</Badge>
+                          <Badge className="bg-emerald-50 text-emerald-600 hover:bg-emerald-50 capitalize">
+                            {batch.status}
+                          </Badge>
                         </div>
 
                         <h3 className="mt-3 text-sm font-semibold text-gray-800">{batch.title}</h3>
@@ -242,24 +220,26 @@ const BrowseLiveClasses = () => {
                           </p>
                         )}
 
-                        <div className="mt-3 flex items-center justify-between text-xs text-gray-500">
-                          <span className="flex items-center gap-1">
-                            <Users className="h-3.5 w-3.5" /> {batch.total_classes} classes
-                          </span>
-                          <span className="font-mono">{batch.start_date}</span>
+                        <div className="mt-3 text-xs text-gray-500">
+                          <div className="flex items-center gap-1">
+                            <Users className="h-3.5 w-3.5" />
+                            <span>{batch.total_classes} classes</span>
+                          </div>
+                          <div className="mt-2">
+                            <span className="font-mono">
+                              {batch.formatted_start_date} - {batch.formatted_end_date}
+                            </span>
+                          </div>
                         </div>
 
                         <Button
-                          onClick={() => handleEnroll(batch.id)}
-                          disabled={isEnrolled || isEnrolling}
-                          className="mt-4 w-full bg-indigo-600 text-white hover:bg-indigo-700 disabled:opacity-70"
+                          onClick={() => navigate(`/live_class_batch/${batch.id}`)}
+                          className="mt-4 w-full bg-indigo-600 text-white hover:bg-indigo-700"
                         >
                           {isEnrolled ? (
                             <span className="flex items-center gap-2">
-                              <CheckCircle2 className="h-4 w-4" /> Enrolled
+                              <CheckCircle2 className="h-4 w-4" /> View Batch
                             </span>
-                          ) : isEnrolling ? (
-                            "Enrolling..."
                           ) : (
                             "Enroll Now"
                           )}

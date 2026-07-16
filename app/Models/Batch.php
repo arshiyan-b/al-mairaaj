@@ -49,6 +49,17 @@ class Batch extends Model
     {
         return $this->hasMany(LiveClass::class, 'batch_id');
     }
+
+    public function enrollments()
+    {
+        return $this->hasMany(Enrollment::class, 'batch_id');
+    }
+
+    public function students()
+    {
+        return $this->belongsToMany(Student::class, 'enrollments', 'batch_id', 'student_id');
+    }
+    
     // Formatted Start Date
     public function getFormattedStartDateAttribute()
     {

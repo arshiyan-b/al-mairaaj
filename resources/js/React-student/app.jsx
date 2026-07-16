@@ -9,6 +9,7 @@ import Course from "./pages/Course";
 import Video from "./pages/Video";
 import LiveClasses from "./pages/LiveClasses";
 import BrowseLiveClasses from "./pages/BrowseLiveClasses";
+import LiveClassBatch from "./pages/LiveClassBatch";
 import Boards from "./pages/Boards";
 import Subjects from "./pages/Subjects";
 import Books from "./pages/Books";
@@ -37,18 +38,6 @@ if (!userData) {
   }
 }
 
-// Safely parse subjects/grades/boards data (only present on the Subjects page)
-let subjectsData = [];
-let gradesData = [];
-let boardsData = [];
-try {
-  subjectsData = el?.dataset?.subjects ? JSON.parse(el.dataset.subjects) : [];
-  gradesData = el?.dataset?.grades ? JSON.parse(el.dataset.grades) : [];
-  boardsData = el?.dataset?.boards ? JSON.parse(el.dataset.boards) : [];
-} catch (err) {
-  console.error("Failed to parse subjects/grades/boards data:", err);
-}
-
 // Main App Component
 function App() {
   return (
@@ -69,12 +58,9 @@ function App() {
           <Route path="video/:id" element={<Video />} />
           <Route path="live_classes" element={<LiveClasses />} />
           <Route path="browse_live_classes" element={<BrowseLiveClasses />} />
+          <Route path="live_class_batch/:id" element={<LiveClassBatch />} />
           <Route path="examination-boards" element={<Boards />} />
-          <Route
-            path="subjects" element={
-              <Subjects subjects={subjectsData} grades={gradesData} boards={boardsData} />
-            }
-          />
+          <Route path="subjects" element={<Subjects />} />
           <Route path="books" element={<Books />} />
           <Route path="past-papers" element={<PastPapers />} />
           <Route path="teachers" element={<Teachers />} />

@@ -7,6 +7,7 @@ use App\Models\Board;
 use App\Models\CurriculumSubject;
 use App\Models\Enrollment;
 use App\Models\Grade;
+use App\Models\LiveClass;
 use App\Models\Student;
 use App\Models\Teacher;
 
@@ -32,17 +33,24 @@ class StudentController extends Controller
     {
         return view('student.live_classes.browse');
     }
+    public function live_class_batch($id)
+    {
+        $batch = Batch::with(['teacher', 'curriculumSubject.grade.board'])->findOrFail($id);
+
+        $live_classes = LiveClass::where('batch_id', $batch->id)
+            ->orderBy('class_date')
+            ->orderBy('start_time')
+            ->get();
+
+        return view('student.live_classes.batch', compact('batch', 'live_classes'));
+    }
     public function boards()
     {
         return view('student.boards.index');
     }
     public function subjects()
     {
-        $curriculum_subjects = CurriculumSubject::with('grade.board')->orderBy('name')->get();
-        $grades = Grade::with('board')->get();
-        $boards = Board::all();
-
-        return view('student.subjects.index', compact('curriculum_subjects', 'grades', 'boards'));
+        return view('student.subjects.index');
     }
     public function books()
     {

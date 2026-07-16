@@ -1,7 +1,7 @@
 @extends('student.layout.app')
 
 @section('title')
-    Subjects
+    {{ $batch->title }}
 @endsection
 
 @section('content')
