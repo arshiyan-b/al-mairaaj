@@ -106,7 +106,7 @@ const LiveClassBatch = () => {
                 </Badge>
               </div>
 
-              <h1 className="mt-4 text-2xl font-semibold text-gray-800" style={{ fontFamily: "'Fraunces', serif" }}>
+              <h1 className="mt-4 text-2xl font-semibold text-gray-800">
                 {batch.title}
               </h1>
               {batch.description && <p className="mt-2 text-sm text-gray-500">{batch.description}</p>}
@@ -197,7 +197,7 @@ const LiveClassBatch = () => {
           transition={{ duration: 0.4, delay: 0.1 }}
           className="mt-8"
         >
-          <h2 className="mb-4 text-lg font-semibold text-gray-800" style={{ fontFamily: "'Fraunces', serif" }}>
+          <h2 className="mb-4 text-lg font-semibold text-gray-800">
             Class Schedule
           </h2>
 

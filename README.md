@@ -1,66 +1,330 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Al Mairaaj
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Al Mairaaj is a Learning Management System (LMS) built with Laravel to simplify the management of educational institutions. It provides an administrative dashboard for managing students, teachers, academic structures, live classes, examinations, attendance, and other educational activities from a single platform.
 
-## About Laravel
+---
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## Features
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+### Academic Management
+- Multi-board support
+- Grade/Class management
+- Subject management
+- Academic sessions
+- Batch management
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+### User Management
+- Admin management
+- Teacher management
+- Student management
+- Parent management
+- Role & Permission management
 
-## Learning Laravel
+### Live Classes
+- Create live class batches
+- Assign teachers
+- Schedule classes
+- Manage class timings
+- Track live sessions
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+### Student Management
+- Student registration
+- Student profiles
+- Class assignments
+- Enrollment management
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+### Teacher Management
+- Teacher profiles
+- Subject allocation
+- Grade/Class allocation
+- Schedule management
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+### Attendance
+- Student attendance
+- Teacher attendance
+- Attendance reports
 
-## Laravel Sponsors
+### Examination
+- Exam creation
+- Marks management
+- Result generation
+- Report cards
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+### Learning Resources
+- Notes
+- Assignments
+- Course materials
+- Announcements
 
-### Premium Partners
+### Communication
+- Notifications
+- Announcements
+- Student and parent communication
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[WebReinvent](https://webreinvent.com/)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Jump24](https://jump24.co.uk)**
-- **[Redberry](https://redberry.international/laravel/)**
-- **[Active Logic](https://activelogic.com)**
-- **[byte5](https://byte5.de)**
-- **[OP.GG](https://op.gg)**
+### Reports
+- Student reports
+- Teacher reports
+- Attendance reports
+- Academic reports
 
-## Contributing
+---
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+# Technology Stack
 
-## Code of Conduct
+## Backend
+- Laravel
+- PHP
+- MySQL
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+## Frontend
+- Blade Templates
+- Bootstrap
+- JavaScript
+- Vite
 
-## Security Vulnerabilities
+## Authentication
+- Laravel Authentication
+- Role Based Access Control (RBAC)
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+---
 
-## License
+# Project Structure
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+```
+app/
+bootstrap/
+config/
+database/
+public/
+resources/
+routes/
+storage/
+tests/
+vendor/
+```
+
+---
+
+# Requirements
+
+- PHP 8.2+
+- Composer
+- MySQL 8+
+- Node.js 18+
+- npm
+
+---
+
+# Installation
+
+## 1. Clone the repository
+
+```bash
+git clone https://github.com/yourusername/al-mairaaj.git
+
+cd al-mairaaj
+```
+
+## 2. Install PHP dependencies
+
+```bash
+composer install
+```
+
+## 3. Install JavaScript dependencies
+
+```bash
+npm install
+```
+
+## 4. Copy environment file
+
+```bash
+cp .env.example .env
+```
+
+Windows
+
+```bash
+copy .env.example .env
+```
+
+---
+
+## 5. Generate application key
+
+```bash
+php artisan key:generate
+```
+
+---
+
+## 6. Configure database
+
+Update your `.env` file.
+
+```env
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=al_mairaaj
+DB_USERNAME=root
+DB_PASSWORD=
+```
+
+---
+
+## 7. Run migrations
+
+```bash
+php artisan migrate
+```
+
+If seeders are available:
+
+```bash
+php artisan db:seed
+```
+
+or
+
+```bash
+php artisan migrate --seed
+```
+
+---
+
+## 8. Build frontend assets
+
+Development
+
+```bash
+npm run dev
+```
+
+Production
+
+```bash
+npm run build
+```
+
+---
+
+## 9. Start Laravel
+
+```bash
+php artisan serve
+```
+
+The application will be available at:
+
+```
+http://127.0.0.1:8000
+```
+
+---
+
+# Useful Commands
+
+Clear cache
+
+```bash
+php artisan optimize:clear
+```
+
+Run migrations
+
+```bash
+php artisan migrate
+```
+
+Rollback migrations
+
+```bash
+php artisan migrate:rollback
+```
+
+Create migration
+
+```bash
+php artisan make:migration
+```
+
+Create model
+
+```bash
+php artisan make:model ModelName
+```
+
+Create controller
+
+```bash
+php artisan make:controller ControllerName
+```
+
+Run queue worker
+
+```bash
+php artisan queue:work
+```
+
+---
+
+# Folder Overview
+
+| Folder | Description |
+|---------|-------------|
+| app | Application logic |
+| routes | Application routes |
+| resources | Blade views, CSS and JS |
+| database | Migrations and seeders |
+| public | Public assets |
+| storage | Logs and uploaded files |
+| config | Configuration files |
+
+---
+
+# Security
+
+- Authentication
+- Authorization using Roles & Permissions
+- CSRF Protection
+- Form Validation
+- Password Hashing
+
+---
+
+# Future Enhancements
+
+- Mobile Application
+- Parent Portal
+- Student Portal
+- Online Fee Payment
+- AI-powered Learning Assistant
+- Analytics Dashboard
+- SMS Integration
+- Email Notifications
+- Video Library
+- Certificate Generation
+
+---
+
+# Contributing
+
+1. Fork the repository.
+2. Create a feature branch.
+3. Commit your changes.
+4. Push to your branch.
+5. Open a Pull Request.
+
+---
+
+# License
+
+This project is licensed under the MIT License.
+
+---
+
+# Author
+
+**Al Mairaaj Development Team**
