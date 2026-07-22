@@ -29,14 +29,76 @@ class ApiController extends Controller
     }
     public function student_wallet_data()
     {
+        $student = auth()->user()?->student;
+        if (!$student) {
+            return response()->json(['wallet' => null, 'message' => 'Unauthenticated student'], 401);
+        }
+
         $wallet = Wallet::with('transactions')
-            ->where('student_id', auth()->user()->student->id)
+            ->where('student_id', $student->id)
             ->first();
+
+        if (!$wallet) {
+            $wallet = Wallet::create([
+                'student_id' => $student->id,
+                'balance' => 0.00,
+                'currency' => 'PKR',
+                'status' => 'active',
+            ]);
+            $wallet->setRelation('transactions', []);
+        }
 
         return response()->json([
             'wallet' => $wallet,
         ]);
     }
+
+    public function student_withdraw_request(Request $request)
+    {
+
+        dd($request);
+        $student = auth()->user()?->student;
+        if (!$student) {
+            return response()->json(['message' => 'Unauthorized'], 401);
+        }
+
+        $request->validate([
+            'amount' => 'required|numeric|min:1',
+            'method' => 'required|string',
+            'account_title' => 'required|string',
+            'account_number' => 'required|string',
+            'bank_name' => 'nullable|string',
+        ]);
+
+        $wallet = Wallet::where('student_id', $student->id)->first();
+        if (!$wallet || $wallet->balance < $request->amount) {
+            return response()->json(['message' => 'Insufficient wallet balance for withdrawal.'], 422);
+        }
+
+        $wallet->balance -= $request->amount;
+        $wallet->save();
+
+        $ref = 'WD-' . strtoupper(substr(md5(uniqid()), 0, 8));
+
+        WalletTransaction::create([
+            'wallet_id' => $wallet->id,
+            'title' => 'Withdrawal Request (' . ucfirst($request->method) . ')',
+            'type' => 'debit',
+            'amount' => $request->amount,
+            'reference' => $ref,
+            'status' => 'pending',
+            'description' => 'Withdrawal to ' . $request->account_title . ' (' . $request->account_number . ')',
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Withdrawal request submitted successfully.',
+            'balance' => (float) $wallet->balance,
+            'reference' => $ref,
+            'status' => 'pending',
+        ]);
+    }
+    
     public function student_subjects_data()
     {
         $curriculum_subjects = CurriculumSubject::with('grade.board')->orderBy('name')->get();

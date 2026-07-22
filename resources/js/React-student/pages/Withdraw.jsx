@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
@@ -9,13 +9,57 @@ import {
   CheckCircle2,
   Loader2,
   Clock,
+  ChevronDown,
+  Check,
 } from "lucide-react";
 import { motion } from "framer-motion";
+
+// Inlined here temporarily to rule out a broken import path. Once you confirm
+// where csrf.js actually lives in your project, this can go back to:
+//   import { withCsrfHeaders } from "../lib/csrf";
+//
+// Laravel auto-sets an encrypted XSRF-TOKEN cookie on every response for
+// requests going through the `web` middleware group. We read it and send
+// it back as X-XSRF-TOKEN, which VerifyCsrfToken also accepts.
+function getCookie(name) {
+  const match = document.cookie
+    .split("; ")
+    .find((row) => row.startsWith(name + "="));
+  if (!match) return null;
+  return decodeURIComponent(match.split("=").slice(1).join("="));
+}
+
+function withCsrfHeaders(extraHeaders = {}) {
+  const token = getCookie("XSRF-TOKEN");
+
+  return {
+    "Content-Type": "application/json",
+    Accept: "application/json",
+    ...(token ? { "X-XSRF-TOKEN": token } : {}),
+    ...extraHeaders,
+  };
+}
 
 const WITHDRAWAL_METHODS = [
   { id: "bank", label: "Bank Transfer", icon: Building2 },
   { id: "easypaisa", label: "EasyPaisa", icon: Smartphone },
   { id: "jazzcash", label: "JazzCash", icon: Smartphone },
+];
+
+const BANK_OPTIONS = [
+  "Allied Bank",
+  "Askari Bank",
+  "Bank Al Habib",
+  "Bank Alfalah",
+  "Faysal Bank",
+  "Habib Bank Limited (HBL)",
+  "JS Bank",
+  "MCB Bank",
+  "Meezan Bank",
+  "National Bank of Pakistan",
+  "Soneri Bank",
+  "Standard Chartered Bank",
+  "United Bank Limited (UBL)",
 ];
 
 const Withdraw = () => {
@@ -32,10 +76,34 @@ const Withdraw = () => {
   const [submitError, setSubmitError] = useState(null);
   const [success, setSuccess] = useState(null);
 
+  const [bankMenuOpen, setBankMenuOpen] = useState(false);
+  const bankMenuRef = useRef(null);
+
+  useEffect(() => {
+    if (!bankMenuOpen) return;
+
+    const handleClickOutside = (e) => {
+      if (bankMenuRef.current && !bankMenuRef.current.contains(e.target)) {
+        setBankMenuOpen(false);
+      }
+    };
+    const handleEscape = (e) => {
+      if (e.key === "Escape") setBankMenuOpen(false);
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener("keydown", handleEscape);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("keydown", handleEscape);
+    };
+  }, [bankMenuOpen]);
+
   useEffect(() => {
     let cancelled = false;
 
     fetch("/api/student/wallet-data", {
+      credentials: "same-origin",
       headers: {
         Accept: "application/json",
       },
@@ -49,7 +117,7 @@ const Withdraw = () => {
       })
       .then((data) => {
         if (!cancelled) {
-          setWallet(data);
+          setWallet(data.wallet || null);
         }
       })
       .catch((err) => {
@@ -98,6 +166,7 @@ const Withdraw = () => {
     // Clear bank name when switching away from Bank Transfer
     if (newMethod !== "bank") {
       setBankName("");
+      setBankMenuOpen(false);
     }
   };
 
@@ -109,12 +178,10 @@ const Withdraw = () => {
     setSuccess(null);
 
     try {
-      const res = await fetch("/api/student/wallet-withdraw", {
+      const res = await fetch("/api/student/withdraw-request", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Accept: "application/json",
-        },
+        credentials: "same-origin",
+        headers: withCsrfHeaders(),
         body: JSON.stringify({
           amount: requestedAmount,
           method,
@@ -243,7 +310,7 @@ const Withdraw = () => {
                   Amount to withdraw
                 </label>
 
-                <div className="mt-1 flex items-center rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/50 px-3 py-2">
+                <div className="mt-1 flex items-center rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/50 px-3 py-2 transition-colors focus-within:ring-2 focus-within:ring-indigo-500/20 focus-within:border-indigo-500">
                   <Banknote className="h-4 w-4 text-gray-400 mr-2 flex-shrink-0" />
 
                   <span className="text-sm text-gray-500 dark:text-gray-400 mr-2">
@@ -317,7 +384,7 @@ const Withdraw = () => {
                     onChange={(e) =>
                       setAccountTitle(e.target.value)
                     }
-                    className="mt-1 w-full rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/50 px-3 py-2 text-sm text-gray-900 dark:text-gray-100 outline-none"
+                    className="mt-1 w-full rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/50 px-3 py-2 text-sm text-gray-900 dark:text-gray-100 outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-colors"
                   />
                 </div>
 
@@ -338,34 +405,65 @@ const Withdraw = () => {
                     }
                     value={accountNumber}
                     onChange={handleAccountNumberChange}
-                    className="mt-1 w-full rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/50 px-3 py-2 text-sm text-gray-900 dark:text-gray-100 outline-none"
+                    className="mt-1 w-full rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/50 px-3 py-2 text-sm text-gray-900 dark:text-gray-100 outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-colors"
                   />
                 </div>
 
-                {/* Bank Name - Animated Expand / Collapse */}
+                {/* Bank Name dropdown - always occupies its slot so the card
+                    never resizes when switching methods; only its visibility
+                    and interactivity toggle. */}
                 <div
-                  className={`sm:col-span-2 overflow-hidden transition-all duration-300 ease-in-out ${
-                    isBank
-                      ? "max-h-24 opacity-100 translate-y-0"
-                      : "max-h-0 opacity-0 -translate-y-2 pointer-events-none"
+                  className={`sm:col-span-2 transition-opacity duration-150 ${
+                    isBank ? "opacity-100" : "opacity-0 pointer-events-none select-none"
                   }`}
                   aria-hidden={!isBank}
                 >
-                  <div className="pt-0">
-                    <label className="text-xs text-gray-500 dark:text-gray-400">
-                      Bank name
-                    </label>
+                  <label className="text-xs text-gray-500 dark:text-gray-400">
+                    Bank name
+                  </label>
 
-                    <input
-                      type="text"
-                      placeholder="e.g. HBL, Meezan, UBL"
-                      value={bankName}
-                      onChange={(e) =>
-                        setBankName(e.target.value)
-                      }
+                  <div className="relative mt-1" ref={bankMenuRef}>
+                    <button
+                      type="button"
                       tabIndex={isBank ? 0 : -1}
-                      className="mt-1 w-full rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/50 px-3 py-2 text-sm text-gray-900 dark:text-gray-100 outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-colors"
-                    />
+                      onClick={() => setBankMenuOpen((prev) => !prev)}
+                      className="w-full flex items-center justify-between rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/50 px-3 py-2 text-sm text-left outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-colors"
+                    >
+                      <span className={bankName ? "text-gray-900 dark:text-gray-100" : "text-gray-400"}>
+                        {bankName || "Select a bank"}
+                      </span>
+                      <ChevronDown
+                        className={`h-4 w-4 text-gray-400 flex-shrink-0 transition-transform ${
+                          bankMenuOpen ? "rotate-180" : ""
+                        }`}
+                      />
+                    </button>
+
+                    {bankMenuOpen && (
+                      <div className="absolute z-20 top-full left-0 right-0 mt-1 max-h-56 overflow-y-auto rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-lg">
+                        {BANK_OPTIONS.map((bank) => {
+                          const isSelected = bankName === bank;
+                          return (
+                            <button
+                              key={bank}
+                              type="button"
+                              onClick={() => {
+                                setBankName(bank);
+                                setBankMenuOpen(false);
+                              }}
+                              className={`w-full flex items-center justify-between px-3 py-2 text-sm text-left hover:bg-indigo-50 dark:hover:bg-gray-700 transition-colors ${
+                                isSelected
+                                  ? "text-indigo-700 dark:text-indigo-300 font-medium"
+                                  : "text-gray-700 dark:text-gray-200"
+                              }`}
+                            >
+                              {bank}
+                              {isSelected && <Check className="h-4 w-4 flex-shrink-0" />}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>

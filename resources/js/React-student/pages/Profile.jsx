@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { motion } from "framer-motion";
+import { withCsrfHeaders } from "../lib/csrf";
 import {
   Camera,
   Save,
@@ -81,7 +82,7 @@ const Profile = () => {
     try {
       const res = await fetch("/api/student/profile-data", {
         method: "PUT",
-        headers: { "Content-Type": "application/json", Accept: "application/json" },
+        headers: withCsrfHeaders(),
         body: JSON.stringify(profileData),
       });
 

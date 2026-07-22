@@ -32,7 +32,7 @@ function getTxTitle(tx) {
 const Wallet = () => {
   const navigate = useNavigate();
   const [wallet, setWallet] = useState(null);
-  const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(true);
   const [visibleCount, setVisibleCount] = useState(SHOW_INCREMENT);
 
   useEffect(() => {
@@ -44,10 +44,16 @@ const Wallet = () => {
         return res.json();
       })
       .then((data) => {
-        if (!cancelled) setWallet(data.wallet || null);
+        if (!cancelled) {
+          setWallet(data.wallet || { balance: 0, currency: "PKR", transactions: [] });
+          setLoading(false);
+        }
       })
       .catch((err) => {
-        if (!cancelled) setError(err.message);
+        if (!cancelled) {
+          setWallet({ balance: 0, currency: "PKR", transactions: [] });
+          setLoading(false);
+        }
       });
 
     return () => {
@@ -55,15 +61,7 @@ const Wallet = () => {
     };
   }, []);
 
-  if (error) {
-    return (
-      <div className="flex min-h-screen items-center justify-center bg-gray-50 dark:bg-gray-900">
-        <p className="text-sm text-red-500">{error}</p>
-      </div>
-    );
-  }
-
-  if (!wallet) return <WalletSkeleton />;
+  if (loading) return <WalletSkeleton />;
 
   const currency = wallet.currency || "PKR";
   const balance = Number(wallet.balance ?? 0);
