@@ -44,7 +44,7 @@ const Wallet = () => {
         return res.json();
       })
       .then((data) => {
-        if (!cancelled) setWallet(data);
+        if (!cancelled) setWallet(data.wallet || null);
       })
       .catch((err) => {
         if (!cancelled) setError(err.message);

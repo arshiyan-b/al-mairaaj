@@ -19,13 +19,23 @@ use Illuminate\Support\Facades\Hash;
 
 class ApiController extends Controller
 {
+    public function student_profile_data()
+    {
+        $profile = Student::find(auth()->user()->student->id);
+
+        return response()->json([
+            'profile' => $profile,
+        ]);
+    }
     public function student_wallet_data()
     {
         $wallet = Wallet::with('transactions')
             ->where('student_id', auth()->user()->student->id)
             ->first();
 
-        return response()->json($wallet);
+        return response()->json([
+            'wallet' => $wallet,
+        ]);
     }
     public function student_subjects_data()
     {
@@ -67,11 +77,7 @@ class ApiController extends Controller
             ->where('teacher_id', $teacher->id)
             ->get();
 
-        return response()->json($teacher);
-        // return response()->json([
-        //     'teacher' => $teacher,
-        //     'batches' => $batches,
-        // ]); 
+        return response()->json($teacher); 
     }
     public function student_live_classes_data()
     {
