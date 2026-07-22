@@ -116,6 +116,8 @@ Route::middleware(['auth', 'role:student'])->group(function () {
 
     // Wallet
     Route::get('/wallet', [StudentController::class, 'wallet'])->name('student.wallet');
+    Route::get('/top-up', [StudentController::class, 'topup'])->name('student.topup');
+    Route::get('/withdraw', [StudentController::class, 'withdraw'])->name('student.withdraw');
 
     Route::get('/courses/caie/olevel', [StudentController::class, 'caie_olevel'])->name('student.caie_olevel');
     Route::get('/courses/pearson/igcse', [StudentController::class, 'pearson_igcse'])->name('student.pearson_igcse');

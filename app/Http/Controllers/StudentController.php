@@ -35,8 +35,7 @@ class StudentController extends Controller
     }
     public function live_class_batch($id)
     {
-        $batchTitle = Batch::where('id', $id)->value('title');
-        return view('student.live_classes.batch', compact('batchTitle'));
+        return view('student.live_classes.batch');
     }
     public function boards()
     {
@@ -69,5 +68,13 @@ class StudentController extends Controller
     public function wallet()
     {
         return view('student.wallet.index');
+    }
+    public function topup()
+    {
+        return view('student.wallet.topup');
+    }
+    public function withdraw()
+    {
+        return view('student.wallet.withdraw');
     }
 }

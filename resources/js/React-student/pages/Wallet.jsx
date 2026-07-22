@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Wallet as WalletIcon, Plus, Gift, ArrowUpRight, ArrowDownLeft, Receipt } from "lucide-react";
@@ -29,6 +30,7 @@ function getTxTitle(tx) {
 }
 
 const Wallet = () => {
+  const navigate = useNavigate();
   const [wallet, setWallet] = useState(null);
   const [error, setError] = useState(null);
   const [visibleCount, setVisibleCount] = useState(SHOW_INCREMENT);
@@ -118,7 +120,13 @@ const Wallet = () => {
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.3, delay: 0.2 }}
             >
-              <Card className="hover:bg-indigo-50 dark:hover:bg-gray-800 cursor-pointer transition-colors shadow-md hover:shadow-xl border-0 group h-full flex flex-col">
+              <Card
+                onClick={() => navigate("/top-up")}
+                role="button"
+                tabIndex={0}
+                onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && navigate("/top-up")}
+                className="hover:bg-indigo-50 dark:hover:bg-gray-800 cursor-pointer transition-colors shadow-md hover:shadow-xl border-0 group h-full flex flex-col focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
+              >
                 <CardContent className="p-4 flex flex-col items-center justify-center gap-3 flex-1">
                   <div className="bg-indigo-100 dark:bg-indigo-900/40 p-3 rounded-full group-hover:scale-110 transition-transform">
                     <Plus className="h-6 w-6 text-indigo-600 dark:text-indigo-400" />
@@ -133,12 +141,18 @@ const Wallet = () => {
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.3, delay: 0.3 }}
             >
-              <Card className="hover:bg-purple-50 dark:hover:bg-gray-800 cursor-pointer transition-colors shadow-md hover:shadow-xl border-0 group h-full flex flex-col">
+              <Card
+                onClick={() => navigate("/withdraw")}
+                role="button"
+                tabIndex={0}
+                onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && navigate("/withdraw")}
+                className="hover:bg-purple-50 dark:hover:bg-gray-800 cursor-pointer transition-colors shadow-md hover:shadow-xl border-0 group h-full flex flex-col focus:outline-none focus-visible:ring-2 focus-visible:ring-purple-500"
+              >
                 <CardContent className="p-4 flex flex-col items-center justify-center gap-3 flex-1">
                   <div className="bg-purple-100 dark:bg-purple-900/40 p-3 rounded-full group-hover:scale-110 transition-transform">
                     <Gift className="h-6 w-6 text-purple-600 dark:text-purple-400" />
                   </div>
-                  <span className="font-semibold text-gray-800 dark:text-gray-200">Redeem</span>
+                  <span className="font-semibold text-gray-800 dark:text-gray-200">Withdraw</span>
                 </CardContent>
               </Card>
             </motion.div>

@@ -17,11 +17,13 @@ import PastPapers from "./pages/PastPapers";
 import Teachers from "./pages/Teachers";
 import Teacher from "./pages/Teacher";
 import Profile from "./pages/Profile";
-import Wallet from "./pages/Wallet";
 import Chatbot from "./pages/Chatbot";
 import Login from "./pages/Login";
 import Otp from "./pages/Otp";
 import Register from "./pages/Register";
+import Wallet from "./pages/Wallet";
+import Topup from "./pages/Topup";
+import Withdraw from "./pages/Withdraw";
 import ErrorBoundary from "./components/ErrorBoundary";
 import "./app.css";
 
@@ -67,6 +69,8 @@ function App() {
           <Route path="teacher/:id" element={<Teacher />} />
           <Route path="profile" element={<Profile user={userData} />} />
           <Route path="wallet" element={<Wallet user={userData} />} />
+          <Route path="top-up" element={<Topup user={userData} />} />
+          <Route path="withdraw" element={<Withdraw user={userData} />} />
         </Route>
       </Routes>
     </BrowserRouter>
