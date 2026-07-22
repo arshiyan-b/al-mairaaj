@@ -52,10 +52,12 @@ class ApiController extends Controller
             'wallet' => $wallet,
         ]);
     }
-
+    public function student_topup_request(Request $request)
+    {
+        dd($request);
+    }
     public function student_withdraw_request(Request $request)
     {
-
         dd($request);
         $student = auth()->user()?->student;
         if (!$student) {
@@ -98,7 +100,6 @@ class ApiController extends Controller
             'status' => 'pending',
         ]);
     }
-    
     public function student_subjects_data()
     {
         $curriculum_subjects = CurriculumSubject::with('grade.board')->orderBy('name')->get();

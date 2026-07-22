@@ -84,7 +84,7 @@ const Topup = () => {
     setSuccess(null);
 
     try {
-      const res = await fetch("/api/student/wallet-topup", {
+      const res = await fetch("/api/student/topup-request", {
         method: "POST",
         headers: withCsrfHeaders(),
         body: JSON.stringify({ amount: effectiveAmount, method }),
