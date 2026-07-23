@@ -8,8 +8,13 @@ import {
   Building2,
   CheckCircle2,
   Loader2,
+  ArrowLeft,
+  Upload,
+  Landmark,
+  Copy,
+  Check,
 } from "lucide-react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { withCsrfHeaders } from "../lib/csrf";
 
 const PRESET_AMOUNTS = [500, 1000, 2000, 5000];
@@ -17,18 +22,56 @@ const PRESET_AMOUNTS = [500, 1000, 2000, 5000];
 const PAYMENT_METHODS = [
   { id: "easypaisa", label: "EasyPaisa", icon: Smartphone },
   { id: "jazzcash", label: "JazzCash", icon: Smartphone },
-  { id: "card", label: "Debit / Credit Card", icon: CreditCard },
   { id: "bank", label: "Bank Transfer", icon: Building2 },
+  { id: "kuickpay", label: "KuickPay", icon: CreditCard },
 ];
+
+// Platform's receiving account details shown to the student on Step 2.
+// Replace these with your real account details (or fetch from an API).
+const RECEIVING_ACCOUNTS = {
+  easypaisa: {
+    type: "mobile",
+    accountTitle: "Learning Platform (Pvt) Ltd",
+    mobileNumber: "0300-1234567",
+  },
+  jazzcash: {
+    type: "mobile",
+    accountTitle: "Learning Platform (Pvt) Ltd",
+    mobileNumber: "0300-1234567",
+  },
+  bank: {
+    type: "bank",
+    accountTitle: "Learning Platform (Pvt) Ltd",
+    accountNumber: "1234-5678901234-56",
+    bankName: "Meezan Bank",
+    branchCode: "0123",
+  },
+  kuickpay: null, // coming soon
+};
 
 const Topup = () => {
   const [wallet, setWallet] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
 
+  // Stepper
+  const [step, setStep] = useState(1);
+
+  // Step 1 state
   const [amount, setAmount] = useState(PRESET_AMOUNTS[1]);
   const [customAmount, setCustomAmount] = useState("");
   const [method, setMethod] = useState(PAYMENT_METHODS[0].id);
+
+  // Step 2 state (per-method form fields)
+  const [mobileNumber, setMobileNumber] = useState("");
+  const [senderAccountName, setSenderAccountName] = useState("");
+  const [screenshot, setScreenshot] = useState(null);
+  const [screenshotPreview, setScreenshotPreview] = useState(null);
+
+  const [bankAccountNumber, setBankAccountNumber] = useState("");
+  const [bankAccountName, setBankAccountName] = useState("");
+  const [bankName, setBankName] = useState("");
+
+  const [copiedField, setCopiedField] = useState(null);
 
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState(null);
@@ -48,7 +91,7 @@ const Topup = () => {
           setLoading(false);
         }
       })
-      .catch((err) => {
+      .catch(() => {
         if (!cancelled) {
           setWallet({ balance: 0, currency: "PKR" });
           setLoading(false);
@@ -76,19 +119,94 @@ const Topup = () => {
     setCustomAmount(value);
   };
 
+  const resetStep2Fields = () => {
+    setMobileNumber("");
+    setSenderAccountName("");
+    setScreenshot(null);
+    setScreenshotPreview(null);
+    setBankAccountNumber("");
+    setBankAccountName("");
+    setBankName("");
+    setSubmitError(null);
+  };
+
+  const handleContinue = () => {
+    if (!isValidAmount) return;
+    resetStep2Fields();
+    setStep(2);
+  };
+
+  const handleBack = () => {
+    setStep(1);
+    setSubmitError(null);
+  };
+
+  const handleScreenshotChange = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setScreenshot(file);
+    const reader = new FileReader();
+    reader.onload = () => setScreenshotPreview(reader.result);
+    reader.readAsDataURL(file);
+  };
+
+  const handleCopy = async (field, value) => {
+    try {
+      await navigator.clipboard.writeText(value);
+      setCopiedField(field);
+      setTimeout(() => setCopiedField(null), 1500);
+    } catch {
+      // clipboard not available, ignore silently
+    }
+  };
+
+  const isStep2Valid = () => {
+    if (method === "easypaisa" || method === "jazzcash") {
+      return mobileNumber.trim() && senderAccountName.trim() && screenshot;
+    }
+    if (method === "bank") {
+      return bankAccountNumber.trim() && bankAccountName.trim() && bankName.trim();
+    }
+    // kuickpay: not implemented yet
+    return false;
+  };
+
   const handleSubmit = async () => {
-    if (!isValidAmount || submitting) return;
+    if (!isStep2Valid() || submitting) return;
 
     setSubmitting(true);
     setSubmitError(null);
     setSuccess(null);
 
     try {
-      const res = await fetch("/api/student/topup-request", {
-        method: "POST",
-        headers: withCsrfHeaders(),
-        body: JSON.stringify({ amount: effectiveAmount, method }),
-      });
+      let res;
+
+      if (method === "easypaisa" || method === "jazzcash") {
+        const formData = new FormData();
+        formData.append("amount", effectiveAmount);
+        formData.append("method", method);
+        formData.append("mobile_number", mobileNumber);
+        formData.append("account_name", senderAccountName);
+        if (screenshot) formData.append("screenshot", screenshot);
+
+        res = await fetch("/api/student/topup-request", {
+          method: "POST",
+          headers: withCsrfHeaders({ withContentType: false }),
+          body: formData,
+        });
+      } else {
+        res = await fetch("/api/student/topup-request", {
+          method: "POST",
+          headers: withCsrfHeaders(),
+          body: JSON.stringify({
+            amount: effectiveAmount,
+            method,
+            bank_account_number: bankAccountNumber,
+            bank_account_name: bankAccountName,
+            bank_name: bankName,
+          }),
+        });
+      }
 
       const data = await res.json().catch(() => ({}));
 
@@ -104,6 +222,11 @@ const Topup = () => {
       if (typeof data?.balance !== "undefined") {
         setWallet((prev) => (prev ? { ...prev, balance: data.balance } : prev));
       }
+
+      // Reset back to step 1 after a successful submission
+      setStep(1);
+      setCustomAmount("");
+      resetStep2Fields();
     } catch (err) {
       setSubmitError(err.message || "Something went wrong. Please try again.");
     } finally {
@@ -112,6 +235,9 @@ const Topup = () => {
   };
 
   if (loading) return <TopupSkeleton />;
+
+  const receiving = RECEIVING_ACCOUNTS[method];
+  const selectedMethodLabel = PAYMENT_METHODS.find((m) => m.id === method)?.label;
 
   return (
     <div className="flex-1 p-4 md:p-8 bg-gray-50 dark:bg-gray-900 min-h-screen relative z-0">
@@ -159,117 +285,277 @@ const Topup = () => {
         >
           <Card className="h-full p-6 rounded-xl shadow-md hover:shadow-xl border-0 bg-white dark:bg-gray-800 flex flex-col">
             <CardHeader className="p-0 mb-4 flex-shrink-0">
-              <CardTitle className="text-xl font-semibold text-gray-800 dark:text-gray-100">
-                Add Funds
-              </CardTitle>
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-xl font-semibold text-gray-800 dark:text-gray-100">
+                  Add Funds
+                </CardTitle>
+
+                {/* Step indicator */}
+                <div className="flex items-center gap-2">
+                  <StepDot active={step === 1} done={step > 1} label="1" />
+                  <div className="w-6 h-px bg-gray-300 dark:bg-gray-600" />
+                  <StepDot active={step === 2} done={false} label="2" />
+                </div>
+              </div>
             </CardHeader>
 
             <CardContent className="p-0 flex-1 flex flex-col gap-6">
-              {/* Amount selection */}
-              <div>
-                <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
-                  Choose an amount
-                </p>
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                  {PRESET_AMOUNTS.map((value) => {
-                    const isActive = !customAmount && amount === value;
-                    return (
+              <AnimatePresence mode="wait">
+                {step === 1 && (
+                  <motion.div
+                    key="step1"
+                    initial={{ opacity: 0, x: -12 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -12 }}
+                    transition={{ duration: 0.2 }}
+                    className="flex flex-col gap-6"
+                  >
+                    {/* Amount selection */}
+                    <div>
+                      <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
+                        Choose an amount
+                      </p>
+                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                        {PRESET_AMOUNTS.map((value) => {
+                          const isActive = !customAmount && amount === value;
+                          return (
+                            <button
+                              key={value}
+                              type="button"
+                              onClick={() => handlePreset(value)}
+                              className={`py-3 rounded-lg border text-sm font-semibold transition-colors ${
+                                isActive
+                                  ? "bg-indigo-600 border-indigo-600 text-white"
+                                  : "bg-gray-50 dark:bg-gray-700/50 border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-200 hover:border-indigo-400"
+                              }`}
+                            >
+                              {currency} {value}
+                            </button>
+                          );
+                        })}
+                      </div>
+
+                      <div className="mt-3">
+                        <label className="text-xs text-gray-500 dark:text-gray-400">
+                          Or enter a custom amount
+                        </label>
+                        <div className="mt-1 flex items-center rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/50 px-3 py-2">
+                          <span className="text-sm text-gray-500 dark:text-gray-400 mr-2">
+                            {currency}
+                          </span>
+                          <input
+                            type="text"
+                            inputMode="decimal"
+                            placeholder="0.00"
+                            value={customAmount}
+                            onChange={handleCustomChange}
+                            className="w-full bg-transparent text-sm text-gray-900 dark:text-gray-100 outline-none"
+                          />
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Payment method */}
+                    <div>
+                      <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
+                        Payment method
+                      </p>
+                      <div className="grid grid-cols-2 gap-3">
+                        {PAYMENT_METHODS.map(({ id, label, icon: Icon }) => {
+                          const isActive = method === id;
+                          return (
+                            <button
+                              key={id}
+                              type="button"
+                              onClick={() => setMethod(id)}
+                              className={`flex items-center gap-3 p-3 rounded-lg border text-sm font-medium transition-colors ${
+                                isActive
+                                  ? "bg-indigo-50 dark:bg-indigo-900/30 border-indigo-500 text-indigo-700 dark:text-indigo-300"
+                                  : "bg-gray-50 dark:bg-gray-700/50 border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-200 hover:border-indigo-400"
+                              }`}
+                            >
+                              <Icon className="h-4 w-4" />
+                              {label}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+
+                    <div className="mt-auto pt-2">
                       <button
-                        key={value}
                         type="button"
-                        onClick={() => handlePreset(value)}
-                        className={`py-3 rounded-lg border text-sm font-semibold transition-colors ${
-                          isActive
-                            ? "bg-indigo-600 border-indigo-600 text-white"
-                            : "bg-gray-50 dark:bg-gray-700/50 border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-200 hover:border-indigo-400"
-                        }`}
+                        onClick={handleContinue}
+                        disabled={!isValidAmount}
+                        className="w-full flex items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-semibold py-3 text-sm shadow-md hover:shadow-lg transition-shadow disabled:opacity-50 disabled:cursor-not-allowed"
                       >
-                        {currency} {value}
+                        Continue
                       </button>
-                    );
-                  })}
-                </div>
+                    </div>
+                  </motion.div>
+                )}
 
-                <div className="mt-3">
-                  <label className="text-xs text-gray-500 dark:text-gray-400">
-                    Or enter a custom amount
-                  </label>
-                  <div className="mt-1 flex items-center rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/50 px-3 py-2">
-                    <span className="text-sm text-gray-500 dark:text-gray-400 mr-2">
-                      {currency}
-                    </span>
-                    <input
-                      type="text"
-                      inputMode="decimal"
-                      placeholder="0.00"
-                      value={customAmount}
-                      onChange={handleCustomChange}
-                      className="w-full bg-transparent text-sm text-gray-900 dark:text-gray-100 outline-none"
-                    />
-                  </div>
-                </div>
-              </div>
+                {step === 2 && (
+                  <motion.div
+                    key="step2"
+                    initial={{ opacity: 0, x: 12 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: 12 }}
+                    transition={{ duration: 0.2 }}
+                    className="flex flex-col gap-6"
+                  >
+                    <button
+                      type="button"
+                      onClick={handleBack}
+                      className="flex items-center gap-1 text-sm text-gray-500 dark:text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 w-fit"
+                    >
+                      <ArrowLeft className="h-4 w-4" />
+                      Back
+                    </button>
 
-              {/* Payment method */}
-              <div>
-                <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
-                  Payment method
-                </p>
-                <div className="grid grid-cols-2 gap-3">
-                  {PAYMENT_METHODS.map(({ id, label, icon: Icon }) => {
-                    const isActive = method === id;
-                    return (
-                      <button
-                        key={id}
-                        type="button"
-                        onClick={() => setMethod(id)}
-                        className={`flex items-center gap-3 p-3 rounded-lg border text-sm font-medium transition-colors ${
-                          isActive
-                            ? "bg-indigo-50 dark:bg-indigo-900/30 border-indigo-500 text-indigo-700 dark:text-indigo-300"
-                            : "bg-gray-50 dark:bg-gray-700/50 border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-200 hover:border-indigo-400"
-                        }`}
-                      >
-                        <Icon className="h-4 w-4" />
-                        {label}
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
+                    <div className="rounded-lg border border-gray-200 dark:border-gray-700 bg-indigo-50/60 dark:bg-indigo-900/10 p-3 text-sm text-gray-700 dark:text-gray-300">
+                      Sending <span className="font-semibold">{currency} {effectiveAmount}</span> via{" "}
+                      <span className="font-semibold">{selectedMethodLabel}</span>
+                    </div>
 
-              {/* Feedback */}
-              {submitError && (
-                <p className="text-sm text-red-500">{submitError}</p>
-              )}
+                    {method === "kuickpay" && (
+                      <div className="flex flex-col items-center justify-center text-center gap-2 py-10 text-gray-500 dark:text-gray-400">
+                        <CreditCard className="h-8 w-8 opacity-50" />
+                        <p className="text-sm font-medium">KuickPay is coming soon</p>
+                        <p className="text-xs">Please choose another payment method for now.</p>
+                      </div>
+                    )}
 
-              {success && (
-                <div className="flex items-center gap-2 rounded-lg bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 p-3 text-sm text-green-700 dark:text-green-400">
-                  <CheckCircle2 className="h-4 w-4 flex-shrink-0" />
-                  <span>
-                    {currency} {Number(success.amount).toFixed(2)} added successfully
-                    {success.reference ? ` · Ref: ${success.reference}` : ""}
-                  </span>
-                </div>
-              )}
+                    {(method === "easypaisa" || method === "jazzcash") && receiving && (
+                      <>
+                        <ReceivingDetails title="Transfer to this account">
+                          <DetailRow label="Account Title" value={receiving.accountTitle} />
+                          <DetailRow
+                            label="Mobile Number"
+                            value={receiving.mobileNumber}
+                            copyable
+                            copied={copiedField === "mobileNumber"}
+                            onCopy={() => handleCopy("mobileNumber", receiving.mobileNumber)}
+                          />
+                        </ReceivingDetails>
 
-              {/* Submit */}
-              <div className="mt-auto pt-2">
-                <button
-                  type="button"
-                  onClick={handleSubmit}
-                  disabled={!isValidAmount || submitting}
-                  className="w-full flex items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-semibold py-3 text-sm shadow-md hover:shadow-lg transition-shadow disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  {submitting ? (
-                    <>
-                      <Loader2 className="h-4 w-4 animate-spin" />
-                      Processing...
-                    </>
-                  ) : (
-                    <>Top-up {currency} {isValidAmount ? effectiveAmount : 0}</>
-                  )}
-                </button>
-              </div>
+                        <div className="flex flex-col gap-4">
+                          <FormField
+                            label="Your Mobile Number"
+                            value={mobileNumber}
+                            onChange={setMobileNumber}
+                            placeholder="03XX-XXXXXXX"
+                          />
+                          <FormField
+                            label="Account Name"
+                            value={senderAccountName}
+                            onChange={setSenderAccountName}
+                            placeholder="Name on the sending account"
+                          />
+
+                          <div>
+                            <label className="text-xs text-gray-500 dark:text-gray-400 mb-1 block">
+                              Payment Screenshot
+                            </label>
+                            <label className="flex items-center justify-center gap-2 border border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-4 cursor-pointer hover:border-indigo-400 transition-colors">
+                              <input
+                                type="file"
+                                accept="image/*"
+                                onChange={handleScreenshotChange}
+                                className="hidden"
+                              />
+                              {screenshotPreview ? (
+                                <img
+                                  src={screenshotPreview}
+                                  alt="Screenshot preview"
+                                  className="h-24 rounded-md object-cover"
+                                />
+                              ) : (
+                                <span className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
+                                  <Upload className="h-4 w-4" />
+                                  Upload screenshot
+                                </span>
+                              )}
+                            </label>
+                          </div>
+                        </div>
+                      </>
+                    )}
+
+                    {method === "bank" && receiving && (
+                      <>
+                        <ReceivingDetails title="Transfer to this account">
+                          <DetailRow label="Bank Name" value={receiving.bankName} />
+                          <DetailRow label="Account Title" value={receiving.accountTitle} />
+                          <DetailRow
+                            label="Account Number"
+                            value={receiving.accountNumber}
+                            copyable
+                            copied={copiedField === "accountNumber"}
+                            onCopy={() => handleCopy("accountNumber", receiving.accountNumber)}
+                          />
+                          {receiving.branchCode && (
+                            <DetailRow label="Branch Code" value={receiving.branchCode} />
+                          )}
+                        </ReceivingDetails>
+
+                        <div className="flex flex-col gap-4">
+                          <FormField
+                            label="Your Account Number"
+                            value={bankAccountNumber}
+                            onChange={setBankAccountNumber}
+                            placeholder="Account number you sent from"
+                          />
+                          <FormField
+                            label="Your Account Name"
+                            value={bankAccountName}
+                            onChange={setBankAccountName}
+                            placeholder="Name on the sending account"
+                          />
+                          <FormField
+                            label="Your Bank Name"
+                            value={bankName}
+                            onChange={setBankName}
+                            placeholder="e.g. HBL, UBL, Meezan"
+                          />
+                        </div>
+                      </>
+                    )}
+
+                    {submitError && <p className="text-sm text-red-500">{submitError}</p>}
+
+                    {success && (
+                      <div className="flex items-center gap-2 rounded-lg bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 p-3 text-sm text-green-700 dark:text-green-400">
+                        <CheckCircle2 className="h-4 w-4 flex-shrink-0" />
+                        <span>
+                          {currency} {Number(success.amount).toFixed(2)} request submitted
+                          {success.reference ? ` · Ref: ${success.reference}` : ""}
+                        </span>
+                      </div>
+                    )}
+
+                    {method !== "kuickpay" && (
+                      <div className="mt-auto pt-2">
+                        <button
+                          type="button"
+                          onClick={handleSubmit}
+                          disabled={!isStep2Valid() || submitting}
+                          className="w-full flex items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-semibold py-3 text-sm shadow-md hover:shadow-lg transition-shadow disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                          {submitting ? (
+                            <>
+                              <Loader2 className="h-4 w-4 animate-spin" />
+                              Processing...
+                            </>
+                          ) : (
+                            <>Submit Top-up Request</>
+                          )}
+                        </button>
+                      </div>
+                    )}
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </CardContent>
           </Card>
         </motion.div>
@@ -277,6 +563,69 @@ const Topup = () => {
     </div>
   );
 };
+
+function StepDot({ active, done, label }) {
+  return (
+    <div
+      className={`h-7 w-7 rounded-full flex items-center justify-center text-xs font-semibold border transition-colors ${
+        active
+          ? "bg-indigo-600 border-indigo-600 text-white"
+          : done
+          ? "bg-indigo-100 border-indigo-300 text-indigo-700"
+          : "bg-gray-100 dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-400"
+      }`}
+    >
+      {label}
+    </div>
+  );
+}
+
+function ReceivingDetails({ title, children }) {
+  return (
+    <div className="rounded-lg border border-gray-200 dark:border-gray-700 p-4 bg-gray-50 dark:bg-gray-700/30">
+      <div className="flex items-center gap-2 mb-3">
+        <Landmark className="h-4 w-4 text-indigo-600 dark:text-indigo-400" />
+        <p className="text-sm font-semibold text-gray-800 dark:text-gray-100">{title}</p>
+      </div>
+      <div className="flex flex-col gap-2">{children}</div>
+    </div>
+  );
+}
+
+function DetailRow({ label, value, copyable, copied, onCopy }) {
+  return (
+    <div className="flex items-center justify-between text-sm">
+      <span className="text-gray-500 dark:text-gray-400">{label}</span>
+      <div className="flex items-center gap-2">
+        <span className="font-medium text-gray-800 dark:text-gray-100">{value}</span>
+        {copyable && (
+          <button
+            type="button"
+            onClick={onCopy}
+            className="text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400"
+          >
+            {copied ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
+          </button>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function FormField({ label, value, onChange, placeholder }) {
+  return (
+    <div>
+      <label className="text-xs text-gray-500 dark:text-gray-400 mb-1 block">{label}</label>
+      <input
+        type="text"
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        placeholder={placeholder}
+        className="w-full rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/50 px-3 py-2 text-sm text-gray-900 dark:text-gray-100 outline-none focus:border-indigo-400"
+      />
+    </div>
+  );
+}
 
 function TopupSkeleton() {
   return (
