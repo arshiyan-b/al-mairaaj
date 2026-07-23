@@ -10,6 +10,7 @@ use App\Http\Controllers\AdminController;
 use App\Http\Controllers\StudentController;
 use App\Http\Controllers\TeacherController;
 use App\Http\Controllers\VideoController;
+use App\Http\Controllers\WalletController;
 
 Route::get('/', function () {
     return view('index');
@@ -47,7 +48,6 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
 
     Route::get('/admin/books/{board}', [AdminController::class, 'books_index'])->name('admin.books.index');
 
-
     Route::get('/admin/courses/{board}/{grade}', [AdminController::class, 'course_index'])->name('admin.course.index');
 
     Route::get('/admin/live_class_batches/{board}/{grade}', [LiveClassBatchController::class, 'index'])->name('admin.live_class_batches.index');
@@ -59,6 +59,9 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
 
     Route::get('/admin/live_class/{live_class}', [LiveClassController::class, 'index'])->name('admin.live_classes.index');
     Route::post('/admin/live_class/store', [LiveClassController::class, 'store'])->name('admin.live_classes.store');
+
+    Route::get('admin/wallets', [WalletController::class, 'index'])->name('admin.wallet.index');
+    Route::get('admin/wallet/top-up/requests', [WalletController::class, 'top_up_requests'])->name('admin.top-up.requests');
 
     Route::get('admin/demo', [AdminController::class, 'demo']);
     Route::post('/video/track', [AdminController::class, 'trackWatchTime'])->name('video.track');

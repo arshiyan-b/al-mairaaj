@@ -359,6 +359,30 @@
                 </li>
 
                 <li class="sidebar-item">
+                    <a class="sidebar-link collapsed has-dropdown" data-bs-toggle="collapse"
+                        data-bs-target="#wallets" aria-expanded="false" aria-controls="wallets">
+                        <i class="bi bi-backpack fs-4"></i>
+                        <span class="fs-6">Wallets</span>
+                    </a>
+
+                    <ul id="wallets" class="sidebar-dropdown list-unstyled collapse" data-bs-parent="#sidebar">
+
+                        <li class="sidebar-item">
+                            <a href="{{ route('admin.wallet.index') }}"
+                                class="sidebar-link">Student Wallets
+                            </a>
+                        </li>
+
+                        <li class="sidebar-item">
+                            <a href="{{ route('admin.top-up.requests') }}"
+                                class="sidebar-link">Top-up Requests
+                            </a>
+                        </li>
+
+                    </ul>
+                </li>
+
+                <li class="sidebar-item">
                     <a href="#" class="sidebar-link">
                         <i class="bi bi-chat-square-text fs-4"></i>
                         <span class="fs-6">Announcements</span>

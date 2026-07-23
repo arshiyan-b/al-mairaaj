@@ -196,11 +196,12 @@ class LoginController extends Controller
 
                 $otpRecord->update(['status' => 'verified']);
                 $student = Student::where('email', $request->email)->first();
+                $studentRole = Role::where('name', 'student')->first();
                 User::create([
                     'name' => $student->full_name,
                     'email' => $student->email,
                     'password' => $otpRecord->password,
-                    'role' => 'student',
+                    'role_id' => $studentRole->id,
                     'student_id' => $student->id,
                     'created_at' => now(),
                     'email_verified_at' => now(),
@@ -245,17 +246,17 @@ class LoginController extends Controller
 
             $user = Auth::user();
 
-            if ($user->role === 'student') {
+            if ($user->role->slug === 'student') {
                 return response()->json([
                     'status' => 'success',
                     'redirect' => route('student.dashboard'),
                 ]);
-            } elseif ($user->role === 'admin') {
+            } elseif ($user->role->slug === 'admin') {
                 return response()->json([
                     'status' => 'success',
                     'redirect' => route('admin.dashboard'),
                 ]);
-            } elseif ($user->role === 'teacher') {
+            } elseif ($user->role->slug === 'teacher') {
                 return response()->json([
                     'status' => 'success',
                     'redirect' => route('teacher.dashboard'),
