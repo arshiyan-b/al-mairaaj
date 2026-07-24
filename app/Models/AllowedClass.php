@@ -14,8 +14,6 @@ class AllowedClass extends Model
     protected $fillable = [
         'teacher_id',
         'grade_id',
-        'board',
-        'grade',
         'curriculum_subject_ids',
     ];
 
@@ -39,7 +37,7 @@ class AllowedClass extends Model
 
     public function grade()
     {
-        return $this->belongsTo(Grade::class);
+        return $this->belongsTo(Grade::class, 'grade_id');
     }
 
     public function getCurriculumSubjectsAttribute()

@@ -5,11 +5,7 @@
 @section('content')
 
     <div class="container">
-        @if (session('success'))
-            <div class="alert alert-success mt-3 mx-3">
-                {{ session('success') }}
-            </div>
-        @endif
+        @include('admin.layout.alerts')
         <div class="card">
             <div class="card-header">
                 <h2>Teachers Applications</h2>

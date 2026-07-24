@@ -46,9 +46,9 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
 
     Route::get('/admin/teachers', [AdminController::class, 'teacher'])->name('admin.teacher.index');
     Route::get('/admin/teachers/{teacher}', [AdminController::class, 'teacher_show'])->name('admin.teachers.show');
-    Route::post('admin/teacher/{id}/assign-subjects', [AdminController::class, 'teacher_assign_subjects'])->name('admin.teacher_assign_subjects');
-    Route::delete('admin/teacher/{id}/class-destroy', [AdminController::class, 'teacher_class_destroy'])->name('admin.teacher_class_destroy');
-    Route::post('/admin/teacher/{id}/create-user', [AdminController::class, 'teacher_create_user'])->name('admin.teacher_create_user');
+    Route::post('admin/teacher/{id}/assign-subjects', [AdminController::class, 'teacher_assign_subjects'])->name('admin.teacher.assign.subjects');
+    Route::delete('admin/teacher/{id}/class-destroy', [AdminController::class, 'teacher_class_destroy'])->name('admin.teacher.class.destroy');
+    Route::post('/admin/teacher/{id}/create-user', [AdminController::class, 'teacher_create_user'])->name('admin.teacher.create.user');
     Route::post('/admin/teachers/user', [AdminController::class, 'teacher_user'])->name('admin.teacher_user');
 
     Route::get('/admin/books/{board}', [AdminController::class, 'books_index'])->name('admin.books.index');
@@ -77,12 +77,8 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
 Route::middleware(['auth', 'role:teacher'])->group(function () {
 
     Route::get('/teacher/dashboard', [TeacherController::class, 'dashboard'])->name('teacher.dashboard');
-    Route::get('/teacher/{board}/{qualification}', [TeacherController::class, 'class_index'])->name('teacher.class.index');
-    Route::post('/teacher/course/store', [TeacherController::class, 'course_store'])->name('teacher.course.store');
-    Route::get('/teacher/{board}/{qualification}/{course}', [TeacherController::class, 'course_show'])->name('teacher.course.show');
-    Route::post('/teacher/course/video/store', [TeacherController::class, 'course_video_store'])->name('teacher.course.video.store');
-    Route::get('/teacher/{board}/{qualification}/{course}/video', [TeacherController::class, 'course_video'])->name('teacher.course.video');
-
+    Route::get('/teacher/{board}/{grade}', [TeacherController::class, 'class_index'])->name('teacher.class.index');
+    
     Route::post('/mcq/store', [TeacherController::class, 'mcq_store'])->name('mcq.store');
 });
 

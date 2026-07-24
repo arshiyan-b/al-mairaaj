@@ -162,9 +162,6 @@ class AdminController extends Controller
             ->values()
             ->toArray();
 
-        $boardSlug = $grade->board->slug;
-        $gradeSlug = $grade->slug;
-
         // Check if a row already exists for this teacher + grade
         $allowedClass = AllowedClass::where('teacher_id', $teacher->id)
             ->where('grade_id', $grade->id)
@@ -189,8 +186,6 @@ class AdminController extends Controller
             AllowedClass::create([
                 'teacher_id'              => $teacher->id,
                 'grade_id'                => $grade->id,
-                'board'                   => $boardSlug,
-                'grade'                   => $gradeSlug,
                 'curriculum_subject_ids'  => $subjectIds,
             ]);
         }
@@ -208,12 +203,13 @@ class AdminController extends Controller
     public function teacher_create_user(Request $request, $id)
     {
         $teacher = Teacher::findOrFail($id);
+        $teacherRole = Role::where('slug', 'teacher')->firstOrFail();
 
         $user = new User();
         $user->name = $teacher->name;
         $user->email = $request->email;
         $user->password = Hash::make($request->password);
-        $user->role = 'teacher';
+        $user->role_id = $teacherRole->id;
         $user->save();
 
         $teacher->user_created = true;

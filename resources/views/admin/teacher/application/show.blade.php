@@ -5,7 +5,8 @@
 @section('content')
 
 <div class="container">
-    <div class="card shadow">
+    @include('admin.layout.alerts')
+    <div class="card">
 
         <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
             <h4 class="mb-0">Teacher Application Details</h4>

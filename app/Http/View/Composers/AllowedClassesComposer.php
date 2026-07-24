@@ -13,14 +13,22 @@ class AllowedClassesComposer
         $classes = collect();
 
         if (Auth::check()) {
-
-            $teacher = Teacher::where('user_id', Auth::user()->id)->first();
+            $teacher = Teacher::where('user_id', Auth::id())->first();
 
             if ($teacher) {
-                $classes = $teacher->allowed_classes()->with('grade')->get();
+                $classes = $teacher->allowed_classes()
+                    ->with('grade.board')
+                    ->get()
+                    ->map(function ($allowedClass) {
+                        return (object) [
+                            'board' => $allowedClass->grade->board->slug ?? null,
+                            'grade' => $allowedClass->grade->slug ?? null,
+                        ];
+                    })
+                    ->filter(fn($c) => $c->board && $c->grade);
             }
         }
 
-        $view->with('classes', $classes ?? collect());
+        $view->with('classes', $classes);
     }
 }

@@ -260,42 +260,43 @@
                     </a>
                 </li>
 
-                <li class="sidebar-item">
-                    <a class="sidebar-link collapsed has-dropdown" data-bs-toggle="collapse" data-bs-target="#classes"
-                        aria-expanded="false" aria-controls="courses">
-
+                <li class="sidebar-item"> 
+                    <a class="sidebar-link collapsed has-dropdown" data-bs-toggle="collapse" data-bs-target="#live_class_batches" aria-expanded="false" aria-controls="live_class_batches">
                         <i class="bi bi-camera-video fs-4"></i>
-                        <span class="fs-6">Classes</span>
+                        <span class="fs-6">Live Class Batches</span>
                     </a>
 
-                    {{-- CLASSES LEVEL --}}
-                    <ul id="classes" class="sidebar-dropdown list-unstyled collapse" data-bs-parent="#sidebar">
+                    <ul id="live_class_batches" class="sidebar-dropdown list-unstyled collapse" data-bs-parent="#sidebar">
 
                         {{-- ================= P E A R S O N ================= --}}
-                        @if($classes->contains('board', 'pearson'))
+                        @if ($classes->contains('board', 'pearson'))
+
                             <li class="sidebar-item">
 
-                                <a class="sidebar-link collapsed has-dropdown" data-bs-toggle="collapse"
-                                    data-bs-target="#pearsonQualifications" aria-expanded="false"
-                                    aria-controls="pearsonQualifications">
+                                <a class="sidebar-link collapsed has-dropdown"
+                                    data-bs-toggle="collapse"
+                                    data-bs-target="#pearsonQualifications"
+                                    aria-expanded="false">
+
                                     Pearson
                                 </a>
 
-                                <ul id="pearsonQualifications" class="sidebar-dropdown list-unstyled collapse"
+                                <ul id="pearsonQualifications"
+                                    class="sidebar-dropdown list-unstyled collapse"
                                     data-bs-parent="#classes">
 
-                                    @if($classes->contains(fn($c) => $c->board === 'pearson' && in_array('igcse', $c->qualifications ?? [])))
+                                    @if ($classes->contains(fn($c) => $c->board === 'pearson' && $c->grade === 'igcse'))
                                         <li class="sidebar-item">
-                                            <a href="{{ route('teacher.class.index', ['board' => 'Pearson', 'qualification' => 'igcse']) }}"
+                                            <a href="{{ route('teacher.class.index', ['board' => 'pearson', 'grade' => 'igcse']) }}"
                                                 class="sidebar-link">
                                                 IGCSE
                                             </a>
                                         </li>
                                     @endif
 
-                                    @if($classes->contains(fn($c) => $c->board === 'pearson' && in_array('ial', $c->qualifications ?? [])))
+                                    @if ($classes->contains(fn($c) => $c->board === 'pearson' && $c->grade === 'ial'))
                                         <li class="sidebar-item">
-                                            <a href="{{ route('teacher.class.index', ['board' => 'pearson', 'qualification' => 'ial']) }}"
+                                            <a href="{{ route('teacher.class.index', ['board' => 'pearson', 'grade' => 'ial']) }}"
                                                 class="sidebar-link">
                                                 International A Level
                                             </a>
@@ -304,43 +305,48 @@
 
                                 </ul>
                             </li>
+
                         @endif
 
 
                         {{-- ================= C A I E ================= --}}
-                        @if($classes->contains('board', 'caie'))
+                        @if ($classes->contains('board', 'caie'))
+
                             <li class="sidebar-item">
 
-                                <a class="sidebar-link collapsed has-dropdown" data-bs-toggle="collapse"
-                                    data-bs-target="#caieQualifications" aria-expanded="false"
-                                    aria-controls="caieQualifications">
+                                <a class="sidebar-link collapsed has-dropdown"
+                                    data-bs-toggle="collapse"
+                                    data-bs-target="#caieQualifications"
+                                    aria-expanded="false">
+
                                     CAIE
                                 </a>
 
-                                <ul id="caieQualifications" class="sidebar-dropdown list-unstyled collapse"
+                                <ul id="caieQualifications"
+                                    class="sidebar-dropdown list-unstyled collapse"
                                     data-bs-parent="#classes">
 
-                                    @if($classes->contains(fn($c) => $c->board === 'caie' && in_array('olevel', $c->qualifications ?? [])))
+                                    @if ($classes->contains(fn($c) => $c->board === 'caie' && $c->grade === 'olevel'))
                                         <li class="sidebar-item">
-                                            <a href="{{ route('teacher.class.index', ['board' => 'caie', 'qualification' => 'olevel']) }}"
+                                            <a href="{{ route('teacher.class.index', ['board' => 'caie', 'grade' => 'olevel']) }}"
                                                 class="sidebar-link">
                                                 O Level
                                             </a>
                                         </li>
                                     @endif
 
-                                    @if($classes->contains(fn($c) => $c->board === 'caie' && in_array('igcse', $c->qualifications ?? [])))
+                                    @if ($classes->contains(fn($c) => $c->board === 'caie' && $c->grade === 'igcse'))
                                         <li class="sidebar-item">
-                                            <a href="{{ route('teacher.class.index', ['board' => 'caie', 'qualification' => 'igcse']) }}"
+                                            <a href="{{ route('teacher.class.index', ['board' => 'caie', 'grade' => 'igcse']) }}"
                                                 class="sidebar-link">
                                                 IGCSE
                                             </a>
                                         </li>
                                     @endif
 
-                                    @if($classes->contains(fn($c) => $c->board === 'caie' && in_array('alevel', $c->qualifications ?? [])))
+                                    @if ($classes->contains(fn($c) => $c->board === 'caie' && $c->grade === 'alevel'))
                                         <li class="sidebar-item">
-                                            <a href="{{ route('teacher.class.index', ['board' => 'caie', 'qualification' => 'alevel']) }}"
+                                            <a href="{{ route('teacher.class.index', ['board' => 'caie', 'grade' => 'alevel']) }}"
                                                 class="sidebar-link">
                                                 A Level
                                             </a>
@@ -349,48 +355,62 @@
 
                                 </ul>
                             </li>
+
                         @endif
 
 
                         {{-- ================= A K U - E B ================= --}}
-                        @if($classes->contains('board', 'akueb'))
+                        @if ($classes->contains('board', 'akueb'))
+
                             <li class="sidebar-item">
 
-                                <a class="sidebar-link collapsed has-dropdown" data-bs-toggle="collapse"
-                                    data-bs-target="#akuebQualifications" aria-expanded="false"
-                                    aria-controls="akuebQualifications">
+                                <a class="sidebar-link collapsed has-dropdown"
+                                    data-bs-toggle="collapse"
+                                    data-bs-target="#akuebQualifications"
+                                    aria-expanded="false">
+
                                     AKU EB
                                 </a>
 
-                                <ul id="akuebQualifications" class="sidebar-dropdown list-unstyled collapse"
+                                <ul id="akuebQualifications"
+                                    class="sidebar-dropdown list-unstyled collapse"
                                     data-bs-parent="#classes">
 
-                                    @if($classes->contains(fn($c) => $c->board === 'akueb' && in_array('ssc-i', $c->qualifications ?? [])))
+                                    @if ($classes->contains(fn($c) => $c->board === 'akueb' && $c->grade === 'ssc-i'))
                                         <li class="sidebar-item">
-                                            <a href="#" class="sidebar-link">SSC I</a>
+                                            <a href="{{ route('teacher.class.index', ['board' => 'akueb', 'grade' => 'ssc-i']) }}" class="sidebar-link">
+                                                SSC I
+                                            </a>
                                         </li>
                                     @endif
 
-                                    @if($classes->contains(fn($c) => $c->board === 'akueb' && in_array('ssc-ii', $c->qualifications ?? [])))
+                                    @if ($classes->contains(fn($c) => $c->board === 'akueb' && $c->grade === 'ssc-ii'))
                                         <li class="sidebar-item">
-                                            <a href="#" class="sidebar-link">SSC II</a>
+                                            <a href="{{ route('teacher.class.index', ['board' => 'akueb', 'grade' => 'ssc-ii']) }}" class="sidebar-link">
+                                                SSC II
+                                            </a>
                                         </li>
                                     @endif
 
-                                    @if($classes->contains(fn($c) => $c->board === 'akueb' && in_array('hssc-i', $c->qualifications ?? [])))
+                                    @if ($classes->contains(fn($c) => $c->board === 'akueb' && $c->grade === 'hssc-i'))
                                         <li class="sidebar-item">
-                                            <a href="#" class="sidebar-link">HSSC I</a>
+                                            <a href="{{ route('teacher.class.index', ['board' => 'akueb', 'grade' => 'hssc-i']) }}" class="sidebar-link">
+                                                HSSC I
+                                            </a>
                                         </li>
                                     @endif
 
-                                    @if($classes->contains(fn($c) => $c->board === 'akueb' && in_array('hssc-ii', $c->qualifications ?? [])))
+                                    @if ($classes->contains(fn($c) => $c->board === 'akueb' && $c->grade === 'hssc-ii'))
                                         <li class="sidebar-item">
-                                            <a href="#" class="sidebar-link">HSSC II</a>
+                                            <a href="{{ route('teacher.class.index', ['board' => 'akueb', 'grade' => 'hssc-ii']) }}" class="sidebar-link">
+                                                HSSC II
+                                            </a>
                                         </li>
                                     @endif
 
                                 </ul>
                             </li>
+
                         @endif
 
                     </ul>

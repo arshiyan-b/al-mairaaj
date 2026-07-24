@@ -5,11 +5,7 @@
 @section('content')
 
     <div class="container">
-        @if (session('success'))
-            <div class="alert alert-success mt-3 mx-3">
-                {{ session('success') }}
-            </div>
-        @endif
+        @include('admin.layout.alerts')
         <div class="card shadow">
             <div class="card-header bg-dark text-white">
                 <h4 class="mb-0">Teacher Details</h4>
@@ -95,8 +91,8 @@
                 @else
                     @foreach ($classes as $class)
                         <div class="border rounded p-3 mb-3">
-                            <p><strong>Board:</strong> {{ $class->board }}</p>
-                            <p><strong>Grade:</strong> <span class="badge bg-primary">{{ $class->grade }}</span></p>
+                            <p><strong>Board:</strong> {{ $class->grade->board->name }}</p>
+                            <p><strong>Grade:</strong> <span class="badge bg-primary">{{ $class->grade->name }}</span></p>
 
                             <p>
                                 <p>
@@ -109,7 +105,7 @@
                                 </p>
                             </p>
 
-                            <form action="{{ route('admin.teacher_class_destroy', $class->id) }}" method="POST"
+                            <form action="{{ route('admin.teacher.class.destroy', $class->id) }}" method="POST"
                                 onsubmit="return confirm('Are you sure you want to delete this class?');"
                                 style="display:inline-block;">
                                 @csrf
@@ -134,7 +130,7 @@
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     
-                    <form method="POST" action="{{ route('admin.teacher_assign_subjects', $teacher->id) }}">
+                    <form method="POST" action="{{ route('admin.teacher.assign.subjects', $teacher->id) }}">
                         @csrf
                         <div class="modal-body">
                             <input type="hidden" name="teacher_id" value="{{ $teacher->id }}">
@@ -144,7 +140,7 @@
                                 <select name="teacherGrades" class="form-control" id="teacherGrades"> 
                                     <option value="">Select Grade</option>
                                     @foreach ($grades as $grade) 
-                                        <option value="{{ $grade->id }}">{{ $grade->name }} - {{ $grade->board->name }}</option> 
+                                        <option value="{{ $grade->id }}">{{ $grade->board->name }} - {{ $grade->name }}</option> 
                                     @endforeach 
                                 </select> 
                             </div>
