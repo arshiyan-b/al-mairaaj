@@ -20,41 +20,41 @@
                     <dd class="col-sm-9">{{ $teacher->name }}</dd>
 
                     <dt class="col-sm-3">CNIC</dt>
-                    <dd class="col-sm-9">{{ $teacher->cnic }}</dd>
+                    <dd class="col-sm-9">{{ $teacher->application->cnic }}</dd>
 
                     <dt class="col-sm-3">Gender</dt>
-                    <dd class="col-sm-9">{{ ucfirst($teacher->gender) }}</dd>
+                    <dd class="col-sm-9">{{ ucfirst($teacher->application->gender) }}</dd>
 
                     <dt class="col-sm-3">Phone</dt>
-                    <dd class="col-sm-9">{{ $teacher->phone_number }}</dd>
+                    <dd class="col-sm-9">{{ $teacher->application->phone_number }}</dd>
 
                     <dt class="col-sm-3">WhatsApp</dt>
-                    <dd class="col-sm-9">{{ $teacher->whatsapp_number }}</dd>
+                    <dd class="col-sm-9">{{ $teacher->application->whatsapp_number }}</dd>
 
                     <dt class="col-sm-3">Email</dt>
-                    <dd class="col-sm-9">{{ $teacher->email }}</dd>
+                    <dd class="col-sm-9">{{ $teacher->application->email }}</dd>
 
                     <dt class="col-sm-3">City</dt>
-                    <dd class="col-sm-9">{{ $teacher->city }}</dd>
+                    <dd class="col-sm-9">{{ $teacher->application->city }}</dd>
 
                     <dt class="col-sm-3">Address</dt>
-                    <dd class="col-sm-9">{{ $teacher->address }}</dd>
+                    <dd class="col-sm-9">{{ $teacher->application->address }}</dd>
 
                     <dt class="col-sm-3">Highest Degree</dt>
-                    <dd class="col-sm-9">{{ $teacher->highest_degree }}</dd>
+                    <dd class="col-sm-9">{{ $teacher->application->highest_degree }}</dd>
 
                     <dt class="col-sm-3">Field of Study</dt>
-                    <dd class="col-sm-9">{{ $teacher->field_of_study }}</dd>
+                    <dd class="col-sm-9">{{ $teacher->application->field_of_study }}</dd>
 
                     <dt class="col-sm-3">University</dt>
-                    <dd class="col-sm-9">{{ $teacher->university }}</dd>
+                    <dd class="col-sm-9">{{ $teacher->application->university }}</dd>
 
                     <dt class="col-sm-3">Experience</dt>
-                    <dd class="col-sm-9">{{ $teacher->experience }}</dd>
+                    <dd class="col-sm-9">{{ $teacher->application->experience }}</dd>
 
                     <dt class="col-sm-3">Preferred Grades</dt>
                     <dd class="col-sm-9">
-                        @forelse($teacher->preferred_grades_list as $grade)
+                        @forelse($teacher->application->preferred_grades_list as $grade)
                             <span class="badge bg-primary">
                                 {{ $grade->board->name }} - {{ $grade->name }}
                             </span>
@@ -65,7 +65,7 @@
 
                     <dt class="col-sm-3">Preferred Subjects</dt>
                     <dd class="col-sm-9">
-                        @forelse($teacher->preferred_subjects_list as $subject)
+                        @forelse($teacher->application->preferred_subjects_list as $subject)
                             <span class="badge bg-success">{{ $subject->name }}</span>
                         @empty
                             <span class="text-muted">No preferred subjects selected.</span>
@@ -84,7 +84,7 @@
                     </dd>
 
                     <dt class="col-sm-3">Agreed to Terms</dt>
-                    <dd class="col-sm-9">{{ ucfirst($teacher->agree) }}</dd>
+                    <dd class="col-sm-9">{{ ucfirst($teacher->application->agree) }}</dd>
                 </dl>
                 <hr>
 

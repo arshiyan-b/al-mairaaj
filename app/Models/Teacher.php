@@ -11,22 +11,10 @@ class Teacher extends Model
     use HasFactory;
     protected $fillable = [
         'name',
-        'cnic',
-        'gender',
-        'city',
-        'phone_number',
-        'whatsapp_number',
-        'email',
-        'address',
-        'highest_degree',
-        'field_of_study',
-        'university',
-        'experience',
-        'subjects',
-        'preferred_grades',
-        'preferred_subjects',
-        'agree',
+        'application_id',
+        'user_created',
         'user_id',
+        'status',
     ];
 
     protected $hidden = [
@@ -38,18 +26,12 @@ class Teacher extends Model
     {
         return $this->belongsTo(User::class);
     }
+    public function application()
+    {
+        return $this->belongsTo(TeacherApplication::class, 'application_id');
+    }
     public function allowed_classes()
     {
         return $this->hasMany(AllowedClass::class);
-    }
-    public function getPreferredGradesListAttribute()
-    {
-        $gradeIds = explode(',', $this->preferred_grades);
-        return Grade::whereIn('id', $gradeIds)->get();
-    }
-    public function getPreferredSubjectsListAttribute()
-    {
-        $subjectIds = explode(',', $this->preferred_subjects);
-        return Subject::whereIn('id', $subjectIds)->get();
     }
 }

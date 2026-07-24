@@ -11,6 +11,7 @@ use App\Models\Student;
 use App\Models\StudentUserOtp;
 use App\Models\Subject;
 use App\Models\Teacher;
+use App\Models\TeacherApplication;
 use App\Models\TeacherDoc;
 use App\Models\User;
 use App\Models\Board;
@@ -57,13 +58,16 @@ class LoginController extends Controller
             'preferred_subjects' => 'required|array|min:1',
             'preferred_subjects.*' => 'string|max:255',
 
+            'preferred_timings' => 'required|array|min:1',
+            'preferred_timings.*' => 'required|string|in:Morning,Afternoon,Evening,Night',
+
             'resume' => 'required|file|mimes:pdf,doc,docx',
             'picture' => 'required|image',
             'agree' => 'required',
         ]);
 
-        $teacher = Teacher::create([
-        'name' => $request->teacher_name,
+        $teacherApplication = TeacherApplication::create([
+            'name' => $request->teacher_name,
             'cnic' => $request->teacher_cnic,
             'gender' => $request->teacher_gender,
             'phone_number' => $request->teacher_phone_no,
@@ -75,8 +79,9 @@ class LoginController extends Controller
             'field_of_study' => $request->field_of_study,
             'university' => $request->university,
             'experience' => $request->experience,
-            'preferred_grades' => implode(',', $request->preferred_grades),
-            'preferred_subjects' => implode(',', $request->preferred_subjects),
+            'preferred_grades' => $request->preferred_grades,
+            'preferred_subjects' => $request->preferred_subjects,
+            'preferred_timings' => $request->preferred_timings,
             'agree' => 'yes',
             'user_created' => 0,
         ]);
@@ -85,7 +90,7 @@ class LoginController extends Controller
             $path = $request->file('resume')->store('teacher_docs/resumes', 'public');
 
             TeacherDoc::create([
-                'teacher_id' => $teacher->id,
+                'application_id' => $teacherApplication->id,
                 'type' => 'resume',
                 'file_path' => $path,
             ]);
@@ -95,7 +100,7 @@ class LoginController extends Controller
             $path = $request->file('picture')->store('teacher_docs/pictures', 'public');
 
             TeacherDoc::create([
-                'teacher_id' => $teacher->id,
+                'application_id' => $teacherApplication->id,
                 'type' => 'picture',
                 'file_path' => $path,
             ]);

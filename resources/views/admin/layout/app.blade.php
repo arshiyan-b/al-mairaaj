@@ -256,11 +256,29 @@
                         <span class="fs-6">Student</span>
                     </a>
                 </li>
+
                 <li class="sidebar-item">
-                    <a href="{{ route('admin.teacher') }}" class="sidebar-link">
-                        <i class="bi bi-person-vcard fs-4"></i>
+                    <a class="sidebar-link collapsed has-dropdown" data-bs-toggle="collapse"
+                        data-bs-target="#teachers" aria-expanded="false" aria-controls="teachers">
+                        <i class="bi bi-backpack fs-4"></i>
                         <span class="fs-6">Teacher</span>
                     </a>
+
+                    <ul id="teachers" class="sidebar-dropdown list-unstyled collapse" data-bs-parent="#sidebar">
+
+                        <li class="sidebar-item">
+                            <a href="{{ route('admin.teacher.applications') }}"
+                                class="sidebar-link">Teacher Applications
+                            </a>
+                        </li>
+
+                        <li class="sidebar-item">
+                            <a href="{{ route('admin.teacher.index') }}"
+                                class="sidebar-link">Teachers List
+                            </a>
+                        </li>
+
+                    </ul>
                 </li>
 
                 <li class="sidebar-item">

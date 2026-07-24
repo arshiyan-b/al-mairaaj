@@ -10,13 +10,18 @@ class TeacherDoc extends Model
     use HasFactory;
     protected $table = 'teacher_docs';
     protected $fillable = [
-        'teacher_id',
+        'application_id',
         'type',
         'file_path',
     ];
 
-    public function teacher()
+    protected $hidden = [
+        'created_at',
+        'updated_at',
+    ];
+
+    public function teacherApplication()
     {
-        return $this->belongsTo(Teacher::class);
+        return $this->belongsTo(TeacherApplication::class, 'application_id');
     }
 }

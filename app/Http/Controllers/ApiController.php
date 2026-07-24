@@ -50,8 +50,11 @@ class ApiController extends Controller
             $wallet->setRelation('transactions', []);
         }
 
+        $topupRequests = TopupRequest::where('user_id', auth()->user()->id)->first();
+
         return response()->json([
             'wallet' => $wallet,
+            'topupRequests' => $topupRequests,
         ]);
     }
     public function student_topup_request(Request $request)

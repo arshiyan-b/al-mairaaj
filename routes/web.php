@@ -39,8 +39,13 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
 
     Route::get('/admin/students', [AdminController::class, 'student'])->name('admin.student');
 
-    Route::get('/admin/teachers', [AdminController::class, 'teacher'])->name('admin.teacher');
-    Route::get('/admin/teachers/{teacher}', [AdminController::class, 'teacher_show'])->name('admin.teachers_show');
+    Route::get('/admin/teacher/applications', [AdminController::class, 'teacher_applications'])->name('admin.teacher.applications');
+    Route::get('/admin/teacher/application/{application}', [AdminController::class, 'teacher_application_show'])->name('admin.teacher.application.show');
+    Route::put('/admin/teacher/application/update/status/{application}', [AdminController::class, 'teacher_application_update_status'])->name('admin.teacher.application.status.update');
+
+
+    Route::get('/admin/teachers', [AdminController::class, 'teacher'])->name('admin.teacher.index');
+    Route::get('/admin/teachers/{teacher}', [AdminController::class, 'teacher_show'])->name('admin.teachers.show');
     Route::post('admin/teacher/{id}/assign-subjects', [AdminController::class, 'teacher_assign_subjects'])->name('admin.teacher_assign_subjects');
     Route::delete('admin/teacher/{id}/class-destroy', [AdminController::class, 'teacher_class_destroy'])->name('admin.teacher_class_destroy');
     Route::post('/admin/teacher/{id}/create-user', [AdminController::class, 'teacher_create_user'])->name('admin.teacher_create_user');

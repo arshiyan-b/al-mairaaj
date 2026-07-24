@@ -13,6 +13,7 @@ use App\Models\CurriculumSubject;
 use App\Models\Role;
 use App\Models\User;
 use App\Models\Teacher;
+use App\Models\TeacherApplication;
 use App\Models\TeacherDoc;
 use App\Models\Student;
 use App\Models\Board;
@@ -78,19 +79,58 @@ class AdminController extends Controller
         return view('admin.student', compact('studentList'));
     }
 
+    public function teacher_applications()
+    {
+        $teacherApplications = TeacherApplication::all();
+        return view('admin.teacher.application.index', compact('teacherApplications'));
+    }
+    public function teacher_application_show($id)
+    {
+        $application = TeacherApplication::find($id);
+        $docs = TeacherDoc::where('application_id', $id)->get();
+        return view('admin.teacher.application.show', compact('application', 'docs'));
+    }
+    public function teacher_application_update_status(Request $request, $id)
+    {
+        $application = TeacherApplication::find($id);
+        $request->validate([
+            'status' => 'required|in:pending,approved,rejected',
+        ]);
+
+        $application->update([
+            'status' => $request->status,
+        ]);
+
+        if ($request->status === 'approved') {
+
+            $teacher = Teacher::where('application_id', $application->id)->first();
+
+            if (!$teacher) {
+                $teacher = Teacher::create([
+                    'application_id' => $application->id,
+                    'name' => $application->name,
+                ]);
+            } else {
+                $teacher->update([
+                    'status' => 'active',
+                ]);
+            }
+            
+        }
+
+        return redirect()
+            ->back()
+            ->with('success', 'Teacher status updated successfully.');
+    }
     public function teacher()
     {
-        $teacherList = Teacher::all();
-        return view('admin.teacher.index', [
-            'teacherList' => $teacherList,
-            'subjects' => $this->subjects,
-        ]);
+        $teachers = Teacher::all();
+        return view('admin.teacher.index', compact('teachers'));
     }
-
     public function teacher_show($id)
     {
-        $teacher = Teacher::where('id', $id)->first();
-        $docs = TeacherDoc::where('teacher_id', $id)->get();
+        $teacher = Teacher::find($id);
+        $docs = TeacherDoc::where('application_id', $teacher->application->id)->get();
         $classes = AllowedClass::where('teacher_id', $id)->get();
         $curriculumSubjects = CurriculumSubject::all()->keyBy('id');
 

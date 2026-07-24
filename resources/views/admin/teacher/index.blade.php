@@ -19,24 +19,22 @@
                     <table class="table table-bordered">
                         <thead>
                             <tr>
-                                <th>Teacher ID</th>
+                                <th>#</th>
                                 <th>Name</th>
-                                <th>Phone number</th>
-                                <th>Email</th>
-                                <th>CNIC number</th>
+                                <th>User Created</th>
+                                <th>Status</th>
                                 <th>View Details</th>
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach ($teacherList as $teacher)
+                            @foreach ($teachers as $teacher)
                                 <tr>
                                     <td>{{ $teacher->id }}</td>
                                     <td>{{ $teacher->name }}</td>
-                                    <td>{{ $teacher->phone_number }}</td>
-                                    <td>{{ $teacher->email }}</td>
-                                    <td>{{ $teacher->cnic }}</td>
+                                    <td>{{ $teacher->user_created ? 'Yes' : 'No' }}</td>
+                                    <td>{{ ucfirst($teacher->status) }}</td>
                                     <td>
-                                        <a href="{{ route('admin.teachers_show', $teacher->id) }}" class="btn btn-sm btn-dark">
+                                        <a href="{{ route('admin.teachers.show', $teacher->id) }}" class="btn btn-sm btn-dark">
                                             View Details
                                         </a>
 
