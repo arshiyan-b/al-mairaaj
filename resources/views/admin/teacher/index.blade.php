@@ -2,6 +2,7 @@
 @section('title')
     Teacher
 @endsection
+@include('scripts.table')
 @section('content')
 
     <div class="container">
@@ -25,7 +26,7 @@
                         <tbody>
                             @foreach ($teachers as $teacher)
                                 <tr>
-                                    <td>{{ $teacher->id }}</td>
+                                    <td>{{ $loop->iteration }}</td>
                                     <td>{{ $teacher->name }}</td>
                                     <td>{{ $teacher->user_created ? 'Yes' : 'No' }}</td>
                                     <td>{{ ucfirst($teacher->status) }}</td>

@@ -39,6 +39,6 @@ class TeacherController extends Controller
         $board = Board::where('slug', $board)->firstOrFail();
         $grade = Grade::where('board_id', $board->id)->where('slug', $grade)->firstOrFail();
         $batches = Batch::where('teacher_id', $this->teacher->id)->where('grade_id', $grade->id)->get();
-        return view('teacher.live_class_batches.index', compact('board', 'grade', 'batches'));
+        return view('teacher.live_class_batches.index', compact('grade', 'batches'));
     }
 }

@@ -33,51 +33,60 @@ class Batch extends Model
     protected $appends = [
         'formatted_start_date',
         'formatted_end_date',
+        'duration',
+        'date_range',
     ];
 
     public function teacher()
     {
         return $this->belongsTo(Teacher::class);
     }
-
     public function grade()
     {
         return $this->belongsTo(Grade::class);
     }
-
     public function curriculumSubject()
     {
         return $this->belongsTo(CurriculumSubject::class, 'curriculum_subject_id');
     }
-
     public function liveClasses()
     {
         return $this->hasMany(LiveClass::class, 'batch_id');
     }
-
     public function enrollments()
     {
         return $this->hasMany(Enrollment::class, 'batch_id');
     }
-
     public function students()
     {
         return $this->belongsToMany(Student::class, 'enrollments', 'batch_id', 'student_id');
     }
-    
-    // Formatted Start Date
-    public function getFormattedStartDateAttribute()
+        public function getFormattedStartDateAttribute()
     {
         return $this->start_date
             ? Carbon::parse($this->start_date)->format('d M Y')
             : null;
     }
-
-    // Formatted End Date
     public function getFormattedEndDateAttribute()
     {
         return $this->end_date
             ? Carbon::parse($this->end_date)->format('d M Y')
             : null;
+    }
+    public function getDateRangeAttribute()
+    {
+        if (!$this->start_date || !$this->end_date) {
+            return null;
+        }
+        return Carbon::parse($this->start_date)->format('d M Y') . ' - ' . Carbon::parse($this->end_date)->format('d M Y');
+    }
+    public function getDurationAttribute()
+    {
+        if (!$this->start_date || !$this->end_date) {
+            return null;
+        }
+
+        return Carbon::parse($this->start_date)
+            ->diffInDays(Carbon::parse($this->end_date)) . ' days';
     }
 }

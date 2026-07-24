@@ -14,8 +14,14 @@ class CurriculumSubject extends Model
         'name',
     ];
 
+    protected $appends = [ 'complete_name', ];
+
     public function grade()
     {
         return $this->belongsTo(Grade::class);
     }
+    public function getCompleteNameAttribute() 
+    { 
+        return $this->code . ' - ' . $this->name; 
+    } 
 }

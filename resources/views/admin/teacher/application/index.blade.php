@@ -2,6 +2,7 @@
 @section('title')
     Teacher
 @endsection
+@include('scripts.table')
 @section('content')
 
     <div class="container">
@@ -26,7 +27,7 @@
                         <tbody>
                             @foreach ($teacherApplications as $application)
                                 <tr>
-                                    <td>{{ $application->id }}</td>
+                                    <td>{{ $loop->iteration }}</td>
                                     <td>{{ $application->name }}</td>
                                     <td>{{ $application->phone_number }}</td>
                                     <td>{{ $application->email }}</td>
