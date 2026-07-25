@@ -2,6 +2,7 @@
 @section('title')
     Teacher
 @endsection
+@include('scripts.disable_submit_button')
 @section('content')
 
 <div class="container">

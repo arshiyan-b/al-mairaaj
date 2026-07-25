@@ -228,6 +228,7 @@
         }
 
     </style>
+    @push('styles')
 </head>
 
 <body>
@@ -486,27 +487,8 @@
             });
         });
 
-        document.addEventListener("DOMContentLoaded", function () {
-            document.querySelectorAll('form').forEach(function (form) {
-                form.addEventListener('submit', function () {
-                    const submitBtns = form.querySelectorAll('button[type="submit"]');
-
-                    submitBtns.forEach(function (btn) {
-                        // store original content so it can be restored if needed later
-                        btn.dataset.originalText = btn.innerHTML;
-
-                        btn.disabled = true;
-                        btn.innerHTML = `
-                            <span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
-                            Submitting...
-                        `;
-                    });
-                });
-            });
-        });
-
     </script>
-
+@stack('scripts')
 </body>
 
 </html>

@@ -77,7 +77,7 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
 Route::middleware(['auth', 'role:teacher'])->group(function () {
 
     Route::get('/teacher/dashboard', [TeacherController::class, 'dashboard'])->name('teacher.dashboard');
-    Route::get('/teacher/{board}/{grade}', [TeacherController::class, 'class_index'])->name('teacher.class.index');
+    Route::get('/teacher/{board}/{grade}/batches', [TeacherController::class, 'live_class_batches_index'])->name('teacher.live_class_batches.index');
     
     Route::post('/mcq/store', [TeacherController::class, 'mcq_store'])->name('mcq.store');
 });

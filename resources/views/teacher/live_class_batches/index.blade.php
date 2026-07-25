@@ -4,6 +4,7 @@
     {{ $grade->board->name }} - {{ $grade->name }}
 @endsection
 @include('scripts.table')
+@include('scripts.disable_submit_button')
 @section('content')
 
 <div class="container">
@@ -15,12 +16,9 @@
             <h4>{{ $grade->board->name }} - {{ $grade->name }}</h4>
         </div>
 
-        <div class="card-body p-0">
-
-            <div class="table-responsive m-3">
-
-                <table class="table table-hover align-middle mb-0">
-
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered w-100 datatable">
                     <thead class="table-light">
                         <tr>
                             <th>#</th>
@@ -31,7 +29,6 @@
                             <th>Actions</th>
                         </tr>
                     </thead>
-
                     <tbody>
 
                         @foreach ($batches as $batch)
@@ -55,15 +52,10 @@
                                 </td>
                             </tr>
                         @endforeach
-
                     </tbody>
-
                 </table>
-
             </div>
-
         </div>
-
     </div>
 
 </div>

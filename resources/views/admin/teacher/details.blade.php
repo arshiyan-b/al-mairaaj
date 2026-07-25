@@ -2,6 +2,7 @@
 @section('title')
     Teacher Details {{ $teacher->teacher_name }}
 @endsection
+@include('scripts.disable_submit_button')
 @section('content')
 
     <div class="container">

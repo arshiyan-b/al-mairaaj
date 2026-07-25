@@ -34,7 +34,7 @@ class TeacherController extends Controller
             'teacher' => $this->teacher,
         ]);
     }
-    public function class_index($board, $grade)
+    public function live_class_batches_index($board, $grade)
     {
         $board = Board::where('slug', $board)->firstOrFail();
         $grade = Grade::where('board_id', $board->id)->where('slug', $grade)->firstOrFail();

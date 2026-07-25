@@ -228,6 +228,7 @@
             box-shadow: 0 0 0 0.25rem rgba(0, 128, 128, 0.52) !important;
         }
     </style>
+    @push('styles')
 </head>
 
 <body>
@@ -287,7 +288,7 @@
 
                                     @if ($classes->contains(fn($c) => $c->board === 'pearson' && $c->grade === 'igcse'))
                                         <li class="sidebar-item">
-                                            <a href="{{ route('teacher.class.index', ['board' => 'pearson', 'grade' => 'igcse']) }}"
+                                            <a href="{{ route('teacher.live_class_batches.index', ['board' => 'pearson', 'grade' => 'igcse']) }}"
                                                 class="sidebar-link">
                                                 IGCSE
                                             </a>
@@ -296,7 +297,7 @@
 
                                     @if ($classes->contains(fn($c) => $c->board === 'pearson' && $c->grade === 'ial'))
                                         <li class="sidebar-item">
-                                            <a href="{{ route('teacher.class.index', ['board' => 'pearson', 'grade' => 'ial']) }}"
+                                            <a href="{{ route('teacher.live_class_batches.index', ['board' => 'pearson', 'grade' => 'ial']) }}"
                                                 class="sidebar-link">
                                                 International A Level
                                             </a>
@@ -328,7 +329,7 @@
 
                                     @if ($classes->contains(fn($c) => $c->board === 'caie' && $c->grade === 'olevel'))
                                         <li class="sidebar-item">
-                                            <a href="{{ route('teacher.class.index', ['board' => 'caie', 'grade' => 'olevel']) }}"
+                                            <a href="{{ route('teacher.live_class_batches.index', ['board' => 'caie', 'grade' => 'olevel']) }}"
                                                 class="sidebar-link">
                                                 O Level
                                             </a>
@@ -337,7 +338,7 @@
 
                                     @if ($classes->contains(fn($c) => $c->board === 'caie' && $c->grade === 'igcse'))
                                         <li class="sidebar-item">
-                                            <a href="{{ route('teacher.class.index', ['board' => 'caie', 'grade' => 'igcse']) }}"
+                                            <a href="{{ route('teacher.live_class_batches.index', ['board' => 'caie', 'grade' => 'igcse']) }}"
                                                 class="sidebar-link">
                                                 IGCSE
                                             </a>
@@ -346,7 +347,7 @@
 
                                     @if ($classes->contains(fn($c) => $c->board === 'caie' && $c->grade === 'alevel'))
                                         <li class="sidebar-item">
-                                            <a href="{{ route('teacher.class.index', ['board' => 'caie', 'grade' => 'alevel']) }}"
+                                            <a href="{{ route('teacher.live_class_batches.index', ['board' => 'caie', 'grade' => 'alevel']) }}"
                                                 class="sidebar-link">
                                                 A Level
                                             </a>
@@ -378,7 +379,7 @@
 
                                     @if ($classes->contains(fn($c) => $c->board === 'akueb' && $c->grade === 'ssc-i'))
                                         <li class="sidebar-item">
-                                            <a href="{{ route('teacher.class.index', ['board' => 'akueb', 'grade' => 'ssc-i']) }}" class="sidebar-link">
+                                            <a href="{{ route('teacher.live_class_batches.index', ['board' => 'akueb', 'grade' => 'ssc-i']) }}" class="sidebar-link">
                                                 SSC I
                                             </a>
                                         </li>
@@ -386,7 +387,7 @@
 
                                     @if ($classes->contains(fn($c) => $c->board === 'akueb' && $c->grade === 'ssc-ii'))
                                         <li class="sidebar-item">
-                                            <a href="{{ route('teacher.class.index', ['board' => 'akueb', 'grade' => 'ssc-ii']) }}" class="sidebar-link">
+                                            <a href="{{ route('teacher.live_class_batches.index', ['board' => 'akueb', 'grade' => 'ssc-ii']) }}" class="sidebar-link">
                                                 SSC II
                                             </a>
                                         </li>
@@ -394,7 +395,7 @@
 
                                     @if ($classes->contains(fn($c) => $c->board === 'akueb' && $c->grade === 'hssc-i'))
                                         <li class="sidebar-item">
-                                            <a href="{{ route('teacher.class.index', ['board' => 'akueb', 'grade' => 'hssc-i']) }}" class="sidebar-link">
+                                            <a href="{{ route('teacher.live_class_batches.index', ['board' => 'akueb', 'grade' => 'hssc-i']) }}" class="sidebar-link">
                                                 HSSC I
                                             </a>
                                         </li>
@@ -402,7 +403,7 @@
 
                                     @if ($classes->contains(fn($c) => $c->board === 'akueb' && $c->grade === 'hssc-ii'))
                                         <li class="sidebar-item">
-                                            <a href="{{ route('teacher.class.index', ['board' => 'akueb', 'grade' => 'hssc-ii']) }}" class="sidebar-link">
+                                            <a href="{{ route('teacher.live_class_batches.index', ['board' => 'akueb', 'grade' => 'hssc-ii']) }}" class="sidebar-link">
                                                 HSSC II
                                             </a>
                                         </li>
@@ -473,30 +474,9 @@
                 });
             });
 
-            // Disable submit button
-            document.querySelectorAll('.submit').forEach(function (button) {
-
-                const form = button.closest('form');
-
-                if (!form) return;
-
-                form.addEventListener('submit', function (e) {
-
-                    if (button.disabled) {
-                        e.preventDefault();
-                        return;
-                    }
-
-                    button.disabled = true;
-                    button.innerText = 'Uploading...';
-
-                });
-
-            });
-
         });
     </script>
-
+@stack('scripts')
 </body>
 
 </html>

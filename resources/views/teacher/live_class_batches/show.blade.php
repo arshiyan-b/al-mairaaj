@@ -3,7 +3,7 @@
 @section('title')
     {{ $grade->name }} - {{ $board->name }}
 @endsection
-
+@include('scripts.disable_submit_button')
 @section('content')
 
     <div class="container">

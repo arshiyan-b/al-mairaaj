@@ -3,6 +3,7 @@
     Teacher
 @endsection
 @include('scripts.table')
+@include('scripts.disable_submit_button')
 @section('content')
 
     <div class="container">
@@ -13,7 +14,7 @@
             </div>
             <div class="card-body">
                 <div class="table-responsive-wrapper" style="overflow-x: auto;">
-                    <table class="table table-bordered">
+                    <table class="table table-bordered datatable">
                         <thead>
                             <tr>
                                 <th>#</th>

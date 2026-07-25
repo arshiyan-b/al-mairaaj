@@ -2,6 +2,7 @@
 @section('title')
     Live Classes for {{ $board->name }} - {{ $grade->name }}
 @endsection
+@include('scripts.disable_submit_button')
 @section('content')
 
 <div class="container">
