@@ -8,6 +8,7 @@ use App\Services\CurriculumSubjectService;
 use App\Services\EnrollmentService;
 use App\Services\GradeService;
 use App\Services\LiveClassesService;
+use App\Services\StudentService;
 use App\Services\TeacherService;
 use App\Services\TopupRequestService;
 
@@ -35,6 +36,7 @@ class ApiController extends Controller
     protected $enrollmentService;
     protected $gradeService;
     protected $liveClassesService;
+    protected $studentService;
     protected $teacherService;
     protected $topupRequestService;
 
@@ -45,13 +47,18 @@ class ApiController extends Controller
         EnrollmentService $enrollmentService,
         GradeService $gradeService,
         LiveClassesService $liveClassesService,
+        StudentService $studentService,
         TeacherService $teacherService,
         TopupRequestService $topupRequestService,
     ) {
         $this->batchService = $batchService;
+        $this->boardService = $boardService;
         $this->curriculumSubjectService = $curriculumSubjectService;
         $this->enrollmentService = $enrollmentService;
+        $this->gradeService = $gradeService;
         $this->liveClassesService = $liveClassesService;
+        $this->studentService = $studentService;
+        $this->teacherService = $teacherService;
         $this->topupRequestService = $topupRequestService;
     }
     public function student_profile_data()
