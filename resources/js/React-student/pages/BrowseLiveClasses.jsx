@@ -39,7 +39,7 @@ const BrowseLiveClasses = () => {
         setBatches(data.batches || []);
         setBoards(data.boards || []);
         setGrades(data.grades || []);
-        setSubjects(data.subjects || []);
+        setSubjects(data.curriculum_subjects || []);
         setEnrolledIds((data.enrollments || []).map((e) => e.batch_id));
       })
       .catch((err) => setError(err.message));

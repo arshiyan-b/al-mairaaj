@@ -26,6 +26,35 @@ const PAYMENT_METHODS = [
   { id: "kuickpay", label: "KuickPay", icon: CreditCard },
 ];
 
+const BANK_NAMES = [
+  "Allied Bank Limited (ABL)",
+  "Askari Bank Limited",
+  "Bank Al Habib Limited",
+  "Bank Alfalah Limited",
+  "Bank Makramah Limited",
+  "Dubai Islamic Bank Pakistan Limited",
+  "Faysal Bank Limited",
+  "Habib Bank Limited (HBL)",
+  "Habib Metropolitan Bank Limited",
+  "JS Bank Limited",
+  "MCB Bank Limited",
+  "MCB Islamic Bank Limited",
+  "Meezan Bank Limited",
+  "National Bank of Pakistan (NBP)",
+  "Samba Bank Limited",
+  "Silkbank Limited",
+  "Sindh Bank Limited",
+  "Soneri Bank Limited",
+  "Standard Chartered Bank (Pakistan) Limited",
+  "The Bank of Khyber (BOK)",
+  "The Bank of Punjab (BOP)",
+  "United Bank Limited (UBL)",
+  "Zarai Taraqiati Bank Limited (ZTBL)",
+  "Industrial and Commercial Bank of China (ICBC) Pakistan",
+  "Citibank N.A. Pakistan",
+  "Deutsche Bank AG Pakistan",
+];
+
 // Platform's receiving account details shown to the student on Step 2.
 // Replace these with your real account details (or fetch from an API).
 const RECEIVING_ACCOUNTS = {
@@ -70,6 +99,8 @@ const Topup = () => {
   const [bankAccountNumber, setBankAccountNumber] = useState("");
   const [bankAccountName, setBankAccountName] = useState("");
   const [bankName, setBankName] = useState("");
+  const [bankScreenshot, setBankScreenshot] = useState(null);
+  const [bankScreenshotPreview, setBankScreenshotPreview] = useState(null);
 
   const [copiedField, setCopiedField] = useState(null);
 
@@ -127,6 +158,8 @@ const Topup = () => {
     setBankAccountNumber("");
     setBankAccountName("");
     setBankName("");
+    setBankScreenshot(null);
+    setBankScreenshotPreview(null);
     setSubmitError(null);
   };
 
@@ -150,6 +183,15 @@ const Topup = () => {
     reader.readAsDataURL(file);
   };
 
+  const handleBankScreenshotChange = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setBankScreenshot(file);
+    const reader = new FileReader();
+    reader.onload = () => setBankScreenshotPreview(reader.result);
+    reader.readAsDataURL(file);
+  };
+
   const handleCopy = async (field, value) => {
     try {
       await navigator.clipboard.writeText(value);
@@ -165,7 +207,12 @@ const Topup = () => {
       return mobileNumber.trim() && senderAccountName.trim() && screenshot;
     }
     if (method === "bank") {
-      return bankAccountNumber.trim() && bankAccountName.trim() && bankName.trim();
+      return (
+        bankAccountNumber.trim() &&
+        bankAccountName.trim() &&
+        bankName.trim() &&
+        bankScreenshot
+      );
     }
     // kuickpay: not implemented yet
     return false;
@@ -183,28 +230,31 @@ const Topup = () => {
 
       if (method === "easypaisa" || method === "jazzcash") {
         const formData = new FormData();
+        formData.append("payment_method", "easypaisa");
         formData.append("amount", effectiveAmount);
         formData.append("method", method);
         formData.append("mobile_number", mobileNumber);
         formData.append("account_name", senderAccountName);
-        if (screenshot) formData.append("screenshot", screenshot);
+        formData.append("screenshot", screenshot);
 
         res = await fetch("/api/student/topup-request", {
           method: "POST",
           headers: withCsrfHeaders({ withContentType: false }),
           body: formData,
         });
-      } else {
+      } else if (method === "bank") {
+        const formData = new FormData();
+        formData.append("amount", effectiveAmount);
+        formData.append("method", method);
+        formData.append("bank_account_number", bankAccountNumber);
+        formData.append("bank_account_name", bankAccountName);
+        formData.append("bank_name", bankName);
+        formData.append("screenshot", bankScreenshot);
+
         res = await fetch("/api/student/topup-request", {
           method: "POST",
-          headers: withCsrfHeaders(),
-          body: JSON.stringify({
-            amount: effectiveAmount,
-            method,
-            bank_account_number: bankAccountNumber,
-            bank_account_name: bankAccountName,
-            bank_name: bankName,
-          }),
+          headers: withCsrfHeaders({ withContentType: false }),
+          body: formData,
         });
       }
 
@@ -453,31 +503,11 @@ const Topup = () => {
                             placeholder="Name on the sending account"
                           />
 
-                          <div>
-                            <label className="text-xs text-gray-500 dark:text-gray-400 mb-1 block">
-                              Payment Screenshot
-                            </label>
-                            <label className="flex items-center justify-center gap-2 border border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-4 cursor-pointer hover:border-indigo-400 transition-colors">
-                              <input
-                                type="file"
-                                accept="image/*"
-                                onChange={handleScreenshotChange}
-                                className="hidden"
-                              />
-                              {screenshotPreview ? (
-                                <img
-                                  src={screenshotPreview}
-                                  alt="Screenshot preview"
-                                  className="h-24 rounded-md object-cover"
-                                />
-                              ) : (
-                                <span className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
-                                  <Upload className="h-4 w-4" />
-                                  Upload screenshot
-                                </span>
-                              )}
-                            </label>
-                          </div>
+                          <ScreenshotUpload
+                            label="Payment Screenshot"
+                            preview={screenshotPreview}
+                            onChange={handleScreenshotChange}
+                          />
                         </div>
                       </>
                     )}
@@ -512,11 +542,31 @@ const Topup = () => {
                             onChange={setBankAccountName}
                             placeholder="Name on the sending account"
                           />
-                          <FormField
-                            label="Your Bank Name"
-                            value={bankName}
-                            onChange={setBankName}
-                            placeholder="e.g. HBL, UBL, Meezan"
+
+                          <div>
+                            <label className="text-xs text-gray-500 dark:text-gray-400 mb-1 block">
+                              Your Bank Name
+                            </label>
+                            <select
+                              value={bankName}
+                              onChange={(e) => setBankName(e.target.value)}
+                              className="w-full rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/50 px-3 py-2 text-sm text-gray-900 dark:text-gray-100 outline-none focus:border-indigo-400"
+                            >
+                              <option value="" disabled>
+                                Select your bank
+                              </option>
+                              {BANK_NAMES.map((name) => (
+                                <option key={name} value={name}>
+                                  {name}
+                                </option>
+                              ))}
+                            </select>
+                          </div>
+
+                          <ScreenshotUpload
+                            label="Payment Screenshot"
+                            preview={bankScreenshotPreview}
+                            onChange={handleBankScreenshotChange}
                           />
                         </div>
                       </>
@@ -623,6 +673,25 @@ function FormField({ label, value, onChange, placeholder }) {
         placeholder={placeholder}
         className="w-full rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/50 px-3 py-2 text-sm text-gray-900 dark:text-gray-100 outline-none focus:border-indigo-400"
       />
+    </div>
+  );
+}
+
+function ScreenshotUpload({ label, preview, onChange }) {
+  return (
+    <div>
+      <label className="text-xs text-gray-500 dark:text-gray-400 mb-1 block">{label}</label>
+      <label className="flex items-center justify-center gap-2 border border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-4 cursor-pointer hover:border-indigo-400 transition-colors">
+        <input type="file" accept="image/*" onChange={onChange} className="hidden" />
+        {preview ? (
+          <img src={preview} alt="Screenshot preview" className="h-24 rounded-md object-cover" />
+        ) : (
+          <span className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
+            <Upload className="h-4 w-4" />
+            Upload screenshot
+          </span>
+        )}
+      </label>
     </div>
   );
 }

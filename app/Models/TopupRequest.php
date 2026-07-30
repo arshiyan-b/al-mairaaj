@@ -13,10 +13,19 @@ class TopupRequest extends Model
     protected $table = 'topup_requests';
 
     protected $fillable = [
-        'user_id',
+        'student_id',
         'amount',
         'payment_method',
-        'transaction_reference',
+
+        // EasyPaisa / JazzCash
+        'mobile_number',
+        'account_name',
+
+        // Bank
+        'bank_name',
+        'bank_account_name',
+        'bank_account_number',
+
         'proof_image',
         'status',
         'admin_note',
@@ -33,9 +42,9 @@ class TopupRequest extends Model
         'updated_at' => 'datetime',
     ];
 
-    public function user()
+    public function student()
     {
-        return $this->belongsTo(User::class, 'user_id');
+        return $this->belongsTo(Student::class);
     }
     public function processor()
     {

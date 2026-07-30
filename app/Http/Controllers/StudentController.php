@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Services\BatchService;
+
 use App\Models\Batch;
 use App\Models\Board;
 use App\Models\CurriculumSubject;
@@ -17,6 +19,14 @@ use Illuminate\Support\Facades\Hash;
 
 class StudentController extends Controller
 {
+    protected $batchService;
+
+    public function __construct(
+        BatchService $batchService,
+    ) {
+        $this->batchService = $batchService;
+    }
+
     public function dashboard()
     {
         return view('student.dashboard', ['user' => auth()->user()]);
@@ -35,7 +45,8 @@ class StudentController extends Controller
     }
     public function live_class_batch($id)
     {
-        return view('student.live_classes.batch');
+        $batchTitle = $this->batchService->getBatchTitle($id);
+        return view('student.live_classes.batch', compact('batchTitle'));
     }
     public function boards()
     {

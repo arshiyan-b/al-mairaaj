@@ -2,6 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use App\Services\BatchService;
+use App\Services\BoardService;
+use App\Services\CurriculumSubjectService;
+use App\Services\EnrollmentService;
+use App\Services\GradeService;
+use App\Services\LiveClassesService;
+use App\Services\TeacherService;
+use App\Services\TopupRequestService;
+
 use App\Models\Batch;
 use App\Models\Board;
 use App\Models\CurriculumSubject;
@@ -21,6 +30,30 @@ use Illuminate\Support\Facades\Hash;
 
 class ApiController extends Controller
 {
+    protected $batchService;
+    protected $boardService;
+    protected $enrollmentService;
+    protected $gradeService;
+    protected $liveClassesService;
+    protected $teacherService;
+    protected $topupRequestService;
+
+    public function __construct(
+        BatchService $batchService,
+        BoardService $boardService,
+        CurriculumSubjectService $curriculumSubjectService,
+        EnrollmentService $enrollmentService,
+        GradeService $gradeService,
+        LiveClassesService $liveClassesService,
+        TeacherService $teacherService,
+        TopupRequestService $topupRequestService,
+    ) {
+        $this->batchService = $batchService;
+        $this->curriculumSubjectService = $curriculumSubjectService;
+        $this->enrollmentService = $enrollmentService;
+        $this->liveClassesService = $liveClassesService;
+        $this->topupRequestService = $topupRequestService;
+    }
     public function student_profile_data()
     {
         $profile = Student::find(auth()->user()->student->id);
@@ -57,9 +90,19 @@ class ApiController extends Controller
             'topupRequests' => $topupRequests,
         ]);
     }
-    public function student_topup_request(Request $request)
+    public function student_topup_request(StoreTopupRequestRequest $request)
     {
-        dd($request);
+        $topupRequest = $this->topupRequestService->create(
+            auth()->user()->student,
+            $request->validated(),
+            $request->file('screenshot')
+        );
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Top-up request submitted successfully.',
+            'data' => $topupRequest,
+        ], 201);
     }
     public function student_withdraw_request(Request $request)
     {
@@ -107,9 +150,9 @@ class ApiController extends Controller
     }
     public function student_subjects_data()
     {
-        $curriculum_subjects = CurriculumSubject::with('grade.board')->orderBy('name')->get();
-        $grades = Grade::with('board')->get();
-        $boards = Board::all();
+        $curriculum_subjects = $this->curriculumSubjectService->getCurriculumSubjects();
+        $grades = $this->gradeService->getGrades();
+        $boards = $this->boardService->getBoards();
 
         return response()->json([
             'curriculum_subjects' => $curriculum_subjects,
@@ -119,12 +162,10 @@ class ApiController extends Controller
     }
     public function student_teachers_data()
     {   
-        $curriculum_subjects = CurriculumSubject::with('grade.board')->orderBy('name')->get();
-        $grades = Grade::with('board')->get();
-        $boards = Board::all();
-        $teachers = Teacher::with([
-            'allowed_classes.grade.board',
-        ])->get();
+        $curriculum_subjects = $this->curriculumSubjectService->getCurriculumSubjects();
+        $grades = $this->gradeService->getGrades();
+        $boards = $this->boardService->getBoards();
+        $teachers = $this->teacherService->getTeachers();
 
         return response()->json([
             'curriculum_subjects' => $curriculum_subjects,
@@ -135,7 +176,7 @@ class ApiController extends Controller
     }
     public function student_teacher_profile_data($id)
     {
-        $teacher = Teacher::with(['allowed_classes.grade.board',])->find($id);
+        $teacher = $this->teacherService->getTeacher($id);
         $batches = Batch::with([
             'teacher:id,name',
             'curriculumSubject:id,name,code,grade_id',
@@ -199,38 +240,34 @@ class ApiController extends Controller
         ])
             ->whereIn('status', ['active', 'pending'])
             ->get();
-        $boards = Board::select('id', 'name')->get();
-        $grades = Grade::with('board:id,name')->get();
-        $subjects = CurriculumSubject::with('grade:id,name,board_id')->get();
-        $enrollments = Enrollment::where('student_id', auth()->user()->student->id)->get();
+        $grades = $this->gradeService->getGrades();
+        $boards = $this->boardService->getBoards();
+        $curriculum_subjects = $this->curriculumSubjectService->getCurriculumSubjects();
+        $enrollments = $this->enrollmentService->getEnrollmentsByStudentId(auth()->user()->student->id);
 
         return response()->json([
-            'batches'      => $batches,
-            'boards'       => $boards,
-            'grades'       => $grades,
-            'subjects'     => $subjects,
-            'enrollments'  => $enrollments,
+            'batches' => $batches,
+            'boards' => $boards,
+            'grades' => $grades,
+            'curriculum_subjects' => $curriculum_subjects,
+            'enrollments' => $enrollments,
         ]);
     }
 
     public function student_live_class_batch($id)
     {
-        $batch = Batch::with([
-            'teacher',
-            'curriculumSubject.grade.board',
-        ])->findOrFail($id);
-
-        $live_classes = LiveClass::where('batch_id', $id)
-            ->orderBy('class_date')
-            ->orderBy('start_time')
-            ->get();
-        
-        $in_enrolled = Enrollment::where('student_id', auth()->user()->student->id)->where('batch_id', $batch->id)->exists();
+        $batch = $this->batchService->getBatch($id);
+        $liveClasses = $this->liveClassesService->getLiveClassesByBatchId($batch->id);
+        $studentId = auth()->user()->student->id;
+        $isEnrolled = $this->enrollmentService->isStudentEnrolled(
+            $studentId,
+            $batch->id
+        );
 
         return response()->json([
             'batch' => $batch,
-            'live_classes' => $live_classes,
-            'is_enrolled' => $in_enrolled,
+            'live_classes' => $liveClasses,
+            'is_enrolled' => $isEnrolled,
         ]);
     }
 }
