@@ -13,4 +13,13 @@ class LiveClassesService
             ->orderBy('start_time')
             ->get();
     }
+    public function getUpcomingLiveClassesByBatchIds($batchIds)
+    {
+        return LiveClass::with('batch')
+            ->whereIn('batch_id', $batchIds)
+            ->whereDate('class_date', '>=', now()->toDateString())
+            ->orderBy('class_date')
+            ->orderBy('start_time')
+            ->get();
+    }
 }

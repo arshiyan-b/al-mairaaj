@@ -66,7 +66,10 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::post('/admin/live_class/store', [LiveClassController::class, 'store'])->name('admin.live_classes.store');
 
     Route::get('admin/wallets', [WalletController::class, 'index'])->name('admin.wallet.index');
-    Route::get('admin/wallet/top-up/requests', [WalletController::class, 'top_up_requests'])->name('admin.top-up.requests');
+    Route::get('admin/wallet/top-up/requests', [WalletController::class, 'topup_requests'])->name('admin.top-up.requests');
+    Route::get('admin/wallet/top-up/request/{id}', [WalletController::class, 'topup_request_details'])->name('admin.top-up.request.details');
+    Route::get('admin/wallet/top-up/request/{id}/screenshot', [WalletController::class, 'topup_request_screenshot'])->name('admin.top-up.request.screenshot');
+    Route::patch('/top-up-request/{id}/status', [WalletController::class, 'topup_request_update_status'])->name('admin.top-up.request.update-status');
 
     Route::get('admin/demo', [AdminController::class, 'demo']);
     Route::post('/video/track', [AdminController::class, 'trackWatchTime'])->name('video.track');

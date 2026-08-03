@@ -13,7 +13,7 @@
                 <h2>Teacher Page</h2>
             </div>
             <div class="card-body">
-                <div class="table-responsive-wrapper" style="overflow-x: auto;">
+                <div class="table-responsive-wrapper">
                     <table class="table table-bordered datatable">
                         <thead>
                             <tr>

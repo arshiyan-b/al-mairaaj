@@ -103,7 +103,7 @@
 
             $('.datatable').each(function () {
 
-                $(this).DataTable({
+                let table = $(this).DataTable({
                     responsive: true,
                     pageLength: 10,
                     lengthMenu: [5, 10, 25, 50],
@@ -120,6 +120,10 @@
                         },
                         emptyTable: "No records found."
                     }
+                });
+
+                $('#statusFilter').on('change', function () {
+                    table.column(3).search($(this).val()).draw();
                 });
 
             });

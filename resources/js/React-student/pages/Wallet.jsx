@@ -2,10 +2,23 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Wallet as WalletIcon, Plus, Gift, ArrowUpRight, ArrowDownLeft, Receipt } from "lucide-react";
-import { motion } from "framer-motion";
+import {
+  Wallet as WalletIcon,
+  Plus,
+  Gift,
+  ArrowUpRight,
+  ArrowDownLeft,
+  Receipt,
+  CheckCircle2,
+  X,
+  Clock,
+  XCircle,
+  History,
+} from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 
 const SHOW_INCREMENT = 5;
+const REQUESTS_SHOW_INCREMENT = 5;
 
 // Formats a transaction's date whether the API sends a pre-formatted
 // string (e.g. "Oct 24, 2026") or a raw timestamp (e.g. "2026-10-24T00:00:00Z").
@@ -29,11 +42,65 @@ function getTxTitle(tx) {
   return tx.title || tx.description || tx.label || "Transaction";
 }
 
+// Maps a payment_method value to a human-readable label.
+function formatPaymentMethod(method) {
+  const map = { easypaisa: "EasyPaisa", jazzcash: "JazzCash", bank: "Bank Transfer" };
+  return map[method] || method || "—";
+}
+
+const STATUS_STYLES = {
+  pending: {
+    label: "Pending",
+    icon: Clock,
+    className: "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400",
+  },
+  approved: {
+    label: "Approved",
+    icon: CheckCircle2,
+    className: "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400",
+  },
+  rejected: {
+    label: "Rejected",
+    icon: XCircle,
+    className: "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400",
+  },
+};
+
+function StatusBadge({ status }) {
+  const style = STATUS_STYLES[status] || STATUS_STYLES.pending;
+  const Icon = style.icon;
+  return (
+    <span
+      className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold ${style.className}`}
+    >
+      <Icon className="h-3.5 w-3.5" />
+      {style.label}
+    </span>
+  );
+}
+
 const Wallet = () => {
   const navigate = useNavigate();
+
   const [wallet, setWallet] = useState(null);
+  const [topupRequests, setTopupRequests] = useState([]);
   const [loading, setLoading] = useState(true);
   const [visibleCount, setVisibleCount] = useState(SHOW_INCREMENT);
+  const [visibleRequestCount, setVisibleRequestCount] = useState(REQUESTS_SHOW_INCREMENT);
+
+  // Success banner is seeded from window.__flash, which wallet.blade.php prints from
+  // the session-flashed message after the top-up form's real POST + redirect. It stays
+  // open until the user dismisses it themselves — no auto-hide.
+  const [successMessage, setSuccessMessage] = useState(
+    typeof window !== "undefined" && window.__flash?.success ? window.__flash.success : null
+  );
+
+  // Clear it so a client-side re-render or back/forward navigation doesn't re-show it.
+  useEffect(() => {
+    if (typeof window !== "undefined" && window.__flash?.success) {
+      window.__flash.success = null;
+    }
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -46,12 +113,14 @@ const Wallet = () => {
       .then((data) => {
         if (!cancelled) {
           setWallet(data.wallet || { balance: 0, currency: "PKR", transactions: [] });
+          setTopupRequests(data.topupRequests || []);
           setLoading(false);
         }
       })
       .catch((err) => {
         if (!cancelled) {
           setWallet({ balance: 0, currency: "PKR", transactions: [] });
+          setTopupRequests([]);
           setLoading(false);
         }
       });
@@ -69,8 +138,45 @@ const Wallet = () => {
   const visibleTransactions = transactions.slice(0, visibleCount);
   const hasMore = visibleCount < transactions.length;
 
+  const sortedRequests = [...topupRequests].sort((a, b) => {
+    const dateA = new Date(a.requested_at || a.created_at || 0).getTime();
+    const dateB = new Date(b.requested_at || b.created_at || 0).getTime();
+    return dateB - dateA;
+  });
+  const visibleRequests = sortedRequests.slice(0, visibleRequestCount);
+  const hasMoreRequests = visibleRequestCount < sortedRequests.length;
+
   return (
     <div className="flex-1 p-4 md:p-8 bg-gray-50 dark:bg-gray-900 min-h-screen relative z-0">
+      <AnimatePresence>
+        {successMessage && (
+          <motion.div
+            initial={{ opacity: 0, y: -20, height: 0 }}
+            animate={{ opacity: 1, y: 0, height: "auto" }}
+            exit={{ opacity: 0, y: -10, height: 0 }}
+            transition={{ duration: 0.25 }}
+            className="mb-6 overflow-hidden"
+          >
+            <div className="flex items-start justify-between gap-3 rounded-xl border border-green-200 dark:border-green-900/50 bg-green-50 dark:bg-green-900/20 p-4">
+              <div className="flex items-start gap-3">
+                <CheckCircle2 className="h-5 w-5 text-green-600 dark:text-green-400 mt-0.5 flex-shrink-0" />
+                <div>
+                  <p className="font-semibold text-green-800 dark:text-green-300">Success</p>
+                  <p className="text-sm text-green-700 dark:text-green-400">{successMessage}</p>
+                </div>
+              </div>
+              <button
+                onClick={() => setSuccessMessage(null)}
+                aria-label="Dismiss"
+                className="text-green-600 dark:text-green-400 hover:text-green-800 dark:hover:text-green-200 transition-colors flex-shrink-0"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       <motion.div
         className="text-left mb-6"
         initial={{ opacity: 0, y: -30 }}
@@ -220,6 +326,73 @@ const Wallet = () => {
                         className="text-indigo-600 dark:text-indigo-400 font-semibold hover:text-indigo-800 dark:hover:text-indigo-300 transition-colors text-sm hover:underline"
                       >
                         Show more transactions
+                      </button>
+                    </div>
+                  )}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </motion.div>
+
+        {/* Top-up Request History */}
+        <motion.div
+          className="lg:col-span-3"
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.3, delay: 0.5 }}
+        >
+          <Card className="p-6 rounded-xl shadow-md hover:shadow-xl border-0 bg-white dark:bg-gray-800">
+            <CardHeader className="p-0 mb-4 flex-shrink-0">
+              <CardTitle className="text-xl font-semibold text-gray-800 dark:text-gray-100 flex items-center gap-2">
+                <History className="h-5 w-5 text-gray-400" />
+                Top-up Request History
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="p-0">
+              {sortedRequests.length === 0 ? (
+                <div className="flex flex-col items-center justify-center py-10 text-center">
+                  <Receipt className="h-8 w-8 text-gray-300" />
+                  <p className="mt-3 text-sm font-medium text-gray-600 dark:text-gray-300">
+                    No top-up requests yet
+                  </p>
+                  <p className="mt-1 text-xs text-gray-400">
+                    Submitted requests and their approval status will show up here.
+                  </p>
+                </div>
+              ) : (
+                <div className="flex flex-col gap-3">
+                  {visibleRequests.map((req) => (
+                    <div
+                      key={req.id}
+                      className="flex flex-wrap items-center justify-between gap-3 p-4 rounded-lg bg-gray-50 dark:bg-gray-700/50 border border-gray-100 dark:border-gray-700"
+                    >
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <h4 className="font-medium text-gray-900 dark:text-gray-100">
+                            {currency} {Number(req.amount).toFixed(2)}
+                          </h4>
+                          <StatusBadge status={req.status} />
+                        </div>
+                        <p className="text-sm text-gray-500 dark:text-gray-400">
+                          {formatPaymentMethod(req.payment_method)} &middot; {formatTxDate({ date: req.requested_at || req.created_at })}
+                        </p>
+                      </div>
+                      {req.status === "rejected" && req.rejection_reason && (
+                        <p className="text-xs text-red-500 dark:text-red-400 max-w-xs">
+                          {req.rejection_reason}
+                        </p>
+                      )}
+                    </div>
+                  ))}
+
+                  {hasMoreRequests && (
+                    <div className="text-center pt-3 border-t border-gray-100 dark:border-gray-700">
+                      <button
+                        onClick={() => setVisibleRequestCount((prev) => prev + REQUESTS_SHOW_INCREMENT)}
+                        className="text-indigo-600 dark:text-indigo-400 font-semibold hover:text-indigo-800 dark:hover:text-indigo-300 transition-colors text-sm hover:underline"
+                      >
+                        Show more requests
                       </button>
                     </div>
                   )}

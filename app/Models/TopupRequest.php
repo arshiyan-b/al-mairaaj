@@ -13,7 +13,7 @@ class TopupRequest extends Model
     protected $table = 'topup_requests';
 
     protected $fillable = [
-        'student_id',
+        'wallet_id',
         'amount',
         'payment_method',
 
@@ -26,7 +26,7 @@ class TopupRequest extends Model
         'bank_account_name',
         'bank_account_number',
 
-        'proof_image',
+        'screenshot',
         'status',
         'admin_note',
         'requested_at',
@@ -42,9 +42,9 @@ class TopupRequest extends Model
         'updated_at' => 'datetime',
     ];
 
-    public function student()
+    public function wallet()
     {
-        return $this->belongsTo(Student::class);
+        return $this->belongsTo(Wallet::class);
     }
     public function processor()
     {

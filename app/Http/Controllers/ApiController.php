@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreTopupRequestRequest;
+
 use App\Services\BatchService;
 use App\Services\BoardService;
 use App\Services\CurriculumSubjectService;
@@ -11,6 +13,7 @@ use App\Services\LiveClassesService;
 use App\Services\StudentService;
 use App\Services\TeacherService;
 use App\Services\TopupRequestService;
+use App\Services\WalletService;
 
 use App\Models\Batch;
 use App\Models\Board;
@@ -33,12 +36,14 @@ class ApiController extends Controller
 {
     protected $batchService;
     protected $boardService;
+    protected $curriculumSubjectService;
     protected $enrollmentService;
     protected $gradeService;
     protected $liveClassesService;
     protected $studentService;
     protected $teacherService;
     protected $topupRequestService;
+    protected $walletService;
 
     public function __construct(
         BatchService $batchService,
@@ -50,6 +55,7 @@ class ApiController extends Controller
         StudentService $studentService,
         TeacherService $teacherService,
         TopupRequestService $topupRequestService,
+        WalletService $walletService,
     ) {
         $this->batchService = $batchService;
         $this->boardService = $boardService;
@@ -60,10 +66,11 @@ class ApiController extends Controller
         $this->studentService = $studentService;
         $this->teacherService = $teacherService;
         $this->topupRequestService = $topupRequestService;
+        $this->walletService = $walletService;
     }
     public function student_profile_data()
     {
-        $profile = Student::find(auth()->user()->student->id);
+        $profile = $this->studentService->getAuthenticatedStudent();
 
         return response()->json([
             'profile' => $profile,
@@ -71,14 +78,8 @@ class ApiController extends Controller
     }
     public function student_wallet_data()
     {
-        $student = auth()->user()?->student;
-        if (!$student) {
-            return response()->json(['wallet' => null, 'message' => 'Unauthenticated student'], 401);
-        }
-
-        $wallet = Wallet::with('transactions')
-            ->where('student_id', $student->id)
-            ->first();
+        $profile = $this->studentService->getAuthenticatedStudent();
+        $wallet = $this->walletService->getAuthenticatedStudentWallet();
 
         if (!$wallet) {
             $wallet = Wallet::create([
@@ -90,7 +91,7 @@ class ApiController extends Controller
             $wallet->setRelation('transactions', []);
         }
 
-        $topupRequests = TopupRequest::where('user_id', auth()->user()->id)->first();
+        $topupRequests = $this->topupRequestService->getAuthenticatedStudentTopupRequests();
 
         return response()->json([
             'wallet' => $wallet,
@@ -100,21 +101,19 @@ class ApiController extends Controller
     public function student_topup_request(StoreTopupRequestRequest $request)
     {
         $topupRequest = $this->topupRequestService->create(
-            auth()->user()->student,
+            auth()->user()->student->wallet,
             $request->validated(),
             $request->file('screenshot')
         );
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Top-up request submitted successfully.',
-            'data' => $topupRequest,
-        ], 201);
+        return redirect()
+            ->route('student.wallet')
+            ->with('success', 'Top-up request submitted successfully.');
     }
     public function student_withdraw_request(Request $request)
     {
         dd($request);
-        $student = auth()->user()?->student;
+        $profile = $this->studentService->getAuthenticatedStudent();
         if (!$student) {
             return response()->json(['message' => 'Unauthorized'], 401);
         }
@@ -127,7 +126,7 @@ class ApiController extends Controller
             'bank_name' => 'nullable|string',
         ]);
 
-        $wallet = Wallet::where('student_id', $student->id)->first();
+        $wallet = $this->walletService->getAuthenticatedStudentWallet();
         if (!$wallet || $wallet->balance < $request->amount) {
             return response()->json(['message' => 'Insufficient wallet balance for withdrawal.'], 422);
         }
@@ -184,40 +183,14 @@ class ApiController extends Controller
     public function student_teacher_profile_data($id)
     {
         $teacher = $this->teacherService->getTeacher($id);
-        $batches = Batch::with([
-            'teacher:id,name',
-            'curriculumSubject:id,name,code,grade_id',
-            'curriculumSubject.grade:id,name,board_id',
-            'curriculumSubject.grade.board:id,name',
-        ])
-            ->where('teacher_id', $teacher->id)
-            ->get();
-
         return response()->json($teacher); 
     }
     public function student_live_classes_data()
     {
-        $student = auth()->user()->student;
-
-        $enrollments = Enrollment::with([
-                'batch:id,title,status,start_date,end_date,total_classes,teacher_id,curriculum_subject_id',
-                'batch.teacher:id,name',
-                'batch.curriculumSubject:id,name,grade_id',
-                'batch.curriculumSubject.grade:id,name,board_id',
-                'batch.curriculumSubject.grade.board:id,name',
-            ])
-            ->where('student_id', $student->id)
-            ->get();
-
+        $student = $this->studentService->getAuthenticatedStudent();
+        $enrollments = $this->enrollmentService->getAuthenticatedStudentEnrollments();
         $batchIds = $enrollments->pluck('batch_id');
-
-        $liveClasses = LiveClass::with('batch:id,title')
-            ->whereIn('batch_id', $batchIds)
-            ->whereDate('class_date', '>=', now()->toDateString())
-            ->orderBy('class_date')
-            ->orderBy('start_time')
-            ->get();
-
+        $liveClasses = $this->liveClassesService->getUpcomingLiveClassesByBatchIds($batchIds);
         $today = now()->toDateString();
         $liveToday = $liveClasses->filter(fn ($c) => $c->class_date->toDateString() === $today)->values();
         $upcomingLiveClasses = $liveClasses->filter(fn ($c) => $c->class_date->toDateString() > $today)
@@ -247,10 +220,11 @@ class ApiController extends Controller
         ])
             ->whereIn('status', ['active', 'pending'])
             ->get();
+
         $grades = $this->gradeService->getGrades();
         $boards = $this->boardService->getBoards();
         $curriculum_subjects = $this->curriculumSubjectService->getCurriculumSubjects();
-        $enrollments = $this->enrollmentService->getEnrollmentsByStudentId(auth()->user()->student->id);
+        $enrollments = $this->enrollmentService->getAuthenticatedStudentEnrollments();
 
         return response()->json([
             'batches' => $batches,

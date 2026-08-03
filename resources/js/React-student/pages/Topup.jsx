@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
@@ -15,7 +15,6 @@ import {
   Check,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { withCsrfHeaders } from "../lib/csrf";
 
 const PRESET_AMOUNTS = [500, 1000, 2000, 5000];
 
@@ -106,7 +105,12 @@ const Topup = () => {
 
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState(null);
-  const [success, setSuccess] = useState(null);
+
+  // Real DOM nodes for the file inputs — a File can only travel in a native form
+  // submission via the actual <input type="file"> element the user picked it with,
+  // not one JS reconstructs, so submit moves these nodes into a throwaway form.
+  const screenshotInputRef = useRef(null);
+  const bankScreenshotInputRef = useRef(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -218,70 +222,57 @@ const Topup = () => {
     return false;
   };
 
-  const handleSubmit = async () => {
+  // Appends a hidden field to a form being built for submission.
+  const appendHiddenField = (form, name, value) => {
+    const input = document.createElement("input");
+    input.type = "hidden";
+    input.name = name;
+    input.value = value ?? "";
+    form.appendChild(input);
+  };
+
+  const handleSubmit = () => {
     if (!isStep2Valid() || submitting) return;
 
     setSubmitting(true);
     setSubmitError(null);
-    setSuccess(null);
 
-    try {
-      let res;
+    const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content || "";
+    const fileInput =
+      method === "bank" ? bankScreenshotInputRef.current : screenshotInputRef.current;
 
-      if (method === "easypaisa" || method === "jazzcash") {
-        const formData = new FormData();
-        formData.append("payment_method", "easypaisa");
-        formData.append("amount", effectiveAmount);
-        formData.append("method", method);
-        formData.append("mobile_number", mobileNumber);
-        formData.append("account_name", senderAccountName);
-        formData.append("screenshot", screenshot);
-
-        res = await fetch("/api/student/topup-request", {
-          method: "POST",
-          headers: withCsrfHeaders({ withContentType: false }),
-          body: formData,
-        });
-      } else if (method === "bank") {
-        const formData = new FormData();
-        formData.append("amount", effectiveAmount);
-        formData.append("method", method);
-        formData.append("bank_account_number", bankAccountNumber);
-        formData.append("bank_account_name", bankAccountName);
-        formData.append("bank_name", bankName);
-        formData.append("screenshot", bankScreenshot);
-
-        res = await fetch("/api/student/topup-request", {
-          method: "POST",
-          headers: withCsrfHeaders({ withContentType: false }),
-          body: formData,
-        });
-      }
-
-      const data = await res.json().catch(() => ({}));
-
-      if (!res.ok) {
-        throw new Error(data?.message || `Top-up failed (${res.status})`);
-      }
-
-      setSuccess({
-        amount: effectiveAmount,
-        reference: data?.reference || data?.id || null,
-      });
-
-      if (typeof data?.balance !== "undefined") {
-        setWallet((prev) => (prev ? { ...prev, balance: data.balance } : prev));
-      }
-
-      // Reset back to step 1 after a successful submission
-      setStep(1);
-      setCustomAmount("");
-      resetStep2Fields();
-    } catch (err) {
-      setSubmitError(err.message || "Something went wrong. Please try again.");
-    } finally {
+    if (!fileInput || !fileInput.files?.[0]) {
+      setSubmitError("Please attach a payment screenshot.");
       setSubmitting(false);
+      return;
     }
+
+    const form = document.createElement("form");
+    form.action = "/api/student/topup-request";
+    form.method = "POST";
+    form.enctype = "multipart/form-data";
+    form.style.display = "none";
+
+    appendHiddenField(form, "_token", csrfToken);
+    appendHiddenField(form, "payment_method", method === "bank" ? "bank" : method);
+    appendHiddenField(form, "amount", effectiveAmount);
+
+    if (method === "easypaisa" || method === "jazzcash") {
+      appendHiddenField(form, "mobile_number", mobileNumber);
+      appendHiddenField(form, "account_name", senderAccountName);
+    } else if (method === "bank") {
+      appendHiddenField(form, "bank_account_number", bankAccountNumber);
+      appendHiddenField(form, "bank_account_name", bankAccountName);
+      appendHiddenField(form, "bank_name", bankName);
+    }
+
+    // Move the actual file input (carrying its real FileList) into the form
+    // so the browser submits the real screenshot file, not a JS-recreated one.
+    fileInput.name = "screenshot";
+    form.appendChild(fileInput);
+
+    document.body.appendChild(form);
+    form.submit(); // full browser navigation — follows the controller's redirect natively
   };
 
   if (loading) return <TopupSkeleton />;
@@ -507,6 +498,7 @@ const Topup = () => {
                             label="Payment Screenshot"
                             preview={screenshotPreview}
                             onChange={handleScreenshotChange}
+                            inputRef={screenshotInputRef}
                           />
                         </div>
                       </>
@@ -567,22 +559,13 @@ const Topup = () => {
                             label="Payment Screenshot"
                             preview={bankScreenshotPreview}
                             onChange={handleBankScreenshotChange}
+                            inputRef={bankScreenshotInputRef}
                           />
                         </div>
                       </>
                     )}
 
                     {submitError && <p className="text-sm text-red-500">{submitError}</p>}
-
-                    {success && (
-                      <div className="flex items-center gap-2 rounded-lg bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 p-3 text-sm text-green-700 dark:text-green-400">
-                        <CheckCircle2 className="h-4 w-4 flex-shrink-0" />
-                        <span>
-                          {currency} {Number(success.amount).toFixed(2)} request submitted
-                          {success.reference ? ` · Ref: ${success.reference}` : ""}
-                        </span>
-                      </div>
-                    )}
 
                     {method !== "kuickpay" && (
                       <div className="mt-auto pt-2">
@@ -677,12 +660,12 @@ function FormField({ label, value, onChange, placeholder }) {
   );
 }
 
-function ScreenshotUpload({ label, preview, onChange }) {
+function ScreenshotUpload({ label, preview, onChange, inputRef }) {
   return (
     <div>
       <label className="text-xs text-gray-500 dark:text-gray-400 mb-1 block">{label}</label>
       <label className="flex items-center justify-center gap-2 border border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-4 cursor-pointer hover:border-indigo-400 transition-colors">
-        <input type="file" accept="image/*" onChange={onChange} className="hidden" />
+        <input ref={inputRef} type="file" accept="image/*" onChange={onChange} className="hidden" />
         {preview ? (
           <img src={preview} alt="Screenshot preview" className="h-24 rounded-md object-cover" />
         ) : (

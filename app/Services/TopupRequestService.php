@@ -3,15 +3,27 @@
 namespace App\Services;
 
 use App\Models\TopupRequest;
-use App\Models\Student;
+use App\Models\Wallet;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
 
 class TopupRequestService
 {
-    public function create(Student $student, array $data, ?UploadedFile $screenshot): TopupRequest
+    public function getTopupRequests()
     {
-        return DB::transaction(function () use ($student, $data, $screenshot) {
+        return TopupRequest::all();
+    }
+    public function getTopupRequest($id)
+    {
+        return TopupRequest::findOrFail($id);
+    }
+    public function getAuthenticatedStudentTopupRequests()
+    {
+        return TopupRequest::where('wallet_id', auth()->user()->student->wallet->id)->get();
+    }
+    public function create(Wallet $wallet, array $data, ?UploadedFile $screenshot): TopupRequest
+    {
+        return DB::transaction(function () use ($wallet, $data, $screenshot) {
 
             $proofImage = null;
 
@@ -20,7 +32,7 @@ class TopupRequestService
             }
 
             return TopupRequest::create([
-                'student_id' => $student->id,
+                'wallet_id' => $wallet->id,
                 'amount' => $data['amount'],
                 'payment_method' => $data['payment_method'],
 
@@ -31,11 +43,24 @@ class TopupRequestService
                 'bank_account_name' => $data['bank_account_name'] ?? null,
                 'bank_account_number' => $data['bank_account_number'] ?? null,
 
-                'proof_image' => $proofImage,
+                'screenshot' => $proofImage,
 
                 'status' => 'pending',
                 'requested_at' => now(),
             ]);
         });
+    }
+    public function updateStatus(TopupRequest $topupRequest, string $status)
+    {
+        $topupRequest->update([
+            'status' => $status,
+        ]);
+
+        if ($status === 'approved') {
+            $wallet = $topupRequest->wallet;
+            $wallet->increment('balance', $topupRequest->amount);
+        }
+
+        return $topupRequest->fresh();
     }
 }

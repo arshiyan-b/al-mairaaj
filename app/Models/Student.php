@@ -39,6 +39,10 @@ class Student extends Model
         return $this->belongsTo(User::class);
     }
 
+    public function wallet()
+    {
+        return $this->hasOne(Wallet::class);
+    }
     protected function fullName(): Attribute
     {
         return Attribute::make(

@@ -10,9 +10,9 @@ class Wallet extends Model
     use HasFactory;
     
     protected $fillable = [
-        'user_id',
         'student_id',
         'balance',
+        'currency',
         'status',
     ];
 
@@ -21,10 +21,6 @@ class Wallet extends Model
         'updated_at',
     ];
 
-    public function user()
-    {
-        return $this->belongsTo(User::class);
-    }
     public function student()
     {
         return $this->belongsTo(Student::class);

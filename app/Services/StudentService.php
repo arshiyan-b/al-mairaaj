@@ -10,4 +10,8 @@ class StudentService
     {
         return Student::findOrFail($id);
     }
+    public function getAuthenticatedStudent()
+    {
+        return Student::find(auth()->user()->student->id);
+    }
 }
