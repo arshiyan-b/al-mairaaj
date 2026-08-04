@@ -46,7 +46,7 @@ class TopupRequest extends Model
     {
         return $this->belongsTo(Wallet::class);
     }
-    public function processor()
+    public function processedBy()
     {
         return $this->belongsTo(User::class, 'processed_by');
     }

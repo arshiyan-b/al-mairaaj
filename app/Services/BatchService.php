@@ -19,4 +19,13 @@ class BatchService
     {
         return Batch::findOrFail($id)->title;
     }
+    public function getBatchPrice($id)
+    {
+        return Batch::findOrFail($id)->price;
+    }
+    public function checkAuthenticatedStudentWalletBalanceForBatch($id): bool
+    {
+        $batch = Batch::findOrFail($id);
+        return auth()->user()->student->wallet->balance >= $batch->price;
+    }
 }

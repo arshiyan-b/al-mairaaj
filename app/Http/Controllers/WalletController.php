@@ -59,7 +59,7 @@ class WalletController extends Controller
             abort(404, 'Screenshot not found.');
         }
     }
-    public function update_topup_request_status(UpdateTopupRequestStatus $request, $id)
+    public function topup_request_update_status(UpdateTopupRequestStatus $request, $id)
     {
         $topupRequest = $this->topupRequestService->getTopupRequest($id);
 

@@ -21,6 +21,7 @@ class WalletTransaction extends Model
         'payment_method',
         'description',
         'status',
+        'created_by',
     ];
 
     protected $hidden = [
@@ -37,12 +38,10 @@ class WalletTransaction extends Model
     {
         return $this->belongsTo(Wallet::class);
     }
-
     public function enrollment()
     {
         return $this->belongsTo(Enrollment::class);
     }
-
     public function creator()
     {
         return $this->belongsTo(User::class, 'created_by');

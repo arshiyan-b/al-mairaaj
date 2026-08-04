@@ -30,16 +30,14 @@ function formatTxDate(tx) {
   return parsed.toLocaleDateString(undefined, { month: "short", day: "2-digit", year: "numeric" });
 }
 
-// Infers credit/debit if the API doesn't send an explicit `type` field,
-// falling back to the sign of the amount.
+// Wallet transactions come with an explicit `type`: "topup" or "redeem".
+// Anything unrecognized falls back to "redeem" (safer to show as a debit).
 function getTxType(tx) {
-  if (tx.type) return tx.type;
-  const amt = Number(tx.amount);
-  return amt < 0 ? "debit" : "credit";
+  return tx.type === "topup" ? "topup" : "redeem";
 }
 
 function getTxTitle(tx) {
-  return tx.title || tx.description || tx.label || "Transaction";
+  return tx.description || tx.title || tx.label || "Transaction";
 }
 
 // Maps a payment_method value to a human-readable label.
@@ -83,22 +81,23 @@ const Wallet = () => {
   const navigate = useNavigate();
 
   const [wallet, setWallet] = useState(null);
+  const [transactions, setTransactions] = useState([]);
   const [topupRequests, setTopupRequests] = useState([]);
   const [loading, setLoading] = useState(true);
   const [visibleCount, setVisibleCount] = useState(SHOW_INCREMENT);
   const [visibleRequestCount, setVisibleRequestCount] = useState(REQUESTS_SHOW_INCREMENT);
 
-  // Success banner is seeded from window.__flash, which wallet.blade.php prints from
-  // the session-flashed message after the top-up form's real POST + redirect. It stays
-  // open until the user dismisses it themselves — no auto-hide.
   const [successMessage, setSuccessMessage] = useState(
     typeof window !== "undefined" && window.__flash?.success ? window.__flash.success : null
   );
+  const [errorMessage, setErrorMessage] = useState(
+    typeof window !== "undefined" && window.__flash?.error ? window.__flash.error : null
+  );
 
-  // Clear it so a client-side re-render or back/forward navigation doesn't re-show it.
   useEffect(() => {
-    if (typeof window !== "undefined" && window.__flash?.success) {
+    if (typeof window !== "undefined" && window.__flash) {
       window.__flash.success = null;
+      window.__flash.error = null;
     }
   }, []);
 
@@ -112,14 +111,17 @@ const Wallet = () => {
       })
       .then((data) => {
         if (!cancelled) {
-          setWallet(data.wallet || { balance: 0, currency: "PKR", transactions: [] });
+          setWallet(data.wallet || { balance: 0, currency: "PKR", status: "active" });
+          // Transactions come back as a top-level key, not nested under wallet.transactions.
+          setTransactions(data.walletTransactions || []);
           setTopupRequests(data.topupRequests || []);
           setLoading(false);
         }
       })
-      .catch((err) => {
+      .catch(() => {
         if (!cancelled) {
-          setWallet({ balance: 0, currency: "PKR", transactions: [] });
+          setWallet({ balance: 0, currency: "PKR", status: "active" });
+          setTransactions([]);
           setTopupRequests([]);
           setLoading(false);
         }
@@ -132,9 +134,8 @@ const Wallet = () => {
 
   if (loading) return <WalletSkeleton />;
 
-  const currency = wallet.currency || "PKR";
+  const currency = wallet.currency;
   const balance = Number(wallet.balance ?? 0);
-  const transactions = wallet.transactions || [];
   const visibleTransactions = transactions.slice(0, visibleCount);
   const hasMore = visibleCount < transactions.length;
 
@@ -145,6 +146,7 @@ const Wallet = () => {
   });
   const visibleRequests = sortedRequests.slice(0, visibleRequestCount);
   const hasMoreRequests = visibleRequestCount < sortedRequests.length;
+  const hasTopupRequests = sortedRequests.length > 0;
 
   return (
     <div className="flex-1 p-4 md:p-8 bg-gray-50 dark:bg-gray-900 min-h-screen relative z-0">
@@ -169,6 +171,35 @@ const Wallet = () => {
                 onClick={() => setSuccessMessage(null)}
                 aria-label="Dismiss"
                 className="text-green-600 dark:text-green-400 hover:text-green-800 dark:hover:text-green-200 transition-colors flex-shrink-0"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {errorMessage && (
+          <motion.div
+            initial={{ opacity: 0, y: -20, height: 0 }}
+            animate={{ opacity: 1, y: 0, height: "auto" }}
+            exit={{ opacity: 0, y: -10, height: 0 }}
+            transition={{ duration: 0.25 }}
+            className="mb-6 overflow-hidden"
+          >
+            <div className="flex items-start justify-between gap-3 rounded-xl border border-red-200 dark:border-red-900/50 bg-red-50 dark:bg-red-900/20 p-4">
+              <div className="flex items-start gap-3">
+                <XCircle className="h-5 w-5 text-red-600 dark:text-red-400 mt-0.5 flex-shrink-0" />
+                <div>
+                  <p className="font-semibold text-red-800 dark:text-red-300">Insufficient Balance</p>
+                  <p className="text-sm text-red-700 dark:text-red-400">{errorMessage}</p>
+                </div>
+              </div>
+              <button
+                onClick={() => setErrorMessage(null)}
+                aria-label="Dismiss"
+                className="text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-200 transition-colors flex-shrink-0"
               >
                 <X className="h-5 w-5" />
               </button>
@@ -206,7 +237,6 @@ const Wallet = () => {
                 <span className="font-medium text-white/80">Total Balance</span>
               </div>
 
-              {/* Amount */}
               <CardContent className="flex-1 flex flex-col items-center justify-center p-0 gap-1">
                 <div className="text-4xl md:text-5xl font-bold tracking-tight text-center">
                   {currency} {balance.toFixed(2)}
@@ -289,7 +319,7 @@ const Wallet = () => {
                 <div className="overflow-y-auto max-h-[350px] pr-2 flex flex-col gap-4">
                   {visibleTransactions.map((tx) => {
                     const type = getTxType(tx);
-                    const isCredit = type === "credit";
+                    const isTopup = type === "topup";
                     const amount = Math.abs(Number(tx.amount) || 0);
 
                     return (
@@ -300,20 +330,30 @@ const Wallet = () => {
                         <div className="flex items-center gap-4">
                           <div
                             className={`p-2 rounded-full ${
-                              isCredit
+                              isTopup
                                 ? "bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400"
                                 : "bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400"
                             }`}
                           >
-                            {isCredit ? <ArrowUpRight className="h-5 w-5" /> : <ArrowDownLeft className="h-5 w-5" />}
+                            {isTopup ? <ArrowUpRight className="h-5 w-5" /> : <ArrowDownLeft className="h-5 w-5" />}
                           </div>
                           <div>
                             <h4 className="font-medium text-gray-900 dark:text-gray-100">{getTxTitle(tx)}</h4>
-                            <p className="text-sm text-gray-500 dark:text-gray-400">{formatTxDate(tx)}</p>
+                            <p className="text-sm text-gray-500 dark:text-gray-400">
+                              {formatTxDate(tx)}
+                              {tx.payment_method && <> {formatPaymentMethod(tx.payment_method)}</>}
+                            </p>
                           </div>
                         </div>
-                        <div className={`font-semibold ${isCredit ? "text-blue-600 dark:text-blue-400" : "text-red-600 dark:text-red-400"}`}>
-                          {isCredit ? "+" : "-"}{currency} {amount.toFixed(2)}
+                        <div className="text-right">
+                          <div className={`font-semibold ${isTopup ? "text-blue-600 dark:text-blue-400" : "text-red-600 dark:text-red-400"}`}>
+                            {isTopup ? "+" : "-"}{currency} {amount.toFixed(2)}
+                          </div>
+                          {tx.balance_after != null && (
+                            <div className="text-xs text-gray-400 dark:text-gray-500">
+                              Bal: {currency} {Number(tx.balance_after).toFixed(2)}
+                            </div>
+                          )}
                         </div>
                       </div>
                     );
@@ -335,32 +375,22 @@ const Wallet = () => {
           </Card>
         </motion.div>
 
-        {/* Top-up Request History */}
-        <motion.div
-          className="lg:col-span-3"
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.3, delay: 0.5 }}
-        >
-          <Card className="p-6 rounded-xl shadow-md hover:shadow-xl border-0 bg-white dark:bg-gray-800">
-            <CardHeader className="p-0 mb-4 flex-shrink-0">
-              <CardTitle className="text-xl font-semibold text-gray-800 dark:text-gray-100 flex items-center gap-2">
-                <History className="h-5 w-5 text-gray-400" />
-                Top-up Request History
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="p-0">
-              {sortedRequests.length === 0 ? (
-                <div className="flex flex-col items-center justify-center py-10 text-center">
-                  <Receipt className="h-8 w-8 text-gray-300" />
-                  <p className="mt-3 text-sm font-medium text-gray-600 dark:text-gray-300">
-                    No top-up requests yet
-                  </p>
-                  <p className="mt-1 text-xs text-gray-400">
-                    Submitted requests and their approval status will show up here.
-                  </p>
-                </div>
-              ) : (
+        {/* Top-up Request History — only rendered when there's data */}
+        {hasTopupRequests && (
+          <motion.div
+            className="lg:col-span-3"
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.3, delay: 0.5 }}
+          >
+            <Card className="p-6 rounded-xl shadow-md hover:shadow-xl border-0 bg-white dark:bg-gray-800">
+              <CardHeader className="p-0 mb-4 flex-shrink-0">
+                <CardTitle className="text-xl font-semibold text-gray-800 dark:text-gray-100 flex items-center gap-2">
+                  <History className="h-5 w-5 text-gray-400" />
+                  Pending Top-up Requests
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-0">
                 <div className="flex flex-col gap-3">
                   {visibleRequests.map((req) => (
                     <div
@@ -378,9 +408,9 @@ const Wallet = () => {
                           {formatPaymentMethod(req.payment_method)} &middot; {formatTxDate({ date: req.requested_at || req.created_at })}
                         </p>
                       </div>
-                      {req.status === "rejected" && req.rejection_reason && (
+                      {req.status === "rejected" && req.admin_note && (
                         <p className="text-xs text-red-500 dark:text-red-400 max-w-xs">
-                          {req.rejection_reason}
+                          {req.admin_note}
                         </p>
                       )}
                     </div>
@@ -397,10 +427,10 @@ const Wallet = () => {
                     </div>
                   )}
                 </div>
-              )}
-            </CardContent>
-          </Card>
-        </motion.div>
+              </CardContent>
+            </Card>
+          </motion.div>
+        )}
       </div>
     </div>
   );

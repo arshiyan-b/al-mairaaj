@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Services\BatchService;
+use App\Services\EnrollmentService;
+use App\Services\WalletService;
 
 use App\Models\Batch;
 use App\Models\Board;
@@ -20,11 +22,17 @@ use Illuminate\Support\Facades\Hash;
 class StudentController extends Controller
 {
     protected $batchService;
+    protected $enrollmentService;
+    protected $walletService;
 
     public function __construct(
         BatchService $batchService,
+        EnrollmentService $enrollmentService,
+        WalletService $walletService,
     ) {
         $this->batchService = $batchService;
+        $this->enrollmentService = $enrollmentService;
+        $this->walletService = $walletService;
     }
 
     public function dashboard()
@@ -47,6 +55,25 @@ class StudentController extends Controller
     {
         $batchTitle = $this->batchService->getBatchTitle($id);
         return view('student.live_classes.batch', compact('batchTitle'));
+    }
+    public function live_class_batch_enroll($id)
+    {
+        $batchTitle = $this->batchService->getBatchTitle($id);
+        $canEnroll = $this->batchService->checkAuthenticatedStudentWalletBalanceForBatch($id);
+
+        if (!$canEnroll) {
+            return redirect()
+                ->route('student.wallet')
+                ->with('error', 'Insufficient wallet balance to enroll in "' . $batchTitle . '". Please top up your wallet.');
+        }
+        
+        $batchPrice = $this->batchService->getBatchPrice($id);
+        $this->enrollmentService->create($id);
+        $this->walletService->debit(auth()->user()->student->wallet, $batchPrice);
+
+        return redirect()
+            ->route('student.wallet')
+            ->with('success', 'You have successfully enrolled in "' . $batchTitle . '".');
     }
     public function boards()
     {

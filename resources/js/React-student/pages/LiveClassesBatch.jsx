@@ -18,7 +18,7 @@ import {
   Video,
 } from "lucide-react";
 
-const LiveClassBatch = () => {
+const LiveClassesBatch = () => {
   const { id } = useParams();
   const navigate = useNavigate();
 
@@ -27,7 +27,6 @@ const LiveClassBatch = () => {
   const [enrolled, setEnrolled] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [enrolling, setEnrolling] = useState(false);
 
   useEffect(() => {
     setLoading(true);
@@ -45,27 +44,6 @@ const LiveClassBatch = () => {
       .catch((err) => setError(err.message))
       .finally(() => setLoading(false));
   }, [id]);
-
-  const handleEnroll = () => {
-    setEnrolling(true);
-    setError(null);
-    fetch("/api/student/enroll", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Accept: "application/json",
-        "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]')?.content,
-      },
-      body: JSON.stringify({ batch_id: id }),
-    })
-      .then((res) => res.json().then((data) => ({ ok: res.ok, data })))
-      .then(({ ok, data }) => {
-        if (!ok) throw new Error(data.message || "Enrollment failed");
-        setEnrolled(true);
-      })
-      .catch((err) => setError(err.message))
-      .finally(() => setEnrolling(false));
-  };
 
   if (loading) return <BatchSkeleton />;
 
@@ -169,23 +147,20 @@ const LiveClassBatch = () => {
 
               <Separator className="my-6" />
 
-              {error && <p className="mb-3 text-sm text-red-500">{error}</p>}
-
-              <Button
-                onClick={handleEnroll}
-                disabled={enrolled || enrolling}
-                className="w-full bg-indigo-600 text-white hover:bg-indigo-700 disabled:opacity-70"
-              >
-                {enrolled ? (
-                  <span className="flex items-center gap-2">
-                    <CheckCircle2 className="h-4 w-4" /> Enrolled
-                  </span>
-                ) : enrolling ? (
-                  "Enrolling..."
-                ) : (
-                  "Confirm Enrollment"
-                )}
-              </Button>
+              <a href={`/live_class_batch_enroll/${id}`} className="block w-full">
+                <Button
+                  disabled={enrolled}
+                  className="w-full bg-indigo-600 text-white hover:bg-indigo-700 disabled:opacity-70"
+                >
+                  {enrolled ? (
+                    <span className="flex items-center gap-2">
+                      <CheckCircle2 className="h-4 w-4" /> Enrolled
+                    </span>
+                  ) : (
+                    "Confirm Enrollment"
+                  )}
+                </Button>
+              </a>
             </CardContent>
           </Card>
         </motion.div>
@@ -274,4 +249,4 @@ function BatchSkeleton() {
   );
 }
 
-export default LiveClassBatch;
+export default LiveClassesBatch;

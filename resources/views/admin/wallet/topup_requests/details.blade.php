@@ -3,10 +3,7 @@
 @section('title')
     Top-up Request
 @endsection
-
-@include('scripts.table')
 @include('scripts.disable_submit_button')
-
 @section('content')
 
 <div class="container">
@@ -25,22 +22,18 @@
                         <th>Student</th>
                         <td>{{ $topup_request->wallet->student->user->name ?? 'N/A' }}</td>
                     </tr>
-
                     <tr>
                         <th>Email</th>
                         <td>{{ $topup_request->wallet->student->user->email ?? 'N/A' }}</td>
                     </tr>
-
                     <tr>
                         <th>Amount</th>
                         <td>{{ number_format($topup_request->amount, 2) }}</td>
                     </tr>
-
                     <tr>
                         <th>Status</th>
                         <td>{{ ucfirst($topup_request->status) }}</td>
                     </tr>
-
                     <tr>
                         <th>Screenshot</th>
                         <td>
@@ -56,11 +49,21 @@
                             @endif
                         </td>
                     </tr>
-
                     <tr>
                         <th>Requested At</th>
                         <td>{{ $topup_request->created_at->format('d M Y h:i A') }}</td>
                     </tr>
+
+                    @if ($topup_request->status === 'approved' || $topup_request->status === 'rejected')
+                        <tr>
+                            <th>Approved/Rejected By</th>
+                            <td>{{ $topup_request->processedBy->name }}</td>
+                        </tr>
+                        <tr>
+                            <th>Approved/Rejected At</th>
+                            <td>{{ $topup_request->processed_at->format('d M Y h:i A') }}</td>
+                        </tr>
+                    @endif
 
                 </tbody>
             </table>

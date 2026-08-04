@@ -2,13 +2,23 @@
 
 namespace App\Services;
 
+use App\Services\WalletTransactionService;
+
 use App\Models\TopupRequest;
 use App\Models\Wallet;
 use Illuminate\Http\UploadedFile;
+
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class TopupRequestService
 {
+    protected WalletTransactionService $walletTransactionService;
+
+    public function __construct(WalletTransactionService $walletTransactionService)
+    {
+        $this->walletTransactionService = $walletTransactionService;
+    }
     public function getTopupRequests()
     {
         return TopupRequest::all();
@@ -20,6 +30,10 @@ class TopupRequestService
     public function getAuthenticatedStudentTopupRequests()
     {
         return TopupRequest::where('wallet_id', auth()->user()->student->wallet->id)->get();
+    }
+    public function getAuthenticatedStudentPendingTopupRequests()
+    {
+        return TopupRequest::where('wallet_id', auth()->user()->student->wallet->id)->where('status', 'pending')->get();
     }
     public function create(Wallet $wallet, array $data, ?UploadedFile $screenshot): TopupRequest
     {
@@ -54,11 +68,19 @@ class TopupRequestService
     {
         $topupRequest->update([
             'status' => $status,
+            'processed_at' => now(),
+            'processed_by' => Auth::id(),
         ]);
 
         if ($status === 'approved') {
-            $wallet = $topupRequest->wallet;
-            $wallet->increment('balance', $topupRequest->amount);
+
+            $this->walletTransactionService->credit(
+                wallet: $topupRequest->wallet,
+                amount: $topupRequest->amount,
+                referenceId: (string) $topupRequest->id,
+                paymentMethod: $topupRequest->payment_method,
+                description: 'Wallet top-up approved'
+            );
         }
 
         return $topupRequest->fresh();

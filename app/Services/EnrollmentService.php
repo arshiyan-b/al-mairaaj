@@ -36,4 +36,19 @@ class EnrollmentService
             ->where('student_id', auth()->user()->student->id)
             ->get();
     }
+    public function create($batchId)
+    {
+        $student = auth()->user()->student;
+
+        return Enrollment::firstOrCreate(
+            [
+                'batch_id'   => $batchId,
+                'student_id' => $student->id,
+            ],
+            [
+                'payment_status' => 'paid',
+                'status'         => 'active',
+            ]
+        );
+    }
 }

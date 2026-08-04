@@ -134,7 +134,7 @@ const LiveClasses = () => {
                     </div>
                     <Button
                       size="sm"
-                      onClick={() => navigate(`/live_class_batch/${c.batch_id}`)}
+                      onClick={() => navigate(`/live_classes_batch/${c.batch_id}`)}
                       className="bg-amber-500 text-white shadow-sm hover:bg-amber-600"
                     >
                       Go to batch
@@ -219,7 +219,7 @@ const LiveClasses = () => {
                           </div>
 
                           <Button
-                            onClick={() => navigate(`/live_class_batch/${batch.id}`)}
+                            onClick={() => navigate(`/live_classes_batch/${batch.id}`)}
                             className="mt-4 flex w-full items-center justify-center gap-2 bg-indigo-600 text-white transition group-hover:bg-indigo-700"
                           >
                             View Batch

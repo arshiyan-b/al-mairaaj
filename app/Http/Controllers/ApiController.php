@@ -14,6 +14,7 @@ use App\Services\StudentService;
 use App\Services\TeacherService;
 use App\Services\TopupRequestService;
 use App\Services\WalletService;
+use App\Services\WalletTransactionService;
 
 use App\Models\Batch;
 use App\Models\Board;
@@ -44,6 +45,7 @@ class ApiController extends Controller
     protected $teacherService;
     protected $topupRequestService;
     protected $walletService;
+    protected $walletTransactionService;
 
     public function __construct(
         BatchService $batchService,
@@ -56,6 +58,7 @@ class ApiController extends Controller
         TeacherService $teacherService,
         TopupRequestService $topupRequestService,
         WalletService $walletService,
+        WalletTransactionService $walletTransactionService,
     ) {
         $this->batchService = $batchService;
         $this->boardService = $boardService;
@@ -67,6 +70,7 @@ class ApiController extends Controller
         $this->teacherService = $teacherService;
         $this->topupRequestService = $topupRequestService;
         $this->walletService = $walletService;
+        $this->walletTransactionService = $walletTransactionService;
     }
     public function student_profile_data()
     {
@@ -78,7 +82,7 @@ class ApiController extends Controller
     }
     public function student_wallet_data()
     {
-        $profile = $this->studentService->getAuthenticatedStudent();
+        $student = $this->studentService->getAuthenticatedStudent();
         $wallet = $this->walletService->getAuthenticatedStudentWallet();
 
         if (!$wallet) {
@@ -91,10 +95,12 @@ class ApiController extends Controller
             $wallet->setRelation('transactions', []);
         }
 
-        $topupRequests = $this->topupRequestService->getAuthenticatedStudentTopupRequests();
+        $walletTransactions = $this->walletTransactionService->getAuthenticatedStudentWalletTransactions();
+        $topupRequests = $this->topupRequestService->getAuthenticatedStudentPendingTopupRequests();
 
         return response()->json([
             'wallet' => $wallet,
+            'walletTransactions' => $walletTransactions,
             'topupRequests' => $topupRequests,
         ]);
     }
