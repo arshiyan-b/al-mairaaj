@@ -4,35 +4,34 @@ namespace App\Http\Controllers;
 
 use App\Services\BatchService;
 use App\Services\EnrollmentService;
+use App\Services\LiveClassesService;
+use App\Services\LiveClassEnrollmentService;
 use App\Services\WalletService;
-
-use App\Models\Batch;
-use App\Models\Board;
-use App\Models\CurriculumSubject;
-use App\Models\Enrollment;
-use App\Models\Grade;
-use App\Models\LiveClass;
-use App\Models\Student;
-use App\Models\Teacher;
-
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
+use App\Services\WalletTransactionService;
 
 class StudentController extends Controller
 {
     protected $batchService;
     protected $enrollmentService;
+    protected $liveClassesService;
+    protected $liveClassEnrollmentService;
     protected $walletService;
+    protected $walletTransactionService;
 
     public function __construct(
         BatchService $batchService,
         EnrollmentService $enrollmentService,
+        LiveClassesService $liveClassesService,
+        LiveClassEnrollmentService $liveClassEnrollmentService,
         WalletService $walletService,
+        WalletTransactionService $walletTransactionService,
     ) {
         $this->batchService = $batchService;
         $this->enrollmentService = $enrollmentService;
+        $this->liveClassesService = $liveClassesService;
+        $this->liveClassEnrollmentService = $liveClassEnrollmentService;
         $this->walletService = $walletService;
+        $this->walletTransactionService = $walletTransactionService;
     }
 
     public function dashboard()
@@ -56,7 +55,33 @@ class StudentController extends Controller
         $batchTitle = $this->batchService->getBatchTitle($id);
         return view('student.live_classes.batch', compact('batchTitle'));
     }
-    public function live_class_batch_enroll($id)
+    public function live_class_enroll($id)
+    {
+        $liveClassTitle = $this->liveClassesService->getLiveClassTitle($id);
+        $canEnroll = $this->liveClassesService->checkAuthenticatedStudentWalletBalanceForLiveClass($id);
+
+        if (!$canEnroll) {
+            return redirect()
+                ->route('student.wallet')
+                ->with('error', 'Insufficient wallet balance to enroll in "' . $liveClassTitle . '". Please top up your wallet.');
+        }
+
+        $liveClassEnrollment = $this->liveClassEnrollmentService->create($id, auth()->user()->student->id);
+        $this->walletTransactionService->debitForAuthenticatedStudentLiveClassEnrollment(
+            auth()->user()->student->wallet,
+            $liveClassEnrollment->id,
+            $liveClassEnrollment->liveClass->price,
+            'live_class_enrollment',
+            'wallet',
+            'completed',
+            'Live class enrollment: ' . $liveClassTitle
+        );
+
+        return redirect()
+            ->back()
+            ->with('success', 'You have successfully enrolled in "' . $liveClassTitle . '".');
+    }
+    public function live_classes_batch_enroll($id)
     {
         $batchTitle = $this->batchService->getBatchTitle($id);
         $canEnroll = $this->batchService->checkAuthenticatedStudentWalletBalanceForBatch($id);
@@ -67,12 +92,8 @@ class StudentController extends Controller
                 ->with('error', 'Insufficient wallet balance to enroll in "' . $batchTitle . '". Please top up your wallet.');
         }
         
-        $batchPrice = $this->batchService->getBatchPrice($id);
-        $this->enrollmentService->create($id);
-        $this->walletService->debit(auth()->user()->student->wallet, $batchPrice);
-
         return redirect()
-            ->route('student.wallet')
+            ->back()
             ->with('success', 'You have successfully enrolled in "' . $batchTitle . '".');
     }
     public function boards()

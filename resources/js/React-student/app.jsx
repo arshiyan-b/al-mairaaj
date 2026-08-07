@@ -72,9 +72,9 @@ function App() {
             <Route path="courses" element={<Courses />} />
             <Route path="course/:id" element={<Course />} />
             <Route path="video/:id" element={<Video />} />
-            <Route path="live_classes" element={<LiveClasses />} />
-            <Route path="browse_live_classes" element={<BrowseLiveClasses />} />
-            <Route path="live_classes_batch/:id" element={<LiveClassesBatch />} />
+            <Route path="live-classes" element={<LiveClasses />} />
+            <Route path="browse-live-classes" element={<BrowseLiveClasses />} />
+            <Route path="live-classes-batch/:id" element={<LiveClassesBatch />} />
             <Route path="examination-boards" element={<Boards />} />
             <Route path="subjects" element={<Subjects />} />
             <Route path="books" element={<Books />} />

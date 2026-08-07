@@ -98,10 +98,12 @@ Route::middleware(['auth', 'role:student'])->group(function () {
     Route::get('/video/{id}', [VideoController::class, 'index'])->name('video.index');
 
     // live classes
-    Route::get('/live_classes', [StudentController::class, 'live_classes'])->name('student.live_classes');
-    Route::get('/browse_live_classes', [StudentController::class, 'browse_live_classes'])->name('student.browse_live_classes');
-    Route::get('/live_classes_batch/{id}', [StudentController::class, 'live_class_batch'])->name('student.live_class_batch');
-    Route::get('/live_class_batch_enroll/{id}', [StudentController::class, 'live_class_batch_enroll'])->name('student.live_class_batch.enroll');
+    Route::get('/live-classes', [StudentController::class, 'live_classes'])->name('student.live_classes');
+    Route::get('/browse-live-classes', [StudentController::class, 'browse_live_classes'])->name('student.browse_live_classes');
+    Route::get('/live-classes-batch/{id}', [StudentController::class, 'live_class_batch'])->name('student.live_class_batch');
+    
+    Route::post('/live-class-enroll/{id}', [StudentController::class, 'live_class_enroll'])->name('student.live_class.enroll');
+    Route::get('/live-class-batch-enroll/{id}', [StudentController::class, 'live_classes_batch_enroll'])->name('student.live_class_batch.enroll');
 
     // boards
     Route::get('/examination-boards', [StudentController::class, 'boards'])->name('student.boards');

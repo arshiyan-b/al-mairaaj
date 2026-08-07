@@ -79,7 +79,7 @@ const LiveClasses = () => {
             </div>
             <Button
               variant="secondary"
-              onClick={() => navigate("/browse_live_classes")}
+              onClick={() => navigate("/browse-live-classes")}
               className="flex items-center gap-2 bg-white text-indigo-700 hover:bg-indigo-50"
             >
               <Compass className="h-4 w-4" /> Browse batches
@@ -170,7 +170,7 @@ const LiveClasses = () => {
               <p className="mt-3 text-sm font-medium text-gray-600">You're not enrolled in any batch yet</p>
               <p className="mt-1 text-xs text-gray-400">Browse available batches to get started.</p>
               <Button
-                onClick={() => navigate("/browse_live_classes")}
+                onClick={() => navigate("/browse-live-classes")}
                 className="mt-4 bg-indigo-600 text-white hover:bg-indigo-700"
               >
                 Browse Live Classes

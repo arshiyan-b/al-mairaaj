@@ -5,11 +5,11 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Enrollment extends Model
+class BatchEnrollment extends Model
 {
     use HasFactory;
 
-    protected $table = 'enrollments';
+    protected $table = 'batch_enrollments';
 
     protected $fillable = [
         'batch_id',

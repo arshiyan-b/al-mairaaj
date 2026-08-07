@@ -2,13 +2,13 @@
 
 namespace App\Services;
 
-use App\Models\Enrollment;
+use App\Models\BatchEnrollment;
 
-class EnrollmentService
+class BatchEnrollmentService
 {
     public function getEnrollmentsByStudentId($studentId)
     {
-        return Enrollment::with([
+        return BatchEnrollment::with([
                 'batch:id,title,status,start_date,end_date,total_classes,teacher_id,curriculum_subject_id',
                 'batch.teacher:id,name',
                 'batch.curriculumSubject:id,name,grade_id',
@@ -20,13 +20,13 @@ class EnrollmentService
     }
     public function isStudentEnrolled($studentId, $batchId)
     {
-        return Enrollment::where('student_id', $studentId)
+        return BatchEnrollment::where('student_id', $studentId)
             ->where('batch_id', $batchId)
             ->exists();
     }
     public function getAuthenticatedStudentEnrollments()
     {
-        return Enrollment::with([
+        return BatchEnrollment::with([
                 'batch:id,title,status,start_date,end_date,total_classes,teacher_id,curriculum_subject_id',
                 'batch.teacher:id,name',
                 'batch.curriculumSubject:id,name,grade_id',
@@ -40,7 +40,7 @@ class EnrollmentService
     {
         $student = auth()->user()->student;
 
-        return Enrollment::firstOrCreate(
+        return BatchEnrollment::firstOrCreate(
             [
                 'batch_id'   => $batchId,
                 'student_id' => $student->id,

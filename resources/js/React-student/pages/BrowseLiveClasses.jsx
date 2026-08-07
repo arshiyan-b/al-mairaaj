@@ -233,7 +233,7 @@ const BrowseLiveClasses = () => {
                         </div>
 
                         <Button
-                          onClick={() => navigate(`/live_class_batch/${batch.id}`)}
+                          onClick={() => navigate(`/live-classes-batch/${batch.id}`)}
                           className="mt-4 w-full bg-indigo-600 text-white hover:bg-indigo-700"
                         >
                           {isEnrolled ? (

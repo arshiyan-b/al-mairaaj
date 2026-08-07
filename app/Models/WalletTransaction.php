@@ -38,12 +38,24 @@ class WalletTransaction extends Model
     {
         return $this->belongsTo(Wallet::class);
     }
-    public function enrollment()
-    {
-        return $this->belongsTo(Enrollment::class);
-    }
     public function creator()
     {
         return $this->belongsTo(User::class, 'created_by');
+    }
+    public function enrollment()
+    {
+        return $this->belongsTo(Enrollment::class, 'enrollment_id');
+    }
+    public function liveClassEnrollment()
+    {
+        return $this->belongsTo(LiveClassEnrollment::class, 'enrollment_id');
+    }
+    public function getEnrollmentRecordAttribute()
+    {
+        return match ($this->type) {
+            'batch_enrollment' => $this->enrollment,
+            'live_class_enrollment' => $this->liveClassEnrollment,
+            default => null,
+        };
     }
 }

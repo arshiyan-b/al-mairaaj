@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   ArrowLeft,
   Users,
@@ -16,7 +16,11 @@ import {
   CheckCircle2,
   GraduationCap,
   Video,
+  X,
+  Loader2,
 } from "lucide-react";
+
+const ENROLL_CUTOFF_MINUTES = 30;
 
 const LiveClassesBatch = () => {
   const { id } = useParams();
@@ -24,9 +28,10 @@ const LiveClassesBatch = () => {
 
   const [batch, setBatch] = useState(null);
   const [liveClasses, setLiveClasses] = useState([]);
-  const [enrolled, setEnrolled] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [enrollingId, setEnrollingId] = useState(null);
+  const [earlyJoinClass, setEarlyJoinClass] = useState(null); // holds the class object when user clicks Join too early
 
   useEffect(() => {
     setLoading(true);
@@ -39,11 +44,35 @@ const LiveClassesBatch = () => {
       .then((data) => {
         setBatch(data.batch);
         setLiveClasses(data.live_classes || []);
-        setEnrolled(!!data.is_enrolled);
       })
       .catch((err) => setError(err.message))
       .finally(() => setLoading(false));
   }, [id]);
+
+  const getMinutesUntilStart = (classDate, startTime) => {
+    const target = new Date(`${classDate}T${startTime}`);
+    return (target.getTime() - Date.now()) / 60000;
+  };
+
+  const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content || "";
+
+  const handleEnroll = (classId) => {
+    if (enrollingId) return; // guard against double submits
+    setEnrollingId(classId);
+
+    const form = document.createElement("form");
+    form.method = "POST";
+    form.action = `/live-class-enroll/${classId}`;
+
+    const token = document.createElement("input");
+    token.type = "hidden";
+    token.name = "_token";
+    token.value = csrfToken;
+
+    form.appendChild(token);
+    document.body.appendChild(form);
+    form.submit();
+  };
 
   if (loading) return <BatchSkeleton />;
 
@@ -92,6 +121,28 @@ const LiveClassesBatch = () => {
               <Separator className="my-5" />
 
               <div className="grid grid-cols-2 gap-5 text-sm md:grid-cols-3">
+
+                <div>
+                  <p className="flex items-center gap-1 text-xs text-gray-400">
+                    <BookOpen className="h-3.5 w-3.5" /> Subject
+                  </p>
+                  <p className="mt-1 font-medium text-gray-700">{subject?.name ?? "—"}</p>
+                </div>
+
+                <div>
+                  <p className="text-xs text-gray-400">Grade</p>
+                  <p className="mt-1 font-medium text-gray-700">
+                    {grade.name}
+                  </p>
+                </div>
+
+                <div>
+                  <p className="text-xs text-gray-400">Examination Board</p>
+                  <p className="mt-1 font-medium text-gray-700">
+                    {board.name}
+                  </p>
+                </div>
+
                 <div>
                   <p className="flex items-center gap-1 text-xs text-gray-400">
                     <GraduationCap className="h-3.5 w-3.5" /> Teacher
@@ -109,15 +160,10 @@ const LiveClassesBatch = () => {
 
                 <div>
                   <p className="flex items-center gap-1 text-xs text-gray-400">
-                    <BookOpen className="h-3.5 w-3.5" /> Subject
+                    <CalendarDays className="h-3.5 w-3.5" /> Duration
                   </p>
-                  <p className="mt-1 font-medium text-gray-700">{subject?.name ?? "—"}</p>
-                </div>
-
-                <div>
-                  <p className="text-xs text-gray-400">Grade / Board</p>
-                  <p className="mt-1 font-medium text-gray-700">
-                    {grade?.name ?? "—"} {board?.name ? `· ${board.name}` : ""}
+                  <p className="mt-1 font-mono text-xs font-medium text-gray-700">
+                    {batch.formatted_start_date} – {batch.formatted_end_date}
                   </p>
                 </div>
 
@@ -128,39 +174,8 @@ const LiveClassesBatch = () => {
                   <p className="mt-1 font-medium text-gray-700">{batch.total_classes ?? "—"}</p>
                 </div>
 
-                <div>
-                  <p className="flex items-center gap-1 text-xs text-gray-400">
-                    <CalendarDays className="h-3.5 w-3.5" /> Duration
-                  </p>
-                  <p className="mt-1 font-mono text-xs font-medium text-gray-700">
-                    {batch.formatted_start_date} – {batch.formatted_end_date}
-                  </p>
-                </div>
-
-                {batch.price != null && (
-                  <div>
-                    <p className="text-xs text-gray-400">Price</p>
-                    <p className="mt-1 font-medium text-gray-700">Rs. {batch.price}</p>
-                  </div>
-                )}
               </div>
 
-              <Separator className="my-6" />
-
-              <a href={`/live_class_batch_enroll/${id}`} className="block w-full">
-                <Button
-                  disabled={enrolled}
-                  className="w-full bg-indigo-600 text-white hover:bg-indigo-700 disabled:opacity-70"
-                >
-                  {enrolled ? (
-                    <span className="flex items-center gap-2">
-                      <CheckCircle2 className="h-4 w-4" /> Enrolled
-                    </span>
-                  ) : (
-                    "Confirm Enrollment"
-                  )}
-                </Button>
-              </a>
             </CardContent>
           </Card>
         </motion.div>
@@ -185,43 +200,83 @@ const LiveClassesBatch = () => {
           ) : (
             <div className="space-y-3">
               {liveClasses.map((c) => {
-                const isLive = c.status === "live";
+                const isLive = c.status?.toLowerCase() === "live";
+                const minutesUntilStart = getMinutesUntilStart(c.class_date, c.start_time);
+                const withinCutoff = minutesUntilStart <= ENROLL_CUTOFF_MINUTES;
+                const isEnrolling = enrollingId === c.id;
+                const showEnrollButton = !c.is_enrolled && !withinCutoff;
+
                 return (
                   <Card key={c.id} className={`rounded-xl shadow-sm ${isLive ? "border-l-4 border-amber-500" : ""}`}>
                     <CardContent className="flex flex-wrap items-center justify-between gap-4 p-5">
                       <div>
                         <h4 className="text-sm font-semibold text-gray-800">{c.title}</h4>
+
                         <div className="mt-2 flex items-center gap-3 text-xs text-gray-500">
                           <span className="flex items-center gap-1">
-                            <CalendarDays className="h-3.5 w-3.5" /> {c.class_date}
+                            <CalendarDays className="h-3.5 w-3.5" />
+                            {c.formatted_class_date ?? c.class_date}
                           </span>
+
                           <span className="flex items-center gap-1 font-mono">
-                            <Clock className="h-3.5 w-3.5" /> {c.start_time} – {c.end_time}
+                            <Clock className="h-3.5 w-3.5" />
+                            {c.start_time} – {c.end_time}
                           </span>
                         </div>
+
+                        {showEnrollButton && (
+                          <div className="mt-2 font-semibold text-s text-purple-600">
+                            Rs. {Number(c.price).toFixed(0)}
+                          </div>
+                        )}
                       </div>
 
                       <div className="flex items-center gap-3">
                         <Badge
                           className={
-                            c.status === "live"
+                            c.status?.toLowerCase() === "live"
                               ? "bg-amber-500 text-white hover:bg-amber-500"
-                              : c.status === "completed"
+                              : c.status?.toLowerCase() === "completed"
                               ? "bg-emerald-50 text-emerald-600 hover:bg-emerald-50"
                               : "bg-slate-100 text-slate-700 hover:bg-slate-100"
                           }
                         >
                           {c.status}
                         </Badge>
-                        {c.meeting_link && enrolled ? (
-                          <a href={c.meeting_link} target="_blank" rel="noreferrer">
-                            <Button size="sm">
+
+                        {c.is_enrolled ? (
+                          withinCutoff ? (
+                            // Enrolled + within 30 min of start (or already started) -> active Join link
+                            <a href={c.meeting_link} target="_blank" rel="noreferrer">
+                              <Button size="sm">
+                                <Video className="mr-2 h-3.5 w-3.5" /> Join
+                              </Button>
+                            </a>
+                          ) : (
+                            // Enrolled but more than 30 min out -> disabled-looking Join that opens an info modal
+                            <Button size="sm" variant="outline" onClick={() => setEarlyJoinClass(c)}>
                               <Video className="mr-2 h-3.5 w-3.5" /> Join
                             </Button>
-                          </a>
-                        ) : (
+                          )
+                        ) : withinCutoff ? (
+                          // Not enrolled + within 30 min of start -> can no longer enroll
                           <Button size="sm" variant="outline" disabled>
-                            <Video className="mr-2 h-3.5 w-3.5" /> Join
+                            Enrollment Closed
+                          </Button>
+                        ) : (
+                          // Not enrolled + more than 30 min out -> can enroll
+                          <Button
+                            size="sm"
+                            disabled={isEnrolling}
+                            onClick={() => handleEnroll(c.id)}
+                          >
+                            {isEnrolling ? (
+                              <>
+                                <Loader2 className="mr-2 h-3.5 w-3.5 animate-spin" /> Enrolling...
+                              </>
+                            ) : (
+                              "Enroll"
+                            )}
                           </Button>
                         )}
                       </div>
@@ -233,6 +288,44 @@ const LiveClassesBatch = () => {
           )}
         </motion.div>
       </div>
+
+      {/* Small modal shown when an enrolled student clicks Join too early */}
+      <AnimatePresence>
+        {earlyJoinClass && (
+          <motion.div
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setEarlyJoinClass(null)}
+          >
+            <motion.div
+              className="w-full max-w-sm rounded-xl bg-white p-6 shadow-lg dark:bg-[#171a2e]"
+              initial={{ opacity: 0, scale: 0.95, y: 8 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 8 }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="flex items-start justify-between">
+                <h3 className="text-sm font-semibold text-gray-800">Meeting Link not available yet</h3>
+                <button
+                  onClick={() => setEarlyJoinClass(null)}
+                  className="text-gray-400 hover:text-gray-600"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
+              <p className="mt-2 text-sm text-gray-500">
+                The Join button activates {ENROLL_CUTOFF_MINUTES} minutes before the class starts,
+                at {earlyJoinClass.start_time} on {earlyJoinClass.formatted_class_date ?? earlyJoinClass.class_date}.
+              </p>
+              <Button size="sm" className="mt-4 w-full" onClick={() => setEarlyJoinClass(null)}>
+                Got it
+              </Button>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };

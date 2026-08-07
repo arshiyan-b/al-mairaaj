@@ -5,9 +5,9 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreTopupRequestRequest;
 
 use App\Services\BatchService;
+use App\Services\BatchEnrollmentService;
 use App\Services\BoardService;
 use App\Services\CurriculumSubjectService;
-use App\Services\EnrollmentService;
 use App\Services\GradeService;
 use App\Services\LiveClassesService;
 use App\Services\StudentService;
@@ -17,28 +17,17 @@ use App\Services\WalletService;
 use App\Services\WalletTransactionService;
 
 use App\Models\Batch;
-use App\Models\Board;
-use App\Models\CurriculumSubject;
-use App\Models\Enrollment;
-use App\Models\Grade;
-use App\Models\LiveClass;
-use App\Models\Student;
-use App\Models\Teacher;
-use App\Models\TopupRequest;
 use App\Models\Wallet;
 use App\Models\WalletTransaction;
-use App\Models\WithdrawRequest;
 
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
 
 class ApiController extends Controller
 {
     protected $batchService;
+    protected $batchEnrollmentService;
     protected $boardService;
     protected $curriculumSubjectService;
-    protected $enrollmentService;
     protected $gradeService;
     protected $liveClassesService;
     protected $studentService;
@@ -49,9 +38,9 @@ class ApiController extends Controller
 
     public function __construct(
         BatchService $batchService,
+        BatchEnrollmentService $batchEnrollmentService,
         BoardService $boardService,
         CurriculumSubjectService $curriculumSubjectService,
-        EnrollmentService $enrollmentService,
         GradeService $gradeService,
         LiveClassesService $liveClassesService,
         StudentService $studentService,
@@ -61,9 +50,9 @@ class ApiController extends Controller
         WalletTransactionService $walletTransactionService,
     ) {
         $this->batchService = $batchService;
+        $this->batchEnrollmentService = $batchEnrollmentService;
         $this->boardService = $boardService;
         $this->curriculumSubjectService = $curriculumSubjectService;
-        $this->enrollmentService = $enrollmentService;
         $this->gradeService = $gradeService;
         $this->liveClassesService = $liveClassesService;
         $this->studentService = $studentService;
@@ -194,7 +183,7 @@ class ApiController extends Controller
     public function student_live_classes_data()
     {
         $student = $this->studentService->getAuthenticatedStudent();
-        $enrollments = $this->enrollmentService->getAuthenticatedStudentEnrollments();
+        $enrollments = $this->batchEnrollmentService->getAuthenticatedStudentEnrollments();
         $batchIds = $enrollments->pluck('batch_id');
         $liveClasses = $this->liveClassesService->getUpcomingLiveClassesByBatchIds($batchIds);
         $today = now()->toDateString();
@@ -230,7 +219,7 @@ class ApiController extends Controller
         $grades = $this->gradeService->getGrades();
         $boards = $this->boardService->getBoards();
         $curriculum_subjects = $this->curriculumSubjectService->getCurriculumSubjects();
-        $enrollments = $this->enrollmentService->getAuthenticatedStudentEnrollments();
+        $enrollments = $this->batchEnrollmentService->getAuthenticatedStudentEnrollments();
 
         return response()->json([
             'batches' => $batches,
@@ -244,17 +233,11 @@ class ApiController extends Controller
     public function student_live_class_batch($id)
     {
         $batch = $this->batchService->getBatch($id);
-        $liveClasses = $this->liveClassesService->getLiveClassesByBatchId($batch->id);
-        $studentId = auth()->user()->student->id;
-        $isEnrolled = $this->enrollmentService->isStudentEnrolled(
-            $studentId,
-            $batch->id
-        );
+        $liveClasses = $this->liveClassesService->getAuthenticatedStudentLiveClassesByBatchId($batch->id);
 
         return response()->json([
             'batch' => $batch,
             'live_classes' => $liveClasses,
-            'is_enrolled' => $isEnrolled,
         ]);
     }
 }
