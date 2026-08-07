@@ -16,12 +16,12 @@ class WalletTransaction extends Model
         'enrollment_id',
         'reference_id',
         'type',
+        'transaction_type',
         'amount',
         'balance_after',
         'payment_method',
         'description',
         'status',
-        'created_by',
     ];
 
     protected $hidden = [

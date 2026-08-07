@@ -32,9 +32,6 @@ function formatTxDate(tx) {
 
 // Wallet transactions come with an explicit `type`: "topup" or "redeem".
 // Anything unrecognized falls back to "redeem" (safer to show as a debit).
-function getTxType(tx) {
-  return tx.type === "topup" ? "topup" : "redeem";
-}
 
 function getTxTitle(tx) {
   return tx.description || tx.title || tx.label || "Transaction";
@@ -318,8 +315,7 @@ const Wallet = () => {
               ) : (
                 <div className="overflow-y-auto max-h-[350px] pr-2 flex flex-col gap-4">
                   {visibleTransactions.map((tx) => {
-                    const type = getTxType(tx);
-                    const isTopup = type === "topup";
+                    const isCredit = tx.transaction_type === "credit";
                     const amount = Math.abs(Number(tx.amount) || 0);
 
                     return (
@@ -330,12 +326,12 @@ const Wallet = () => {
                         <div className="flex items-center gap-4">
                           <div
                             className={`p-2 rounded-full ${
-                              isTopup
+                              isCredit
                                 ? "bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400"
                                 : "bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400"
                             }`}
                           >
-                            {isTopup ? <ArrowUpRight className="h-5 w-5" /> : <ArrowDownLeft className="h-5 w-5" />}
+                            {isCredit ? <ArrowUpRight className="h-5 w-5" /> : <ArrowDownLeft className="h-5 w-5" />}
                           </div>
                           <div>
                             <h4 className="font-medium text-gray-900 dark:text-gray-100">{getTxTitle(tx)}</h4>
@@ -346,8 +342,8 @@ const Wallet = () => {
                           </div>
                         </div>
                         <div className="text-right">
-                          <div className={`font-semibold ${isTopup ? "text-blue-600 dark:text-blue-400" : "text-red-600 dark:text-red-400"}`}>
-                            {isTopup ? "+" : "-"}{currency} {amount.toFixed(2)}
+                          <div className={`font-semibold ${isCredit ? "text-blue-600 dark:text-blue-400" : "text-red-600 dark:text-red-400"}`}>
+                            {isCredit ? "+" : "-"}{currency} {amount.toFixed(2)}
                           </div>
                           {tx.balance_after != null && (
                             <div className="text-xs text-gray-400 dark:text-gray-500">

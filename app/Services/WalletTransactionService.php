@@ -32,15 +32,16 @@ class WalletTransactionService
             $wallet->save();
 
             return WalletTransaction::create([
-                'wallet_id'       => $wallet->id,
-                'enrollment_id'   => $enrollmentId,
-                'type'            => 'topup',
-                'amount'          => $amount,
-                'balance_after'   => $wallet->balance,
-                'payment_method'  => $paymentMethod,
-                'description'     => $description,
-                'status'          => 'completed',
-                'created_by'      => Auth::id(),
+                'wallet_id'         => $wallet->id,
+                'enrollment_id'     => $enrollmentId,
+                'type'              => 'topup',
+                'transaction_type'  => 'credit',
+                'amount'            => $amount,
+                'balance_after'     => $wallet->balance,
+                'payment_method'    => $paymentMethod,
+                'description'       => $description,
+                'status'            => 'completed',
+                'created_by'        => Auth::id(),
             ]);
         });
     }
@@ -68,15 +69,16 @@ class WalletTransactionService
             $wallet->save();
 
             return WalletTransaction::create([
-                'wallet_id'      => $wallet->id,
-                'enrollment_id'  => $enrollmentId,
-                'type'           => $type,
-                'amount'         => $amount,
-                'balance_after'  => $wallet->balance,
-                'payment_method' => $paymentMethod,
-                'description'    => $description,
-                'status'         => $status,
-                'created_by'     => Auth::id(),
+                'wallet_id'         => $wallet->id,
+                'enrollment_id'     => $enrollmentId,
+                'type'              => $type,
+                'transaction_type'  => 'debit',
+                'amount'            => $amount,
+                'balance_after'     => $wallet->balance,
+                'payment_method'    => $paymentMethod,
+                'description'       => $description,
+                'status'            => $status,
+                'created_by'        => Auth::id(),
             ]);
         });
     }

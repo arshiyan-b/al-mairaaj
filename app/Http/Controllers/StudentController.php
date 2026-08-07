@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Services\BatchService;
-use App\Services\EnrollmentService;
+use App\Services\BatchEnrollmentService;
 use App\Services\LiveClassesService;
 use App\Services\LiveClassEnrollmentService;
 use App\Services\WalletService;
@@ -12,7 +12,7 @@ use App\Services\WalletTransactionService;
 class StudentController extends Controller
 {
     protected $batchService;
-    protected $enrollmentService;
+    protected $batchEnrollmentService;
     protected $liveClassesService;
     protected $liveClassEnrollmentService;
     protected $walletService;
@@ -20,14 +20,14 @@ class StudentController extends Controller
 
     public function __construct(
         BatchService $batchService,
-        EnrollmentService $enrollmentService,
+        BatchEnrollmentService $batchEnrollmentService,
         LiveClassesService $liveClassesService,
         LiveClassEnrollmentService $liveClassEnrollmentService,
         WalletService $walletService,
         WalletTransactionService $walletTransactionService,
     ) {
         $this->batchService = $batchService;
-        $this->enrollmentService = $enrollmentService;
+        $this->batchEnrollmentService = $batchEnrollmentService;
         $this->liveClassesService = $liveClassesService;
         $this->liveClassEnrollmentService = $liveClassEnrollmentService;
         $this->walletService = $walletService;
