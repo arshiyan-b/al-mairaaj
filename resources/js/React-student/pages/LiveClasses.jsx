@@ -155,7 +155,7 @@ const LiveClasses = () => {
         >
           <div className="mb-4 flex items-center justify-between">
             <h2 className="text-lg font-semibold text-gray-800">
-              My Batches
+              My Enrollments
             </h2>
             {enrollments.length > 0 && (
               <span className="text-xs font-medium text-gray-400">

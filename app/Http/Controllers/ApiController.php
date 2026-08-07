@@ -182,7 +182,6 @@ class ApiController extends Controller
     }
     public function student_live_classes_data()
     {
-        $student = $this->studentService->getAuthenticatedStudent();
         $enrollments = $this->batchEnrollmentService->getAuthenticatedStudentEnrollments();
         $batchIds = $enrollments->pluck('batch_id');
         $liveClasses = $this->liveClassesService->getUpcomingLiveClassesByBatchIds($batchIds);
@@ -193,7 +192,6 @@ class ApiController extends Controller
             ->values();
 
         return response()->json([
-            'student' => $student,
             'enrollments' => $enrollments,
             'live_today' => $liveToday,
             'upcoming_live_classes' => $upcomingLiveClasses,
