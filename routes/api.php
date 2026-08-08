@@ -8,6 +8,7 @@ Route::middleware(['web', 'auth'])->prefix('student')->group(function () {
     Route::get('/profile-data', [ApiController::class, 'student_profile_data'])->name('student.profile.data');
 
     Route::get('/wallet-data', [ApiController::class, 'student_wallet_data'])->name('student.wallet.data');
+    Route::post('/redeem-voucher', [ApiController::class, 'student_redeem_voucher'])->name('student.redeem.voucher');
     Route::post('/topup-request', [ApiController::class, 'student_topup_request'])->name('student.topup.request');
     Route::post('/withdraw-request', [ApiController::class, 'student_withdraw_request'])->name('student.withdraw.request');
 

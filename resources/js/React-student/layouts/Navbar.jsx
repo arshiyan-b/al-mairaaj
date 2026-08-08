@@ -4,12 +4,12 @@ import { X } from "lucide-react";
 
 const navigationItems = [
   { label: "Dashboard", href: "/dashboard" },
-  { label: "Courses", href: "/courses" },
+  // { label: "Courses", href: "/courses" },
   { label: "Live Classes", href: "/live-classes" },
-  { label: "Examination Boards", href: "/examination-boards" },
+  // { label: "Examination Boards", href: "/examination-boards" },
   { label: "Subjects", href: "/subjects" },
-  { label: "Books", href: "/books" },
-  { label: "Past Papers", href: "/past-papers" },
+  // { label: "Books", href: "/books" },
+  // { label: "Past Papers", href: "/past-papers" },
   { label: "Teachers", href: "/teachers" },
 ];
 

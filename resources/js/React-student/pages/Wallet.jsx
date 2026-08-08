@@ -14,6 +14,8 @@ import {
   Clock,
   XCircle,
   History,
+  Ticket,
+  Loader2,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -91,6 +93,12 @@ const Wallet = () => {
     typeof window !== "undefined" && window.__flash?.error ? window.__flash.error : null
   );
 
+  // Redeem voucher modal state
+  const [showRedeemModal, setShowRedeemModal] = useState(false);
+  const [voucherCode, setVoucherCode] = useState("");
+  const [redeeming, setRedeeming] = useState(false);
+  const [redeemError, setRedeemError] = useState(null);
+
   useEffect(() => {
     if (typeof window !== "undefined" && window.__flash) {
       window.__flash.success = null;
@@ -129,6 +137,55 @@ const Wallet = () => {
     };
   }, []);
 
+  const openRedeemModal = () => {
+    setVoucherCode("");
+    setRedeemError(null);
+    setShowRedeemModal(true);
+  };
+
+  const closeRedeemModal = () => {
+    if (redeeming) return; // don't allow closing mid-request
+    setShowRedeemModal(false);
+    setVoucherCode("");
+    setRedeemError(null);
+  };
+
+  const handleRedeem = async () => {
+    const code = voucherCode.trim();
+    if (!code) {
+      setRedeemError("Please enter a voucher code.");
+      return;
+    }
+
+    // The controller redirects back to student.wallet with a flash 'success'
+    // message (session-based), not JSON — so this submits a real form and lets
+    // the browser navigate, the same way handleEnroll does for live classes.
+    // The wallet page already reads window.__flash on mount to show the banner.
+    setRedeeming(true);
+    setRedeemError(null);
+
+    const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content || "";
+
+    const form = document.createElement("form");
+    form.method = "POST";
+    form.action = "/api/student/redeem-voucher";
+
+    const token = document.createElement("input");
+    token.type = "hidden";
+    token.name = "_token";
+    token.value = csrfToken;
+
+    const codeInput = document.createElement("input");
+    codeInput.type = "hidden";
+    codeInput.name = "code";
+    codeInput.value = code;
+
+    form.appendChild(token);
+    form.appendChild(codeInput);
+    document.body.appendChild(form);
+    form.submit();
+  };
+
   if (loading) return <WalletSkeleton />;
 
   const currency = wallet.currency;
@@ -160,8 +217,7 @@ const Wallet = () => {
               <div className="flex items-start gap-3">
                 <CheckCircle2 className="h-5 w-5 text-green-600 dark:text-green-400 mt-0.5 flex-shrink-0" />
                 <div>
-                  <p className="font-semibold text-green-800 dark:text-green-300">Success</p>
-                  <p className="text-sm text-green-700 dark:text-green-400">{successMessage}</p>
+                  <p className="font-semibold text-green-800 dark:text-green-300">{successMessage}</p>
                 </div>
               </div>
               <button
@@ -189,8 +245,7 @@ const Wallet = () => {
               <div className="flex items-start gap-3">
                 <XCircle className="h-5 w-5 text-red-600 dark:text-red-400 mt-0.5 flex-shrink-0" />
                 <div>
-                  <p className="font-semibold text-red-800 dark:text-red-300">Insufficient Balance</p>
-                  <p className="text-sm text-red-700 dark:text-red-400">{errorMessage}</p>
+                  <p className="font-semibold text-red-800 dark:text-red-300">{errorMessage}</p>
                 </div>
               </div>
               <button
@@ -206,17 +261,27 @@ const Wallet = () => {
       </AnimatePresence>
 
       <motion.div
-        className="text-left mb-6"
+        className="flex items-start justify-between gap-4 mb-6"
         initial={{ opacity: 0, y: -30 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
       >
-        <h1 className="text-2xl md:text-3xl font-extrabold bg-gradient-to-r from-teal-700 to-indigo-700 text-transparent bg-clip-text">
-          My Wallet
-        </h1>
-        <p className="text-gray-600 mt-1 text-sm md:text-base">
-          Manage your balance and view transactions.
-        </p>
+        <div className="text-left">
+          <h1 className="text-2xl md:text-3xl font-extrabold bg-gradient-to-r from-teal-700 to-indigo-700 text-transparent bg-clip-text">
+            My Wallet
+          </h1>
+          <p className="text-gray-600 mt-1 text-sm md:text-base">
+            Manage your balance and view transactions.
+          </p>
+        </div>
+
+        <button
+          onClick={openRedeemModal}
+          className="flex items-center gap-2 rounded-lg bg-gradient-to-r from-indigo-600 to-purple-600 px-4 py-2 text-sm font-semibold text-white shadow-md hover:shadow-lg transition-shadow flex-shrink-0"
+        >
+          <Ticket className="h-4 w-4" />
+          Redeem Voucher
+        </button>
       </motion.div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -428,6 +493,85 @@ const Wallet = () => {
           </motion.div>
         )}
       </div>
+
+      {/* Redeem Voucher modal */}
+      <AnimatePresence>
+        {showRedeemModal && (
+          <motion.div
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={closeRedeemModal}
+          >
+            <motion.div
+              className="w-full max-w-sm rounded-xl bg-white p-6 shadow-lg dark:bg-gray-800"
+              initial={{ opacity: 0, scale: 0.95, y: 8 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 8 }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="flex items-start justify-between">
+                <div className="flex items-center gap-2">
+                  <div className="bg-indigo-100 dark:bg-indigo-900/40 p-2 rounded-full">
+                    <Ticket className="h-4 w-4 text-indigo-600 dark:text-indigo-400" />
+                  </div>
+                  <h3 className="text-sm font-semibold text-gray-800 dark:text-gray-100">Redeem Voucher</h3>
+                </div>
+                <button
+                  onClick={closeRedeemModal}
+                  disabled={redeeming}
+                  className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 disabled:opacity-50"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
+
+              <p className="mt-3 text-sm text-gray-500 dark:text-gray-400">
+                Enter your voucher code below to add its value to your wallet balance.
+              </p>
+
+              <input
+                type="text"
+                value={voucherCode}
+                onChange={(e) => setVoucherCode(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && !redeeming && handleRedeem()}
+                placeholder="e.g. WELCOME500"
+                autoFocus
+                disabled={redeeming}
+                className="mt-4 w-full rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2 text-sm text-gray-800 dark:text-gray-100 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 disabled:opacity-60"
+              />
+
+              {redeemError && (
+                <p className="mt-2 text-xs text-red-500 dark:text-red-400">{redeemError}</p>
+              )}
+
+              <div className="mt-5 flex gap-3">
+                <button
+                  onClick={closeRedeemModal}
+                  disabled={redeeming}
+                  className="flex-1 rounded-lg border border-gray-200 dark:border-gray-600 px-4 py-2 text-sm font-semibold text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors disabled:opacity-50"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleRedeem}
+                  disabled={redeeming}
+                  className="flex-1 flex items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-indigo-600 to-purple-600 px-4 py-2 text-sm font-semibold text-white shadow-md hover:shadow-lg transition-shadow disabled:opacity-60"
+                >
+                  {redeeming ? (
+                    <>
+                      <Loader2 className="h-4 w-4 animate-spin" /> Redeeming...
+                    </>
+                  ) : (
+                    "Redeem"
+                  )}
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };

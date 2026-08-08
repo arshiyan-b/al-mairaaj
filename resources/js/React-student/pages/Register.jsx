@@ -12,11 +12,11 @@ export default function Register() {
 
   const [formData, setFormData] = useState({
     first_name: "",
-    middle_name: "",
     last_name: "",
     father_name: "",
     email: "",
     phone: "",
+    whatsapp: "",
     password: "",
     password_confirmation: "",
   });
@@ -106,21 +106,6 @@ export default function Register() {
             />
           </div>
 
-          {/* Middle Name */}
-          <div>
-            <label className="block text-gray-700 text-sm font-medium mb-1">
-              Middle Name
-            </label>
-            <input
-              name="middle_name"
-              type="text"
-              placeholder="Enter your middle name"
-              value={formData.middle_name}
-              onChange={handleChange}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
-            />
-          </div>
-
           {/* Last Name */}
           <div>
             <label className="block text-gray-700 text-sm font-medium mb-1">
@@ -186,6 +171,25 @@ export default function Register() {
               placeholder="Enter your phone number"
               required
               value={formData.phone}
+              onChange={handleChange}
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+            />
+          </div>
+
+          {/* Whatsapp */}
+          <div>
+            <label className="block text-gray-700 text-sm font-medium mb-1">
+              WhatsApp Number <span className="text-red-500">*</span>
+            </label>
+            {errors.phone && (
+              <p className="text-red-500 text-xs mb-1">{errors.whatsapp}</p>
+            )}
+            <input
+              name="whatsapp"
+              type="text"
+              placeholder="Enter your WhatsApp number"
+              required
+              value={formData.whatsapp}
               onChange={handleChange}
               className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
             />

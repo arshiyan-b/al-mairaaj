@@ -136,4 +136,8 @@ class StudentController extends Controller
     {
         return view('student.wallet.withdraw');
     }
+    public function redeem_voucher()
+    {
+        
+    }
 }

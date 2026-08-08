@@ -93,6 +93,12 @@ class ApiController extends Controller
             'topupRequests' => $topupRequests,
         ]);
     }
+    public function student_redeem_voucher()
+    {
+        return redirect()
+            ->route('student.wallet')
+            ->with('error', '100 rupees added to your acc');
+    }
     public function student_topup_request(StoreTopupRequestRequest $request)
     {
         $topupRequest = $this->topupRequestService->create(

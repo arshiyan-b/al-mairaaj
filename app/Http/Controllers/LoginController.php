@@ -121,29 +121,29 @@ class LoginController extends Controller
 
         $request->validate([
             'first_name' => 'required|string|max:255',
-            'middle_name' => 'nullable|string|max:255',
             'last_name' => 'required|string|max:255',
             'father_name' => 'required|string|max:255',
             'email' => 'required|email|unique:students,email',
             'phone' => ['required', 'regex:/^(92\d{10})$/',],
+            'whatsapp' => ['required', 'regex:/^(92\d{10})$/',],
             'password' => ['required', 'confirmed', 'regex:/^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/'],
         ], [
             'email.unique' => 'This email is already registered.',
             'phone.regex' => 'Phone number must start with 92 and be 12 digits long (e.g., 923001234567).',
+            'whatsapp.regex' => 'Phone number must start with 92 and be 12 digits long (e.g., 923001234567).',
             'password.confirmed' => 'Password confirmation does not match.',
             'password.regex' => 'Password must be at least 8 characters long and include: one uppercase letter, one lowercase letter, one number, and one special character.'
         ]);
-
 
         $otp = rand(100000, 999999);
 
         $student = Student::create([
             'first_name' => $request->first_name,
-            'middle_name' => $request->middle_name,
             'last_name' => $request->last_name,
             'father_name' => $request->father_name,
             'email' => $request->email,
             'phone_number' => $request->phone,
+            'whatsapp_number' => $request->whatsapp,
         ]);
 
         StudentUserOtp::create([
