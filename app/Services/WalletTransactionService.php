@@ -16,8 +16,9 @@ class WalletTransactionService
     public function credit(
         Wallet $wallet,
         float $amount,
-        ?int $enrollmentId = null,
+        ?string $type,
         ?string $paymentMethod = null,
+        ?int $enrollmentId = null,
         ?string $description = null
     ): WalletTransaction {
 
@@ -25,6 +26,7 @@ class WalletTransactionService
             $wallet,
             $amount,
             $enrollmentId,
+            $type,
             $paymentMethod,
             $description
         ) {
@@ -34,7 +36,7 @@ class WalletTransactionService
             return WalletTransaction::create([
                 'wallet_id'         => $wallet->id,
                 'enrollment_id'     => $enrollmentId,
-                'type'              => 'topup',
+                'type'              => $type,
                 'transaction_type'  => 'credit',
                 'amount'            => $amount,
                 'balance_after'     => $wallet->balance,

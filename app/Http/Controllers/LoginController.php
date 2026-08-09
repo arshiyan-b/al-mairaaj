@@ -40,11 +40,11 @@ class LoginController extends Controller
     {
         $request->validate([
             'teacher_name' => 'required|string|max:50',
-            'teacher_cnic' => 'required|string|max:15|unique:teachers,cnic',
+            'teacher_cnic' => 'required|string|max:15|unique:teacher_applications,cnic',
             'teacher_gender' => 'required|in:male,female,other',
             'teacher_phone_no' => 'required|string|max:15',
             'teacher_whatsapp_no' => 'required|string|max:15',
-            'teacher_email' => 'required|email|max:60|unique:teachers,email',
+            'teacher_email' => 'required|email|max:60|unique:teacher_applications,email',
             'teacher_city' => 'required|string|max:50',
             'teacher_address' => 'required|string|max:120',
             'highest_degree' => 'required|string|max:45',

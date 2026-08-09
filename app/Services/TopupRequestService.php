@@ -77,6 +77,7 @@ class TopupRequestService
             $this->walletTransactionService->credit(
                 wallet: $topupRequest->wallet,
                 amount: $topupRequest->amount,
+                type: 'topup',
                 paymentMethod: $topupRequest->payment_method,
                 description: 'Wallet top-up approved'
             );

@@ -8,21 +8,15 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class VoucherRedemption extends Model
 {
     protected $table = 'voucher_redemptions';
-
-    const UPDATED_AT = null;
+    public $timestamps = false;
 
     protected $fillable = [
         'voucher_id',
-        'user_id',
-        'discount_type',
-        'discount_value',
-        'redeemed_amount',
+        'student_id',
         'redeemed_at',
     ];
 
     protected $casts = [
-        'discount_value' => 'decimal:2',
-        'redeemed_amount' => 'decimal:2',
         'redeemed_at' => 'datetime',
     ];
 
@@ -35,10 +29,10 @@ class VoucherRedemption extends Model
     }
 
     /**
-     * Get the user who redeemed the voucher.
+     * Get the student who redeemed the voucher.
      */
-    public function user(): BelongsTo
+    public function student(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'user_id');
+        return $this->belongsTo(Student::class, 'student_id');
     }
 }

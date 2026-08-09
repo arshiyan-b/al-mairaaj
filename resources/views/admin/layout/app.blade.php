@@ -398,6 +398,12 @@
                             </a>
                         </li>
 
+                        <li class="sidebar-item">
+                            <a href="{{ route('admin.vouchers.index') }}"
+                                class="sidebar-link">Vouchers
+                            </a>
+                        </li>
+
                     </ul>
                 </li>
 

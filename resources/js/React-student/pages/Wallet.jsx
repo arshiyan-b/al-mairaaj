@@ -76,6 +76,15 @@ function StatusBadge({ status }) {
   );
 }
 
+// Pulls the first message for a given field out of Laravel's validation
+// error bag shape: { code: ["Invalid voucher code."], ... }
+function firstError(errors, field) {
+  if (!errors) return null;
+  const val = errors[field];
+  if (!val) return null;
+  return Array.isArray(val) ? val[0] : val;
+}
+
 const Wallet = () => {
   const navigate = useNavigate();
 
@@ -100,10 +109,23 @@ const Wallet = () => {
   const [redeemError, setRedeemError] = useState(null);
 
   useEffect(() => {
-    if (typeof window !== "undefined" && window.__flash) {
-      window.__flash.success = null;
-      window.__flash.error = null;
+    if (typeof window === "undefined" || !window.__flash) return;
+
+    // StudentRedeemVoucherRequest fails validation by redirecting back with
+    // a session-flashed `errors` bag (e.g. { code: ["Invalid voucher code."] })
+    // and the old `code` input. Surface that in the same modal the user was
+    // just using, instead of losing the message on the redirect.
+    const codeError = firstError(window.__flash.errors, "code");
+    if (codeError) {
+      setVoucherCode(window.__flash.old?.code || "");
+      setRedeemError(codeError);
+      setShowRedeemModal(true);
     }
+
+    window.__flash.success = null;
+    window.__flash.error = null;
+    window.__flash.errors = null;
+    window.__flash.old = null;
   }, []);
 
   useEffect(() => {
@@ -158,9 +180,13 @@ const Wallet = () => {
     }
 
     // The controller redirects back to student.wallet with a flash 'success'
-    // message (session-based), not JSON — so this submits a real form and lets
-    // the browser navigate, the same way handleEnroll does for live classes.
-    // The wallet page already reads window.__flash on mount to show the banner.
+    // message on success, or redirects back with a flashed 'errors' bag on
+    // validation failure (StudentRedeemVoucherRequest — invalid code, already
+    // redeemed, etc). Either way it's session-based, not JSON — so this
+    // submits a real form and lets the browser navigate, same as handleEnroll
+    // does for live classes. The wallet page reads window.__flash on mount
+    // to show the success banner or, on failure, reopen this modal with the
+    // validation message attached.
     setRedeeming(true);
     setRedeemError(null);
 

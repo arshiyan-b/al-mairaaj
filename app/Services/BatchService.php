@@ -3,8 +3,6 @@
 namespace App\Services;
 
 use App\Models\Batch;
-use App\Models\Enrollment;
-use App\Models\LiveClass;
 
 class BatchService
 {

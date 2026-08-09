@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreTopupRequestRequest;
+use App\Http\Requests\StudentRedeemVoucherRequest;
 
 use App\Services\BatchService;
 use App\Services\BatchEnrollmentService;
@@ -13,12 +14,12 @@ use App\Services\LiveClassesService;
 use App\Services\StudentService;
 use App\Services\TeacherService;
 use App\Services\TopupRequestService;
+use App\Services\VoucherService;
 use App\Services\WalletService;
 use App\Services\WalletTransactionService;
 
 use App\Models\Batch;
 use App\Models\Wallet;
-use App\Models\WalletTransaction;
 
 use Illuminate\Http\Request;
 
@@ -33,6 +34,7 @@ class ApiController extends Controller
     protected $studentService;
     protected $teacherService;
     protected $topupRequestService;
+    protected $voucherService;
     protected $walletService;
     protected $walletTransactionService;
 
@@ -46,6 +48,7 @@ class ApiController extends Controller
         StudentService $studentService,
         TeacherService $teacherService,
         TopupRequestService $topupRequestService,
+        VoucherService $voucherService,
         WalletService $walletService,
         WalletTransactionService $walletTransactionService,
     ) {
@@ -58,6 +61,7 @@ class ApiController extends Controller
         $this->studentService = $studentService;
         $this->teacherService = $teacherService;
         $this->topupRequestService = $topupRequestService;
+        $this->voucherService = $voucherService;
         $this->walletService = $walletService;
         $this->walletTransactionService = $walletTransactionService;
     }
@@ -93,15 +97,27 @@ class ApiController extends Controller
             'topupRequests' => $topupRequests,
         ]);
     }
-    public function student_redeem_voucher()
+
+    public function student_redeem_voucher(StudentRedeemVoucherRequest $request)
     {
+        $voucherRedemption = $this->voucherService->createRedemption($request->validated());
+
+        $this->walletTransactionService->credit( 
+            wallet: auth()->user()->student->wallet, 
+            amount: $voucherRedemption->voucher->discount_value, 
+            type: 'voucher', 
+            paymentMethod: 'wallet', 
+            description: 'Voucher redeemed: ' . $request->code, 
+        );
+
         return redirect()
             ->route('student.wallet')
-            ->with('error', '100 rupees added to your acc');
+            ->with('success', 'Voucher has been redeemed successfully.');
     }
+
     public function student_topup_request(StoreTopupRequestRequest $request)
     {
-        $topupRequest = $this->topupRequestService->create(
+        $this->topupRequestService->create(
             auth()->user()->student->wallet,
             $request->validated(),
             $request->file('screenshot')
@@ -113,47 +129,7 @@ class ApiController extends Controller
     }
     public function student_withdraw_request(Request $request)
     {
-        dd($request);
-        $profile = $this->studentService->getAuthenticatedStudent();
-        if (!$student) {
-            return response()->json(['message' => 'Unauthorized'], 401);
-        }
-
-        $request->validate([
-            'amount' => 'required|numeric|min:1',
-            'method' => 'required|string',
-            'account_title' => 'required|string',
-            'account_number' => 'required|string',
-            'bank_name' => 'nullable|string',
-        ]);
-
-        $wallet = $this->walletService->getAuthenticatedStudentWallet();
-        if (!$wallet || $wallet->balance < $request->amount) {
-            return response()->json(['message' => 'Insufficient wallet balance for withdrawal.'], 422);
-        }
-
-        $wallet->balance -= $request->amount;
-        $wallet->save();
-
-        $ref = 'WD-' . strtoupper(substr(md5(uniqid()), 0, 8));
-
-        WalletTransaction::create([
-            'wallet_id' => $wallet->id,
-            'title' => 'Withdrawal Request (' . ucfirst($request->method) . ')',
-            'type' => 'debit',
-            'amount' => $request->amount,
-            'reference' => $ref,
-            'status' => 'pending',
-            'description' => 'Withdrawal to ' . $request->account_title . ' (' . $request->account_number . ')',
-        ]);
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Withdrawal request submitted successfully.',
-            'balance' => (float) $wallet->balance,
-            'reference' => $ref,
-            'status' => 'pending',
-        ]);
+       
     }
     public function student_subjects_data()
     {
