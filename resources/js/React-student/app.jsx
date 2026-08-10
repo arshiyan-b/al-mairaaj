@@ -63,7 +63,7 @@ function App() {
           <Route path="/" element={<Index />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
-          <Route path="/otp" element={<Otp />} />
+          <Route path="/verify-otp" element={<Otp />} />
           <Route path="/chatbot" element={<Chatbot />} />
 
           {/* Layout */}

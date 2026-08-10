@@ -10,15 +10,12 @@ use Illuminate\Support\Facades\Validator;
 use App\Models\Student;
 use App\Models\StudentUserOtp;
 use App\Models\Subject;
-use App\Models\Teacher;
 use App\Models\TeacherApplication;
 use App\Models\TeacherDoc;
 use App\Models\User;
-use App\Models\Board;
 use App\Models\Grade;
 use App\Mail\StudentRegistrationOTP;
 use App\Mail\Wallet;
-use Carbon\Carbon;
 
 class LoginController extends Controller
 {
