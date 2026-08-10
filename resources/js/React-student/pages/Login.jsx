@@ -50,7 +50,7 @@ export default function Login() {
 
       if (data.status === "success") {
         isSuccess = true;
-        setSuccessMsg("Login successful! Redirecting...");
+        setSuccessMsg(data.message);
         setTimeout(() => {
           window.location.href = data.redirect;
         }, 1500);

@@ -51,12 +51,25 @@ export default function Otp() {
 
       const data = await response.json();
 
-      if (!response.ok) {
-        setErrorMsg(data.message || "OTP verification failed. Please try again.");
-      } else if (data.status === "success") {
+      if (data.redirect) {
         setSuccessMsg(data.message);
-        // Redirect to dashboard
-        window.location.href = data.redirect;
+
+        setTimeout(() => {
+          window.location.href = data.redirect;
+        }, 1500);
+
+        return;
+      }
+
+      if (!response.ok) {
+        setErrorMsg(
+          data.message || "OTP verification failed. Please try again."
+        );
+        return;
+      }
+
+      if (data.status === "success") {
+        setSuccessMsg(data.message);
       }
     } catch (error) {
       setErrorMsg("Network error. Please try again.");
