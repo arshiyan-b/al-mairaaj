@@ -83,7 +83,7 @@ export default function Teacher() {
   const boardGrades = getBoardGrades(teacher);
 
   return (
-    <div className="max-w-5xl mx-auto px-6 py-10">
+    <div className="max-w-5xl mx-auto px-6 pt-24 pb-10">
       {/* Back Button */}
       <Link
         to="/teachers"
@@ -94,12 +94,12 @@ export default function Teacher() {
       </Link>
 
       {/* Profile Card */}
-      <div className="bg-white shadow-sm border border-gray-100 rounded-2xl overflow-hidden">
+      <div className="bg-white shadow-sm border border-gray-100 rounded-2xl">
         {/* Header */}
         <div className="h-40 bg-gradient-to-r from-indigo-50 to-teal-50 relative"></div>
 
         {/* Avatar */}
-        <div className="flex justify-center -mt-16">
+        <div className="flex justify-center -mt-16 relative z-10">
           <div className="flex h-32 w-32 items-center justify-center rounded-full border-4 border-white bg-indigo-100 text-4xl font-bold text-indigo-600 shadow-md">
             {getInitials(teacher.name)}
           </div>
@@ -185,10 +185,6 @@ export default function Teacher() {
                 Call
               </a>
             )}
-
-            <button className="px-5 py-2 text-sm font-bold text-white bg-indigo-600 rounded-lg hover:bg-indigo-700">
-              Enroll Now
-            </button>
           </div>
         </div>
       </div>

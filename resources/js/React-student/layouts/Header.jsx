@@ -13,6 +13,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import { Navbar } from "./Navbar";
 import { Link } from "react-router-dom";
+import logo from "../assets/logo.png";
 
 export const Header = ({ username }) => {
   const [isSearchExpanded, setIsSearchExpanded] = useState(false);
@@ -84,8 +85,8 @@ export const Header = ({ username }) => {
             </Button>
 
             {/* <span className="text-xl font-bold text-teal-700">AL-Mairaaj</span> */}
-            <Link to="/dashboard" className="hover:opacity-80 transition">
-              <span className="text-xl font-bold text-teal-700">AL-Mairaaj</span>
+            <Link to="/dashboard" className="flex items-center gap-2 hover:opacity-80 transition">
+              <img src={logo} alt="Al Mairaaj" className="w-56 h-auto" />
             </Link>
           </div>
 

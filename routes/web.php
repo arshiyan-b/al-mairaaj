@@ -1,5 +1,5 @@
 <?php
-
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ChatbotController;
 use App\Http\Controllers\CourseController;
@@ -30,6 +30,15 @@ Route::post('/login-auth', [LoginController::class, 'authenticate'])->name('logi
 Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
 Route::get('/chatbot', [ChatbotController::class, 'index'])->name('chatbot.index');
+
+Route::get('/optimize-clear', function () {
+    Artisan::call('optimize:clear');
+
+    return response()->json([
+        'success' => true,
+        'message' => 'Application cache cleared successfully.',
+    ]);
+});
 
 Route::middleware(['auth', 'role:admin'])->group(function () {
 

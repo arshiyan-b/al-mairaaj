@@ -11,6 +11,7 @@ use App\Services\BoardService;
 use App\Services\CurriculumSubjectService;
 use App\Services\GradeService;
 use App\Services\LiveClassesService;
+use App\Services\LiveClassEnrollmentService;
 use App\Services\StudentService;
 use App\Services\TeacherService;
 use App\Services\TopupRequestService;
@@ -31,6 +32,7 @@ class ApiController extends Controller
     protected $curriculumSubjectService;
     protected $gradeService;
     protected $liveClassesService;
+    protected $liveClassEnrollmentService;
     protected $studentService;
     protected $teacherService;
     protected $topupRequestService;
@@ -45,6 +47,7 @@ class ApiController extends Controller
         CurriculumSubjectService $curriculumSubjectService,
         GradeService $gradeService,
         LiveClassesService $liveClassesService,
+        LiveClassEnrollmentService $liveClassEnrollmentService,
         StudentService $studentService,
         TeacherService $teacherService,
         TopupRequestService $topupRequestService,
@@ -58,6 +61,7 @@ class ApiController extends Controller
         $this->curriculumSubjectService = $curriculumSubjectService;
         $this->gradeService = $gradeService;
         $this->liveClassesService = $liveClassesService;
+        $this->liveClassEnrollmentService = $liveClassEnrollmentService;
         $this->studentService = $studentService;
         $this->teacherService = $teacherService;
         $this->topupRequestService = $topupRequestService;
@@ -164,21 +168,38 @@ class ApiController extends Controller
     }
     public function student_live_classes_data()
     {
-        $enrollments = $this->batchEnrollmentService->getAuthenticatedStudentEnrollments();
-        $batchIds = $enrollments->pluck('batch_id');
-        $liveClasses = $this->liveClassesService->getUpcomingLiveClassesByBatchIds($batchIds);
+        $liveClassEnrollments = $this->liveClassEnrollmentService->getAuthenticatedStudentEnrollments();
+
+        $liveClasses = $liveClassEnrollments
+            ->map(fn ($enrollment) => $enrollment->liveClass)
+            ->filter()
+            ->sortBy([
+                ['class_date', 'asc'],
+                ['start_time', 'asc'],
+            ])
+            ->values();
+
         $today = now()->toDateString();
-        $liveToday = $liveClasses->filter(fn ($c) => $c->class_date->toDateString() === $today)->values();
-        $upcomingLiveClasses = $liveClasses->filter(fn ($c) => $c->class_date->toDateString() > $today)
+
+        $liveToday = $liveClasses
+            ->filter(fn ($class) =>
+                $class->class_date->toDateString() === $today
+            )
+            ->values();
+
+        $upcomingLiveClasses = $liveClasses
+            ->filter(fn ($class) =>
+                $class->class_date->toDateString() > $today
+            )
             ->take(10)
             ->values();
 
         return response()->json([
-            'enrollments' => $enrollments,
+            'enrollments' => $liveClassEnrollments,
             'live_today' => $liveToday,
             'upcoming_live_classes' => $upcomingLiveClasses,
             'stats' => [
-                'active_batches' => $enrollments->count(),
+                'enrolled_classes' => $liveClassEnrollments->count(),
                 'live_today_count' => $liveToday->count(),
                 'upcoming_count' => $upcomingLiveClasses->count(),
             ],

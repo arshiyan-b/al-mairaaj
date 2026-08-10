@@ -9,17 +9,24 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   CalendarDays,
   Clock,
-  Users,
   Radio,
   BookOpen,
   ArrowRight,
   Compass,
+  GraduationCap,
 } from "lucide-react";
 
 const fadeUp = { hidden: { opacity: 0, y: 16 }, show: { opacity: 1, y: 0 } };
 const stagger = { hidden: {}, show: { transition: { staggerChildren: 0.06 } } };
 
-const serif = { fontFamily: "'Fraunces', serif" };
+// class_date can come back as an ISO timestamp or an already-formatted date
+// string depending on the cast — normalize for display.
+function formatClassDate(raw) {
+  if (!raw) return "";
+  const parsed = new Date(raw);
+  if (isNaN(parsed.getTime())) return raw;
+  return parsed.toLocaleDateString(undefined, { month: "short", day: "2-digit", year: "numeric" });
+}
 
 const LiveClasses = () => {
   const navigate = useNavigate();
@@ -71,10 +78,10 @@ const LiveClasses = () => {
           <div className="relative flex flex-wrap items-center justify-between gap-4">
             <div>
               <h1 className="text-3xl font-semibold text-white">
-                My Live Class Batches
+                My Live Classes
               </h1>
               <p className="mt-1 text-sm text-indigo-100">
-                Your enrolled batches and upcoming live sessions, all in one place.
+                Your enrolled classes and upcoming live sessions, all in one place.
               </p>
             </div>
             <Button
@@ -82,7 +89,7 @@ const LiveClasses = () => {
               onClick={() => navigate("/browse-live-classes")}
               className="flex items-center gap-2 bg-white text-indigo-700 hover:bg-indigo-50"
             >
-              <Compass className="h-4 w-4" /> Browse batches
+              <Compass className="h-4 w-4" /> Browse classes
             </Button>
           </div>
         </motion.div>
@@ -95,7 +102,7 @@ const LiveClasses = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4, delay: 0.05 }}
           >
-            <StatCard icon={BookOpen} label="Active batches" value={stats.active_batches} />
+            <StatCard icon={BookOpen} label="Enrolled classes" value={stats.enrolled_classes} />
             <StatCard icon={Radio} label="Live today" value={stats.live_today_count} accent pulse={stats.live_today_count > 0} />
             <StatCard icon={CalendarDays} label="Upcoming" value={stats.upcoming_count} />
           </motion.div>
@@ -125,7 +132,11 @@ const LiveClasses = () => {
                   <CardContent className="flex flex-wrap items-center justify-between gap-4 bg-gradient-to-r from-amber-50/60 to-transparent p-5">
                     <div>
                       <h4 className="text-sm font-semibold text-gray-800">{c.title}</h4>
-                      <p className="text-xs text-gray-500">{c.batch?.title}</p>
+                      <p className="text-xs text-gray-500">
+                        {c.teacher?.name}
+                        {c.curriculum_subject?.name && <> · {c.curriculum_subject.name}</>}
+                        {c.grade?.name && <> · {c.grade.name}</>}
+                      </p>
                       <div className="mt-2 flex items-center gap-3 text-xs text-gray-500">
                         <span className="flex items-center gap-1 font-mono">
                           <Clock className="h-3.5 w-3.5" /> {c.start_time} – {c.end_time}
@@ -134,10 +145,10 @@ const LiveClasses = () => {
                     </div>
                     <Button
                       size="sm"
-                      onClick={() => navigate(`/live_classes_batch/${c.batch_id}`)}
+                      onClick={() => navigate(`/live-class/${c.id}`)}
                       className="bg-amber-500 text-white shadow-sm hover:bg-amber-600"
                     >
-                      Go to batch
+                      Join class
                     </Button>
                   </CardContent>
                 </Card>
@@ -146,7 +157,7 @@ const LiveClasses = () => {
           </motion.div>
         )}
 
-        {/* Enrolled batches */}
+        {/* Enrolled classes */}
         <motion.div
           className="mb-10"
           initial={{ opacity: 0, y: 16 }}
@@ -167,8 +178,8 @@ const LiveClasses = () => {
           {enrollments.length === 0 ? (
             <div className="rounded-xl border border-dashed border-gray-200 bg-white/60 px-6 py-12 text-center">
               <BookOpen className="mx-auto h-8 w-8 text-gray-300" />
-              <p className="mt-3 text-sm font-medium text-gray-600">You're not enrolled in any batch yet</p>
-              <p className="mt-1 text-xs text-gray-400">Browse available batches to get started.</p>
+              <p className="mt-3 text-sm font-medium text-gray-600">You're not enrolled in any live class yet</p>
+              <p className="mt-1 text-xs text-gray-400">Browse available classes to get started.</p>
               <Button
                 onClick={() => navigate("/browse-live-classes")}
                 className="mt-4 bg-indigo-600 text-white hover:bg-indigo-700"
@@ -185,9 +196,9 @@ const LiveClasses = () => {
             >
               <AnimatePresence>
                 {enrollments.map((enrollment) => {
-                  const batch = enrollment.batch;
-                  if (!batch) return null;
-                  const subject = batch.curriculum_subject;
+                  const liveClass = enrollment.live_class;
+                  if (!liveClass) return null;
+                  const subject = liveClass.curriculum_subject;
 
                   return (
                     <motion.div key={enrollment.id} variants={fadeUp} transition={{ duration: 0.3 }} layout>
@@ -197,32 +208,33 @@ const LiveClasses = () => {
                           <div className="flex items-start justify-between">
                             <Avatar className="h-9 w-9 ring-2 ring-indigo-50">
                               <AvatarFallback className="bg-indigo-100 font-semibold text-indigo-600">
-                                {batch.title?.charAt(0) ?? "B"}
+                                {liveClass.title?.charAt(0) ?? "C"}
                               </AvatarFallback>
                             </Avatar>
                             <Badge className="bg-emerald-50 capitalize text-emerald-600 hover:bg-emerald-50">
-                              {batch.status}
+                              {formatClassDate(liveClass.class_date)}
                             </Badge>
                           </div>
 
-                          <h3 className="mt-3 text-sm font-semibold text-gray-800">{batch.title}</h3>
-                          <p className="text-xs text-gray-500">{batch.teacher?.name}</p>
+                          <h3 className="mt-3 text-sm font-semibold text-gray-800">{liveClass.title}</h3>
+                          <p className="text-xs text-gray-500">{liveClass.teacher?.name}</p>
                           {subject && (
                             <p className="text-xs text-gray-400">
-                              {subject.name} · {subject.grade?.name} · {subject.grade?.board?.name}
+                              {subject.name}
+                              {liveClass.grade?.name && <> · {liveClass.grade.name}</>}
                             </p>
                           )}
 
                           <div className="mt-3 flex items-center gap-1 text-xs text-gray-500">
-                            <Users className="h-3.5 w-3.5" />
-                            <span>{batch.total_classes} classes</span>
+                            <Clock className="h-3.5 w-3.5" />
+                            <span>{liveClass.start_time} – {liveClass.end_time}</span>
                           </div>
 
                           <Button
-                            onClick={() => navigate(`/live_classes_batch/${batch.id}`)}
+                            onClick={() => navigate(`/live-classes-batch/${liveClass.batch.id}`)}
                             className="mt-4 flex w-full items-center justify-center gap-2 bg-indigo-600 text-white transition group-hover:bg-indigo-700"
                           >
-                            View Batch
+                            View Class
                             <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
                           </Button>
                         </CardContent>
@@ -257,10 +269,14 @@ const LiveClasses = () => {
                   <CardContent className="flex flex-wrap items-center justify-between gap-4 p-5">
                     <div>
                       <h4 className="text-sm font-semibold text-gray-800">{c.title}</h4>
-                      <p className="text-xs text-gray-500">{c.batch?.title}</p>
+                      <p className="text-xs text-gray-500 flex items-center gap-1">
+                        <GraduationCap className="h-3.5 w-3.5" />
+                        {c.teacher?.name}
+                        {c.curriculum_subject?.name && <> · {c.curriculum_subject.name}</>}
+                      </p>
                       <div className="mt-2 flex items-center gap-3 text-xs text-gray-500">
                         <span className="flex items-center gap-1">
-                          <CalendarDays className="h-3.5 w-3.5" /> {c.class_date}
+                          <CalendarDays className="h-3.5 w-3.5" /> {formatClassDate(c.class_date)}
                         </span>
                         <span className="flex items-center gap-1 font-mono">
                           <Clock className="h-3.5 w-3.5" /> {c.start_time} – {c.end_time}
@@ -270,9 +286,9 @@ const LiveClasses = () => {
                     <Button
                       size="sm"
                       variant="outline"
-                      onClick={() => navigate(`/live_class_batch/${c.batch_id}`)}
+                      onClick={() => navigate(`/live-classes-batch/${c.batch.id}`)}
                     >
-                      View Batch
+                      View Class
                     </Button>
                   </CardContent>
                 </Card>

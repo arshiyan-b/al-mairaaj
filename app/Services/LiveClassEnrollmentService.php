@@ -3,10 +3,17 @@
 namespace App\Services;
 
 use App\Models\LiveClassEnrollment;
-use App\Models\WalletTransaction;
 
 class LiveClassEnrollmentService
 {
+    public function getAuthenticatedStudentEnrollments()
+    {
+        return LiveClassEnrollment::where('student_id', auth()->user()->student->id)
+            ->where('status', 'enrolled')
+            ->with('liveClass.batch')
+            ->latest()
+            ->get();
+    }
     public function create($liveClassId, $studentId)
     {
         return LiveClassEnrollment::create([

@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import logo from "../assets/logo.png"; // your Al Mairaaj logo
+import logo from "../assets/logo_text.png"; // your Al Mairaaj logo
 import sideImage from "../assets/sideimage.png"; // right side image
 
 export default function Login() {
@@ -103,7 +103,7 @@ export default function Login() {
         <div className="w-full md:w-1/2 flex flex-col justify-center px-10 py-10">
           {/* Logo */}
           <div className="flex flex-col items-center mb-6">
-            <img src={logo} alt="Al Mairaaj" className="w-40 h-auto mb-2" />
+            <img src={logo} alt="Al Mairaaj" className="w-70 h-auto mb-2" />
             <h2 className="text-xl font-semibold text-gray-800">Login</h2>
             <p className="text-sm text-gray-500 mt-1 text-center">
               Enter your information to access your account.

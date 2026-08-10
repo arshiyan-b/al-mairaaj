@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import image from "../assets/logo.png";
+import logo from "../assets/logo_text.png";
 
 export default function Register() {
   // Get Laravel route + CSRF token from Blade
@@ -77,7 +77,7 @@ export default function Register() {
       <div className="bg-white shadow-lg rounded-xl w-full max-w-3xl p-8 md:p-10 mx-4">
         {/* Logo Section */}
         <div className="flex flex-col items-center mb-6">
-          <img src={image} alt="AL Mairaaj" className="w-40 h-auto mb-2" />
+          <img src={logo} alt="AL Mairaaj" className="w-56 h-auto mb-2" />
           <h2 className="text-xl font-semibold">Student Registration Form</h2>
           <p className="text-sm text-gray-500 mt-1 text-center">
             Enter your information to create an account.
