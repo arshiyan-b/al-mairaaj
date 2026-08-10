@@ -2,8 +2,9 @@
 
 namespace App\Http\Controllers;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
 
 use App\Models\Role;
 use App\Models\Student;
@@ -13,8 +14,9 @@ use App\Models\TeacherApplication;
 use App\Models\TeacherDoc;
 use App\Models\User;
 use App\Models\Grade;
+use App\Models\Wallet;
+
 use App\Mail\StudentRegistrationOTP;
-use App\Mail\Wallet;
 
 class LoginController extends Controller
 {
@@ -189,24 +191,18 @@ class LoginController extends Controller
                 'status' => 'error',
                 'message' => 'No OTP found for this email.',
             ]);
-        }
-
-        if ($otpRecord->status === 'verified') {
+        } elseif ($otpRecord->status === 'verified') {
             return response()->json([
-                'status' => 'info',
+                'status' => 'success',
                 'message' => 'This OTP has already been verified.',
                 'redirect' => route('login'),
             ]);
-        }
-
-        if ($otpRecord->status === 'expired') {
+        } elseif ($otpRecord->status === 'expired') {
             return response()->json([
                 'status' => 'error',
                 'message' => 'This OTP is no longer valid.',
             ]);
-        }
-
-        if (now()->greaterThan($otpRecord->expires_at)) {   
+        } elseif (now()->greaterThan($otpRecord->expires_at)) {   
 
             $otp = rand(100000, 999999);
             Mail::to($request->email)->send(new StudentRegistrationOTP($otp));
@@ -217,42 +213,42 @@ class LoginController extends Controller
                 'redirect' => route('otp'). '?email=' . urlencode($request->email),
                 'email' => $request->email,
             ]);
-        }
-
-        if ((string) $otpRecord->otp !== (string) $request->otp) {
+        } elseif ((string) $otpRecord->otp !== (string) $request->otp) {
             return response()->json([
                 'status' => 'error',
                 'message' => 'Invalid OTP. Please try again.',
             ]);
+        } else {
+            $otpRecord->update(['status' => 'verified']);
+
+            $student = Student::where('email', $request->email)->first();
+            $studentRole = Role::where('slug', 'student')->first();
+
+            $student->update(['otp_verified' => 1]);
+
+            User::create([
+                'name' => $student->full_name,
+                'email' => $student->email,
+                'password' => $otpRecord->password,
+                'role_id' => $studentRole->id,
+                'student_id' => $student->id,
+                'created_at' => now(),
+                'email_verified_at' => now(),
+            ]);
+
+            Wallet::create([
+                'student_id' => $student->id,
+                'balance' => 0,
+                'currency' => 'PKR',
+                'status' => 'active',
+            ]);
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'OTP verified successfully!',
+                'redirect' => route('login'),
+            ]);
         }
-
-        $otpRecord->update(['status' => 'verified']);
-
-        $student = Student::where('email', $request->email)->first();
-        $studentRole = Role::where('slug', 'student')->first();
-
-        User::create([
-            'name' => $student->full_name,
-            'email' => $student->email,
-            'password' => $otpRecord->password,
-            'role_id' => $studentRole->id,
-            'student_id' => $student->id,
-            'created_at' => now(),
-            'email_verified_at' => now(),
-        ]);
-
-        Wallet::create([
-            'student_id' => $student->id,
-            'balance' => 0,
-            'currency' => 'PKR',
-            'status' => 'active',
-        ]);
-
-        return response()->json([
-            'status' => 'success',
-            'message' => 'OTP verified successfully!',
-            'redirect' => route('login'),
-        ]);
     }
 
     public function authenticate(Request $request)
@@ -280,6 +276,7 @@ class LoginController extends Controller
             );
 
             Mail::to($student->email)->send(new StudentRegistrationOTP($otp));
+            $student->update(['opt_sent' => 1]);
 
             return response()->json([
                 'status' => 'success',

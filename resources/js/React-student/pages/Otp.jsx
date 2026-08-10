@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { motion, AnimatePresence } from "framer-motion";
 import logo from "../assets/logo.png";
 
 export default function Otp() {
@@ -36,6 +37,8 @@ export default function Otp() {
     setErrorMsg("");
     setSuccessMsg("");
 
+    let isSuccess = false;
+
     try {
       const response = await fetch(otpVerifyRoute, {
         method: "POST",
@@ -52,6 +55,7 @@ export default function Otp() {
       const data = await response.json();
 
       if (data.redirect) {
+        isSuccess = true;
         setSuccessMsg(data.message);
 
         setTimeout(() => {
@@ -69,17 +73,51 @@ export default function Otp() {
       }
 
       if (data.status === "success") {
+        isSuccess = true;
         setSuccessMsg(data.message);
       }
     } catch (error) {
       setErrorMsg("Network error. Please try again.");
     } finally {
-      setLoading(false);
+      if (!isSuccess) {
+        setLoading(false);
+      }
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-teal-200 to-teal-400 p-4">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-teal-200 to-teal-400 p-4 relative">
+      {/* Toast Notifications */}
+      <div className="fixed top-10 left-1/2 transform -translate-x-1/2 z-50 flex flex-col gap-3 w-[90%] max-w-md items-center">
+        <AnimatePresence>
+          {errorMsg && (
+            <motion.div
+              initial={{ opacity: 0, y: -50 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -50, transition: { duration: 0.2 } }}
+              className="bg-white border-b-4 border-red-500 shadow-2xl rounded-lg flex items-center justify-center px-4 py-4 w-full"
+            >
+              <div className="text-red-500 font-semibold text-center">
+                {errorMsg}
+              </div>
+            </motion.div>
+          )}
+
+          {successMsg && (
+            <motion.div
+              initial={{ opacity: 0, y: -50 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -50, transition: { duration: 0.2 } }}
+              className="bg-white border-b-4 border-green-500 shadow-2xl rounded-lg flex items-center justify-center px-4 py-4 w-full"
+            >
+              <div className="text-green-600 font-semibold text-center">
+                {successMsg}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+
       <div className="bg-white rounded-2xl shadow-2xl overflow-hidden max-w-md w-full p-10 flex flex-col items-center">
         {/* Logo Section */}
         <div className="flex flex-col items-center mb-6 text-center">
@@ -88,10 +126,6 @@ export default function Otp() {
             Please enter your OTP to verify your account
           </p>
         </div>
-
-        {/* Feedback */}
-        {errorMsg && <div className="text-red-500 text-center mb-4">{errorMsg}</div>}
-        {successMsg && <div className="text-green-600 text-center mb-4">{successMsg}</div>}
 
         {/* Form */}
         <form onSubmit={handleOtpSubmit} className="w-full flex flex-col gap-4">
