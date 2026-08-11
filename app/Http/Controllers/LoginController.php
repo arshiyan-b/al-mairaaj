@@ -183,107 +183,119 @@ class LoginController extends Controller
         ]);
 
         $otpRecord = StudentUserOtp::where('email', $request->email)
-            ->whereIn('type', ['registration', 'reset_password'])
+            ->where('type', 'registration')
             ->latest()
             ->first();
 
         if (!$otpRecord) {
             return response()->json([
                 'status' => 'error',
-                'message' => 'No OTP found for this email.',
+                'message' => 'No registration OTP found for this email.',
             ]);
-        } elseif ($otpRecord->status === 'verified') {
+        }
+
+        if ($otpRecord->status === 'verified') {
             return response()->json([
                 'status' => 'success',
                 'message' => 'This OTP has already been verified.',
                 'redirect' => route('login'),
             ]);
-        } elseif ($otpRecord->status === 'expired') {
+        }
+
+        if ($otpRecord->status === 'expired') {
             return response()->json([
                 'status' => 'error',
                 'message' => 'This OTP is no longer valid.',
             ]);
-        } elseif (now()->greaterThan($otpRecord->expires_at)) {
+        }
+
+        if (now()->greaterThan($otpRecord->expires_at)) {
 
             $otp = rand(100000, 999999);
-            $otpRecord->update(['otp' => $otp, 'expires_at' => now()->addMinutes(10)]);
 
-            $formattedLink = $otpRecord->type === 'registration'
-                ? route('otp') . '?email=' . urlencode($request->email)
-                : route('reset.password') . '?email=' . urlencode($request->email);
+            $otpRecord->update([
+                'otp' => $otp,
+                'expires_at' => now()->addMinutes(10),
+                'status' => 'pending',
+            ]);
 
-            Mail::to($request->email)->send(new StudentRegistrationOTP($otp, $formattedLink));
+            $formattedLink = route('otp') . '?email=' . urlencode($request->email);
+
+            Mail::to($request->email)->send(
+                new StudentRegistrationOTP($otp, $formattedLink)
+            );
 
             return response()->json([
                 'status' => 'success',
-                'message' => 'This OTP has expired. Please enter the new one.',
+                'message' => 'This OTP has expired. A new OTP has been sent to your email.',
                 'redirect' => $formattedLink,
                 'email' => $request->email,
             ]);
-        } elseif ((string) $otpRecord->otp !== (string) $request->otp) {
+        }
+
+        // Check OTP
+        if ((string) $otpRecord->otp !== (string) $request->otp) {
             return response()->json([
                 'status' => 'error',
                 'message' => 'Invalid OTP. Please try again.',
             ]);
         }
 
-        // ---- OTP is valid — branch by type ----
-
-        if ($otpRecord->type === 'registration') {
-            // Original registration logic, unchanged
-            $otpRecord->update(['status' => 'verified']);
-
-            $student = Student::where('email', $request->email)->first();
-            $studentRole = Role::where('slug', 'student')->first();
-
-            $student->update(['otp_verified' => 1]);
-
-            $user = User::create([
-                'name' => $student->full_name,
-                'email' => $student->email,
-                'password' => $otpRecord->password,
-                'role_id' => $studentRole->id,
-                'student_id' => $student->id,
-                'created_at' => now(),
-                'email_verified_at' => now(),
-            ]);
-
-            $student->update([
-                'user_id' => $user->id,
-            ]);
-
-            Wallet::create([
-                'student_id' => $student->id,
-                'balance' => 0,
-                'currency' => 'PKR',
-                'status' => 'active',
-            ]);
-
-            return response()->json([
-                'status' => 'success',
-                'message' => 'OTP verified successfully!',
-                'redirect' => route('login'),
-            ]);
-        }
-
-        // type === 'reset_password'
-        $otpRecord->update(['status' => 'verified']);
-
         $student = Student::where('email', $request->email)->first();
-        $user = User::where('student_id', $student->id)->first();
 
-        if (!$user) {
+        if (!$student) {
             return response()->json([
                 'status' => 'error',
-                'message' => 'No account found to reset.',
+                'message' => 'Student account not found.',
             ]);
         }
 
-        $user->update(['password' => $otpRecord->password]);
+        $studentRole = Role::where('slug', 'student')->first();
+
+        if (!$studentRole) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Student role not found.',
+            ]);
+        }
+
+        // Mark OTP as verified
+        $otpRecord->update([
+            'status' => 'verified',
+        ]);
+
+        // Mark student as OTP verified
+        $student->update([
+            'otp_verified' => 1,
+        ]);
+
+        // Create user account
+        $user = User::create([
+            'name' => $student->full_name,
+            'email' => $student->email,
+            'password' => $otpRecord->password,
+            'role_id' => $studentRole->id,
+            'student_id' => $student->id,
+            'created_at' => now(),
+            'email_verified_at' => now(),
+        ]);
+
+        // Link user to student
+        $student->update([
+            'user_id' => $user->id,
+        ]);
+
+        // Create student's wallet
+        Wallet::create([
+            'student_id' => $student->id,
+            'balance' => 0,
+            'currency' => 'PKR',
+            'status' => 'active',
+        ]);
 
         return response()->json([
             'status' => 'success',
-            'message' => 'Password reset successfully!',
+            'message' => 'OTP verified successfully! Your account has been created.',
             'redirect' => route('login'),
         ]);
     }
@@ -384,29 +396,44 @@ class LoginController extends Controller
     {
         $request->validate([
             'email' => 'required|email|exists:students,email',
-            'password' => ['required', 'confirmed', 'regex:/^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/'],
         ], [
             'email.exists' => 'No account found with that email.',
-            'password.confirmed' => 'Password confirmation does not match.',
-            'password.regex' => 'Password must be at least 8 characters long and include: one uppercase letter, one lowercase letter, one number, and one special character.',
         ]);
 
         $student = Student::where('email', $request->email)->first();
 
         $otp = rand(100000, 999999);
 
-        StudentUserOtp::create([
-            'student_id' => $student->id,
-            'email' => $student->email,
-            'password' => Hash::make($request->password),
-            'otp' => $otp,
-            'status' => 'pending',
-            'type' => 'reset_password',
-            'expires_at' => now()->addMinutes(10),
-        ]);
+        // Check for an existing pending password-reset OTP
+        $otpRecord = StudentUserOtp::where('email', $student->email)
+            ->where('type', 'reset_password')
+            ->where('status', 'pending')
+            ->first();
+
+        if ($otpRecord) {
+            // Update the existing OTP
+            $otpRecord->update([
+                'student_id' => $student->id,
+                'otp' => $otp,
+                'expires_at' => now()->addMinutes(10),
+            ]);
+        } else {
+            // Create a new OTP if no pending OTP exists
+            $otpRecord = StudentUserOtp::create([
+                'student_id' => $student->id,
+                'email' => $student->email,
+                'otp' => $otp,
+                'status' => 'pending',
+                'type' => 'reset_password',
+                'expires_at' => now()->addMinutes(10),
+            ]);
+        }
 
         $formattedLink = route('reset.password') . '?email=' . urlencode($student->email);
-        Mail::to($student->email)->send(new StudentRegistrationOTP($otp, $formattedLink));
+
+        Mail::to($student->email)->send(
+            new StudentRegistrationOTP($otp, $formattedLink)
+        );
 
         return response()->json([
             'status' => 'success',
@@ -415,4 +442,137 @@ class LoginController extends Controller
             'email' => $student->email,
         ]);
     }
+
+    public function verify_reset_password_otp(Request $request)
+    {
+        $request->validate([
+            'email' => 'required|email',
+            'otp' => 'required|numeric',
+        ]);
+
+        $otpRecord = StudentUserOtp::where('email', $request->email)
+            ->where('type', 'reset_password')
+            ->latest()
+            ->first();
+
+        if (!$otpRecord) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'No OTP found for this email.',
+            ]);
+        }
+
+        if ($otpRecord->status === 'verified') {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'This OTP has already been verified.',
+            ]);
+        }
+
+        if ($otpRecord->status === 'expired') {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'This OTP is no longer valid.',
+            ]);
+        }
+
+        // OTP expired
+        if (now()->greaterThan($otpRecord->expires_at)) {
+
+            $otp = rand(100000, 999999);
+
+            $otpRecord->update([
+                'otp' => $otp,
+                'expires_at' => now()->addMinutes(10),
+                'status' => 'pending',
+            ]);
+
+            $formattedLink = route('reset.password')
+                . '?email=' . urlencode($request->email);
+
+            Mail::to($request->email)->send(
+                new StudentRegistrationOTP($otp, $formattedLink)
+            );
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'This OTP has expired. A new one has been sent.',
+                'redirect' => $formattedLink,
+                'email' => $request->email,
+            ]);
+        }
+
+        // Invalid OTP
+        if ((string) $otpRecord->otp !== (string) $request->otp) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Invalid OTP. Please try again.',
+            ]);
+        }
+
+        // OTP is valid
+        $otpRecord->update([
+            'status' => 'verified',
+        ]);
+
+        $student = Student::where('email', $request->email)->first();
+
+        if (!$student) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'No account found for this email.',
+            ]);
+        }
+
+        $user = User::find($student->user_id);
+
+        if (!$user) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'No account found to reset.',
+            ]);
+        }
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'OTP verified. Set your new password.',
+            'email' => $request->email,
+        ]);
+    }
+
+    public function update_reset_password(Request $request)
+    {
+        $request->validate([
+            'email' => 'required|email',
+            'password' => 'required|string|min:8|confirmed',
+        ]);
+
+        $student = Student::where('email', $request->email)->first();
+
+        if (!$student) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'No account found with that email.',
+            ], 404);
+        }
+
+        $user = User::find($student->user_id);
+
+        if (!$user) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'No user account found.',
+            ], 404);
+        }
+
+        $user->password = Hash::make($request->password);
+        $user->save();
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Password reset successfully.',
+            'redirect' => route('login'),
+        ]);
+    }
+    
 }

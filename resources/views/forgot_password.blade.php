@@ -5,6 +5,8 @@
 @endsection
 
 @section('content')
-    <div id="app">
+    <div id="app"
+        data-forgot-password-route="{{ route('forgot.password.submit') }}"
+        data-csrf="{{ csrf_token() }}">
     </div>
 @endsection

@@ -33,6 +33,9 @@ Route::get('/forgot-password', [LoginController::class, 'forgot_password'])->nam
 Route::post('/forgot-password', [LoginController::class, 'send_forgot_password_otp'])->name('forgot.password.submit');
 
 Route::get('/reset-password', [LoginController::class, 'reset_password'])->name('reset.password'); 
+Route::post('/verify-reset-password-otp', [LoginController::class, 'verify_reset_password_otp'])->name('verify.reset.password.otp');
+Route::post('/update-reset-password', [LoginController::class, 'update_reset_password'])
+    ->name('update.reset.password');
 
 Route::get('/chatbot', [ChatbotController::class, 'index'])->name('chatbot.index');
 

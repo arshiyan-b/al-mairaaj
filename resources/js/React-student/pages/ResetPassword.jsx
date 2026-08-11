@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { data, Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import logo from "../assets/logo.png";
 
@@ -92,10 +92,10 @@ export default function ResetPassword() {
         setResetToken(data.reset_token);
       }
 
-      setSuccessMsg(data.message || "OTP verified. Set your new password.");
+      setSuccessMsg(data.message);
       setStep(2);
     } catch (error) {
-      setErrorMsg("Network error. Please try again.");
+      setErrorMsg(data.message);
     } finally {
       setLoading(false);
     }
@@ -145,7 +145,7 @@ export default function ResetPassword() {
         }, 1500);
       }
     } catch (error) {
-      setErrorMsg("Network error. Please try again.");
+      setErrorMsg(data.message);
     } finally {
       if (!isSuccess) {
         setLoading(false);

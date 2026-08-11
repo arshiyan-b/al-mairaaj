@@ -162,12 +162,12 @@ export default function Login() {
                 <label className="block text-gray-700 text-sm font-medium">
                   Password <span className="text-red-500">*</span>
                 </label>
-                <Link
-                  to="/forgot-password"
+                <a
+                  href="/forgot-password"
                   className="text-xs text-teal-600 hover:underline font-medium"
                 >
-                  Forgot password?
-                </Link>
+                  Forgot Password?
+                </a>
               </div>
               <input
                 type="password"

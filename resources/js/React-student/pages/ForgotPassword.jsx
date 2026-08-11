@@ -68,16 +68,11 @@ export default function ForgotPassword() {
 
       if (data.status === "success") {
         isSuccess = true;
-        setSuccessMsg(data.message || "OTP sent to your email.");
-
-        sessionStorage.setItem("reset_email", email);
-
-        setTimeout(() => {
-          window.location.href = `/reset-password?email=${encodeURIComponent(email)}`;
-        }, 1200);
+        setSuccessMsg(data.message);
+        window.location.href = data.redirect;
       }
     } catch (error) {
-      setErrorMsg("Network error. Please try again.");
+      setErrorMsg(data.message);
     } finally {
       if (!isSuccess) {
         setLoading(false);
