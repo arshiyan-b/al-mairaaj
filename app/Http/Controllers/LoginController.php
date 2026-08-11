@@ -116,21 +116,20 @@ class LoginController extends Controller
 
     public function register_authenticate(Request $request)
     {
-
         $request->validate([
             'first_name' => 'required|string|max:255',
             'last_name' => 'required|string|max:255',
             'father_name' => 'required|string|max:255',
             'email' => 'required|email|unique:students,email',
-            'phone' => ['required', 'regex:/^(92\d{10})$/',],
-            'whatsapp' => ['required', 'regex:/^(92\d{10})$/',],
+            'phone' => ['required', 'regex:/^\+[1-9]\d{7,14}$/'],
+            'whatsapp' => ['required', 'regex:/^\+[1-9]\d{7,14}$/'],
             'password' => ['required', 'confirmed', 'regex:/^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/'],
         ], [
             'email.unique' => 'This email is already registered.',
-            'phone.regex' => 'Phone number must start with 92 and be 12 digits long (e.g., 923001234567).',
-            'whatsapp.regex' => 'Phone number must start with 92 and be 12 digits long (e.g., 923001234567).',
+            'phone.regex' => 'Please enter a valid phone number including the country code.',
+            'whatsapp.regex' => 'Please enter a valid phone number including the country code.',
             'password.confirmed' => 'Password confirmation does not match.',
-            'password.regex' => 'Password must be at least 8 characters long and include: one uppercase letter, one lowercase letter, one number, and one special character.'
+            'password.regex' => 'Password must be at least 8 characters long and include: one uppercase letter, one lowercase letter, one number, and one special character.',
         ]);
 
         $otp = rand(100000, 999999);
@@ -154,7 +153,8 @@ class LoginController extends Controller
             'expires_at' => now()->addMinutes(10),
         ]);
 
-        Mail::to($student->email)->send(new StudentRegistrationOTP($otp));
+        $formattedLink = route('otp') . '?email=' . urlencode($student->email);
+        Mail::to($student->email)->send(new StudentRegistrationOTP($otp, $formattedLink));
 
         return response()->json([
             'status' => 'success',
@@ -183,7 +183,8 @@ class LoginController extends Controller
         ]);
 
         $otpRecord = StudentUserOtp::where('email', $request->email)
-            ->where('type', 'registration')
+            ->whereIn('type', ['registration', 'reset_password'])
+            ->latest()
             ->first();
 
         if (!$otpRecord) {
@@ -202,15 +203,21 @@ class LoginController extends Controller
                 'status' => 'error',
                 'message' => 'This OTP is no longer valid.',
             ]);
-        } elseif (now()->greaterThan($otpRecord->expires_at)) {   
+        } elseif (now()->greaterThan($otpRecord->expires_at)) {
 
             $otp = rand(100000, 999999);
-            Mail::to($request->email)->send(new StudentRegistrationOTP($otp));
+            $otpRecord->update(['otp' => $otp, 'expires_at' => now()->addMinutes(10)]);
+
+            $formattedLink = $otpRecord->type === 'registration'
+                ? route('otp') . '?email=' . urlencode($request->email)
+                : route('reset.password') . '?email=' . urlencode($request->email);
+
+            Mail::to($request->email)->send(new StudentRegistrationOTP($otp, $formattedLink));
 
             return response()->json([
                 'status' => 'success',
                 'message' => 'This OTP has expired. Please enter the new one.',
-                'redirect' => route('otp'). '?email=' . urlencode($request->email),
+                'redirect' => $formattedLink,
                 'email' => $request->email,
             ]);
         } elseif ((string) $otpRecord->otp !== (string) $request->otp) {
@@ -218,7 +225,12 @@ class LoginController extends Controller
                 'status' => 'error',
                 'message' => 'Invalid OTP. Please try again.',
             ]);
-        } else {
+        }
+
+        // ---- OTP is valid — branch by type ----
+
+        if ($otpRecord->type === 'registration') {
+            // Original registration logic, unchanged
             $otpRecord->update(['status' => 'verified']);
 
             $student = Student::where('email', $request->email)->first();
@@ -226,7 +238,7 @@ class LoginController extends Controller
 
             $student->update(['otp_verified' => 1]);
 
-            User::create([
+            $user = User::create([
                 'name' => $student->full_name,
                 'email' => $student->email,
                 'password' => $otpRecord->password,
@@ -234,6 +246,10 @@ class LoginController extends Controller
                 'student_id' => $student->id,
                 'created_at' => now(),
                 'email_verified_at' => now(),
+            ]);
+
+            $student->update([
+                'user_id' => $user->id,
             ]);
 
             Wallet::create([
@@ -249,6 +265,27 @@ class LoginController extends Controller
                 'redirect' => route('login'),
             ]);
         }
+
+        // type === 'reset_password'
+        $otpRecord->update(['status' => 'verified']);
+
+        $student = Student::where('email', $request->email)->first();
+        $user = User::where('student_id', $student->id)->first();
+
+        if (!$user) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'No account found to reset.',
+            ]);
+        }
+
+        $user->update(['password' => $otpRecord->password]);
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Password reset successfully!',
+            'redirect' => route('login'),
+        ]);
     }
 
     public function authenticate(Request $request)
@@ -275,7 +312,8 @@ class LoginController extends Controller
                 ]
             );
 
-            Mail::to($student->email)->send(new StudentRegistrationOTP($otp));
+            $formattedLink = route('otp') . '?email=' . urlencode($student->email);
+            Mail::to($student->email)->send(new StudentRegistrationOTP($otp, $formattedLink));
             $student->update(['opt_sent' => 1]);
 
             return response()->json([
@@ -330,5 +368,51 @@ class LoginController extends Controller
         $request->session()->invalidate();
         $request->session()->regenerateToken();
         return redirect()->route('login');
+    }
+
+    public function forgot_password()
+    {
+        return view('forgot_password');
+    }
+
+    public function reset_password()
+    {
+        return view('reset_password');
+    }
+
+    public function send_forgot_password_otp(Request $request)
+    {
+        $request->validate([
+            'email' => 'required|email|exists:students,email',
+            'password' => ['required', 'confirmed', 'regex:/^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/'],
+        ], [
+            'email.exists' => 'No account found with that email.',
+            'password.confirmed' => 'Password confirmation does not match.',
+            'password.regex' => 'Password must be at least 8 characters long and include: one uppercase letter, one lowercase letter, one number, and one special character.',
+        ]);
+
+        $student = Student::where('email', $request->email)->first();
+
+        $otp = rand(100000, 999999);
+
+        StudentUserOtp::create([
+            'student_id' => $student->id,
+            'email' => $student->email,
+            'password' => Hash::make($request->password),
+            'otp' => $otp,
+            'status' => 'pending',
+            'type' => 'reset_password',
+            'expires_at' => now()->addMinutes(10),
+        ]);
+
+        $formattedLink = route('reset.password') . '?email=' . urlencode($student->email);
+        Mail::to($student->email)->send(new StudentRegistrationOTP($otp, $formattedLink));
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'An OTP has been sent to your email to confirm the password reset.',
+            'redirect' => route('reset.password') . '?email=' . urlencode($student->email),
+            'email' => $student->email,
+        ]);
     }
 }

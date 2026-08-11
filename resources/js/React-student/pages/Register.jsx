@@ -1,6 +1,27 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
+import { motion } from "framer-motion";
 import logo from "../assets/logo_text.png";
+import SearchablePhoneInput from "../components/SearchablePhoneInput";
+
+// Animation variants
+const containerVariants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      duration: 0.5,
+      when: "beforeChildren",
+      staggerChildren: 0.08,
+    },
+  },
+};
+
+const fieldVariants = {
+  hidden: { opacity: 0, y: 12 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.35, ease: "easeOut" } },
+};
 
 export default function Register() {
   // Get Laravel route + CSRF token from Blade
@@ -58,10 +79,7 @@ export default function Register() {
           setErrorMsg(data.message || "Registration failed. Please try again.");
         }
       } else if (data.status === "success") {
-        // save email temporarily (so OTP page can access it)
         sessionStorage.setItem("otp_email", data.email);
-
-        // Redirect to OTP page with email parameter
         window.location.href = `${data.redirect}?email=${encodeURIComponent(data.email)}`;
       }
     } catch (error) {
@@ -71,27 +89,47 @@ export default function Register() {
     }
   };
 
-
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-teal-300 to-teal-500 p-6">
-      <div className="bg-white shadow-lg rounded-xl w-full max-w-3xl p-8 md:p-10 mx-4">
+      <motion.div
+        initial="hidden"
+        animate="visible"
+        variants={containerVariants}
+        className="bg-white shadow-lg rounded-xl w-full max-w-3xl p-8 md:p-10 mx-4"
+      >
         {/* Logo Section */}
-        <div className="flex flex-col items-center mb-6">
+        <motion.div variants={fieldVariants} className="flex flex-col items-center mb-6">
           <img src={logo} alt="AL Mairaaj" className="w-56 h-auto mb-2" />
           <h2 className="text-xl font-semibold">Student Registration Form</h2>
           <p className="text-sm text-gray-500 mt-1 text-center">
             Enter your information to create an account.
           </p>
-        </div>
+        </motion.div>
 
         {/* Feedback */}
-        {errorMsg && <div className="text-red-500 text-center mb-4">{errorMsg}</div>}
-        {successMsg && <div className="text-green-600 text-center mb-4">{successMsg}</div>}
+        {errorMsg && (
+          <motion.div
+            initial={{ opacity: 0, y: -8 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-red-500 text-center mb-4"
+          >
+            {errorMsg}
+          </motion.div>
+        )}
+        {successMsg && (
+          <motion.div
+            initial={{ opacity: 0, y: -8 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-green-600 text-center mb-4"
+          >
+            {successMsg}
+          </motion.div>
+        )}
 
         {/* Registration Form */}
         <form onSubmit={handleRegister} className="grid grid-cols-1 md:grid-cols-2 gap-5">
           {/* First Name */}
-          <div>
+          <motion.div variants={fieldVariants}>
             <label className="block text-gray-700 text-sm font-medium mb-1">
               First Name <span className="text-red-500">*</span>
             </label>
@@ -102,12 +140,12 @@ export default function Register() {
               required
               value={formData.first_name}
               onChange={handleChange}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:outline-none transition-shadow"
             />
-          </div>
+          </motion.div>
 
           {/* Last Name */}
-          <div>
+          <motion.div variants={fieldVariants}>
             <label className="block text-gray-700 text-sm font-medium mb-1">
               Last Name <span className="text-red-500">*</span>
             </label>
@@ -118,12 +156,12 @@ export default function Register() {
               required
               value={formData.last_name}
               onChange={handleChange}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:outline-none transition-shadow"
             />
-          </div>
+          </motion.div>
 
           {/* Father Name */}
-          <div>
+          <motion.div variants={fieldVariants}>
             <label className="block text-gray-700 text-sm font-medium mb-1">
               Father Name <span className="text-red-500">*</span>
             </label>
@@ -134,12 +172,12 @@ export default function Register() {
               required
               value={formData.father_name}
               onChange={handleChange}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:outline-none transition-shadow"
             />
-          </div>
+          </motion.div>
 
           {/* Email */}
-          <div>
+          <motion.div variants={fieldVariants}>
             <label className="block text-gray-700 text-sm font-medium mb-1">
               Email Address <span className="text-red-500">*</span>
             </label>
@@ -153,50 +191,46 @@ export default function Register() {
               required
               value={formData.email}
               onChange={handleChange}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:outline-none transition-shadow"
             />
-          </div>
+          </motion.div>
 
           {/* Phone */}
-          <div>
+          <motion.div variants={fieldVariants}>
             <label className="block text-gray-700 text-sm font-medium mb-1">
               Phone Number <span className="text-red-500">*</span>
             </label>
             {errors.phone && (
               <p className="text-red-500 text-xs mb-1">{errors.phone}</p>
             )}
-            <input
+            <SearchablePhoneInput
               name="phone"
-              type="text"
-              placeholder="Enter your phone number"
-              required
               value={formData.phone}
-              onChange={handleChange}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+              onChange={(phone) => setFormData((prev) => ({ ...prev, phone }))}
+              defaultCountry="pk"
+              required
             />
-          </div>
+          </motion.div>
 
-          {/* Whatsapp */}
-          <div>
+          {/* WhatsApp */}
+          <motion.div variants={fieldVariants}>
             <label className="block text-gray-700 text-sm font-medium mb-1">
               WhatsApp Number <span className="text-red-500">*</span>
             </label>
-            {errors.phone && (
+            {errors.whatsapp && (
               <p className="text-red-500 text-xs mb-1">{errors.whatsapp}</p>
             )}
-            <input
+            <SearchablePhoneInput
               name="whatsapp"
-              type="text"
-              placeholder="Enter your WhatsApp number"
-              required
               value={formData.whatsapp}
-              onChange={handleChange}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+              onChange={(whatsapp) => setFormData((prev) => ({ ...prev, whatsapp }))}
+              defaultCountry="pk"
+              required
             />
-          </div>
+          </motion.div>
 
           {/* Password */}
-          <div>
+          <motion.div variants={fieldVariants}>
             <label className="block text-gray-700 text-sm font-medium mb-1">
               Password <span className="text-red-500">*</span>
             </label>
@@ -210,12 +244,12 @@ export default function Register() {
               required
               value={formData.password}
               onChange={handleChange}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:outline-none transition-shadow"
             />
-          </div>
+          </motion.div>
 
           {/* Confirm Password */}
-          <div>
+          <motion.div variants={fieldVariants}>
             <label className="block text-gray-700 text-sm font-medium mb-1">
               Confirm Password <span className="text-red-500">*</span>
             </label>
@@ -226,30 +260,43 @@ export default function Register() {
               required
               value={formData.password_confirmation}
               onChange={handleChange}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:outline-none transition-shadow"
             />
-          </div>
+          </motion.div>
 
           {/* Submit Button */}
-          <div className="md:col-span-2">
-            <button
+          <motion.div variants={fieldVariants} className="md:col-span-2">
+            <motion.button
               type="submit"
               disabled={loading}
+              whileHover={{ scale: loading ? 1 : 1.02 }}
+              whileTap={{ scale: loading ? 1 : 0.98 }}
               className="w-full bg-red-500 hover:bg-red-600 text-white font-medium py-2 rounded-lg transition duration-200 disabled:opacity-60"
             >
-              {loading ? "Registering..." : "Register"}
-            </button>
-          </div>
+              {loading ? (
+                <span className="flex items-center justify-center gap-2">
+                  <motion.span
+                    animate={{ rotate: 360 }}
+                    transition={{ repeat: Infinity, duration: 0.8, ease: "linear" }}
+                    className="w-4 h-4 border-2 border-white border-t-transparent rounded-full"
+                  />
+                  Registering...
+                </span>
+              ) : (
+                "Register"
+              )}
+            </motion.button>
+          </motion.div>
         </form>
 
         {/* Footer */}
-        <div className="text-center mt-4 text-sm text-gray-600">
+        <motion.div variants={fieldVariants} className="text-center mt-4 text-sm text-gray-600">
           Already have an account?{" "}
           <Link to="/login" className="text-teal-600 hover:underline font-medium">
             Sign In
           </Link>
-        </div>
-      </div>
+        </motion.div>
+      </motion.div>
     </div>
   );
 }

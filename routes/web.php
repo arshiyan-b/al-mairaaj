@@ -29,6 +29,11 @@ Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
 Route::post('/login-auth', [LoginController::class, 'authenticate'])->name('login.auth');
 Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
+Route::get('/forgot-password', [LoginController::class, 'forgot_password'])->name('forgot.password');
+Route::post('/forgot-password', [LoginController::class, 'send_forgot_password_otp'])->name('forgot.password.submit');
+
+Route::get('/reset-password', [LoginController::class, 'reset_password'])->name('reset.password'); 
+
 Route::get('/chatbot', [ChatbotController::class, 'index'])->name('chatbot.index');
 
 Route::get('/optimize-clear', function () {

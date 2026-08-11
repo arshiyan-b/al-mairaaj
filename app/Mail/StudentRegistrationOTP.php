@@ -14,12 +14,14 @@ class StudentRegistrationOTP extends Mailable
     use Queueable, SerializesModels;
 
     public $otp;
+    public $formattedLink;
     /**
      * Create a new message instance.
      */
-    public function __construct($otp)
+    public function __construct($otp, $formattedLink)
     {
         $this->otp = $otp;
+        $this->formattedLink = $formattedLink;
     }
 
     /**
@@ -41,6 +43,7 @@ class StudentRegistrationOTP extends Mailable
             view: 'emails.student_otp', 
             with: [
                 'otp' => $this->otp, 
+                'formattedLink' => $this->formattedLink,
             ],
         );
     }

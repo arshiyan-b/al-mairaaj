@@ -27,6 +27,8 @@ const Chatbot = lazy(() => import("./pages/Chatbot"));
 const Login = lazy(() => import("./pages/Login"));
 const Otp = lazy(() => import("./pages/Otp"));
 const Register = lazy(() => import("./pages/Register"));
+const ForgotPassword = lazy(() => import("./pages/ForgotPassword"));
+const ResetPassword = lazy(() => import("./pages/ResetPassword"));
 const Wallet = lazy(() => import("./pages/Wallet"));
 const Topup = lazy(() => import("./pages/Topup"));
 const Withdraw = lazy(() => import("./pages/Withdraw"));
@@ -64,6 +66,8 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/verify-otp" element={<Otp />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/chatbot" element={<Chatbot />} />
 
           {/* Layout */}
