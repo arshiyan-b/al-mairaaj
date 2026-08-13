@@ -14,42 +14,46 @@ import {
     Hammer,
     MessagesSquare,
     Rocket,
-    Linkedin,
-    Twitter,
     GraduationCap,
 } from "lucide-react";
 import heroImg from "../assets/sideimage.png";
 import logoImg from "../assets/logo.png";
 import logoTextImg from "../assets/logo_text.svg";
 
+// Teacher gifs
+import kanwarGif from "../assets/kanwer_noomani.gif";
+import ammarGif from "../assets/ammar_sami.gif";
+import umerGif from "../assets/umer_hanif.gif";
+import munatahaGif from "../assets/muntaha_tariq.gif";
+
 const navLinks = [
-    { label: "Courses", href: "#courses" },
+    { label: "Why Al-Mairaaj", href: "#why-al-mairaaj" },
     { label: "Learning Model", href: "#learning-model" },
-    { label: "Teachers", href: "#mentors" },
+    { label: "Teachers", href: "#teachers" },
     { label: "About", href: "#about" },
 ];
 
 const features = [
-    { icon: BookOpen, title: "Curated learning paths", desc: "Structured journeys from beginner to mastery, refined by industry experts." },
-    { icon: Users, title: "Live mentor sessions", desc: "Weekly office hours and 1:1 reviews with practitioners from top companies." },
-    { icon: Trophy, title: "Recognized certificates", desc: "Earn credentials trusted by 500+ hiring partners across the globe." },
-    { icon: Zap, title: "Project-based learning", desc: "Ship real projects, not just watch videos. Build a portfolio that stands out." },
-    { icon: Globe2, title: "Global community", desc: "Join 12k+ learners across 80 countries collaborating in real time." },
-    { icon: ShieldCheck, title: "Lifetime access", desc: "Course updates, new modules, and resources — yours forever, on any device." },
+    { icon: BookOpen, title: "Curated learning paths", desc: "Subtext: 60-70 structured live sessions covering your whole syllbi. Pay only for the lessons you need." },
+    { icon: Users, title: "Live mentor sessions (Coming soon)", desc: "1:1 guidance(coming soon). Subtext: live 1 on 1 classes with subject experts to focus on your areas of improvement." },
+    { icon: Trophy, title: "Recognized certificates (Coming soon)", desc: "Concise recorded lessons for each subtopic in the syllabus. Pay per minute only for the videos you watch." },
+    { icon: Zap, title: "Project-based learning (Coming soon)", desc: "Supercharge your homeschooling journey through our portal, with level based learning for tailored education." },
+    { icon: Globe2, title: "Global community (Coming soon)", desc: "Use our state of the art simulations to get a (virtual) hands on experience." },
+    { icon: ShieldCheck, title: "Lifetime access (Coming soon)", desc: "Prefer physical sessions? Request top level subject experts to come to your home for in person sessions." },
 ];
 
 const steps = [
-    { icon: Compass, step: "01", title: "Diagnose", desc: "Start with a skills assessment that maps your current level to a personalized learning path." },
-    { icon: MessagesSquare, step: "02", title: "Learn live", desc: "Weekly cohort sessions with mentors — small groups, real conversations, zero passive watching." },
-    { icon: Hammer, step: "03", title: "Build in public", desc: "Ship one production-grade project per module. Your portfolio grows as you learn." },
-    { icon: Rocket, step: "04", title: "Launch your career", desc: "Mock interviews, resume reviews, and direct intros to our 500+ hiring partners." },
+    { icon: Compass, step: "01", title: "Find Your Weakness", desc: "Start with a diagnostic that pinpoints exactly where you're falling behind, so you spend time on what matters instead of guessing." },
+    { icon: MessagesSquare, step: "02", title: "Watch & Learn", desc: "Jump straight into a recorded lesson matched to that exact gap — bite-sized, on-demand, and ready whenever you are." },
+    { icon: Hammer, step: "03", title: "Join a Live Class", desc: "Still stuck? Sit in on a live session covering that topic, with real-time explanations and the chance to ask questions as they come up." },
+    { icon: Rocket, step: "04", title: "Book a 1-on-1 Session", desc: "Need more? Request a one-on-one with your preferred tutor for focused, personalized help until it finally clicks." },
 ];
 
 const teachers = [
-    { name: "Kanwar Noomani", role: "Lead Instructor · AI & ML", bio: "Ex-Google Research. 12+ years building production ML systems and teaching at scale.", initials: "IS" },
-    { name: "Ammar Sami", role: "Head of Web Engineering", bio: "Former Staff Engineer at Shopify. Specializes in React, performance, and developer experience.", initials: "SA" },
-    { name: "Umer Hanif", role: "Design Mentor", bio: "Product designer for Linear & Notion. Teaches design systems and modern product craft.", initials: "YR" },
-    { name: "Arshiyan Bashir", role: "Career Coach", bio: "Helped 800+ learners land roles at FAANG and high-growth startups across 4 continents.", initials: "LH" },
+    { name: "Kanwar Noomani", gif: kanwarGif },
+    { name: "Ammar Sami", gif: ammarGif },
+    { name: "Umer Hanif", gif: umerGif },
+    { name: "Munataha Tariq", gif: munatahaGif },
 ];
 
 const footerCols = [
@@ -75,27 +79,35 @@ const Index = () => {
                     <ul className="hidden md:flex items-center gap-8">
                         {navLinks.map((l) => (
                             <li key={l.href}>
-                                <a
-                                    href={l.href}
-                                    className="text-sm font-medium text-gray-600 hover:text-teal-600 dark:text-gray-300 dark:hover:text-teal-400 transition-colors"
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        const el = document.querySelector(l.href);
+                                        if (el) el.scrollIntoView({ behavior: "smooth" });
+                                    }}
+                                    className="text-sm font-medium text-gray-600 hover:text-teal-600 dark:text-gray-300 dark:hover:text-teal-400 transition-colors bg-transparent border-none p-0 cursor-pointer"
                                 >
                                     {l.label}
-                                </a>
+                                </button>
                             </li>
                         ))}
                     </ul>
 
                     <div className="flex items-center gap-3">
-                        <Link to="/login">
-                            <Button variant="ghost" className="hidden sm:inline-flex text-teal-700 hover:text-teal-900 hover:bg-teal-50 dark:text-teal-400 dark:hover:bg-teal-950">
+                        <a href="/login">
+                            <Button
+                                variant="ghost"
+                                className="hidden sm:inline-flex text-teal-700 hover:text-teal-900 hover:bg-teal-50 dark:text-teal-400 dark:hover:bg-teal-950"
+                            >
                                 Sign in
                             </Button>
-                        </Link>
-                        <Link to="/register">
+                        </a>
+
+                        <a href="/register">
                             <Button className="bg-teal-600 hover:bg-teal-700 text-white shadow-md shadow-teal-500/20">
                                 Get started
                             </Button>
-                        </Link>
+                        </a>
                     </div>
                 </nav>
             </header>
@@ -125,29 +137,15 @@ const Index = () => {
                         </p>
 
                         <div className="mt-10 flex flex-col sm:flex-row gap-4">
-                            <Link to="/register">
-                                <Button size="lg" className="w-full sm:w-auto text-base h-12 px-8 bg-teal-600 hover:bg-teal-700 text-white shadow-lg shadow-teal-500/25">
-                                    Start learning free
+                            <a href="/register">
+                                <Button
+                                    size="lg"
+                                    className="w-full sm:w-auto text-base h-12 px-8 bg-teal-600 hover:bg-teal-700 text-white shadow-lg shadow-teal-500/25"
+                                >
+                                    Start learning
                                     <ArrowRight className="ml-2 h-5 w-5" />
                                 </Button>
-                            </Link>
-                            <Button size="lg" variant="outline" className="w-full sm:w-auto text-base h-12 px-8 border-gray-300 text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-900">
-                                <Play className="mr-2 h-5 w-5 text-teal-600" />
-                                Watch demo
-                            </Button>
-                        </div>
-
-                        <div className="mt-12 grid grid-cols-3 gap-6 max-w-md border-t border-gray-200 dark:border-gray-800 pt-8">
-                            {[
-                                { k: "12k+", v: "Active learners" },
-                                { k: "50+", v: "Expert mentors" },
-                                { k: "97%", v: "Completion rate" },
-                            ].map((s) => (
-                                <div key={s.v}>
-                                    <div className="text-3xl font-bold text-gray-900 dark:text-white">{s.k}</div>
-                                    <div className="text-xs font-semibold text-gray-500 mt-1 uppercase tracking-wider">{s.v}</div>
-                                </div>
-                            ))}
+                            </a>
                         </div>
                     </div>
 
@@ -164,7 +162,7 @@ const Index = () => {
             </section>
 
             {/* Features */}
-            <section id="courses" className="py-24 md:py-32 bg-gray-50 dark:bg-gray-950/50">
+            <section id="why-al-mairaaj" className="py-24 md:py-32 bg-gray-50 dark:bg-gray-950/50">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="max-w-2xl">
                         <span className="text-xs font-bold uppercase tracking-widest text-teal-600 dark:text-teal-400">Why Al Mairaaj</span>
@@ -199,10 +197,10 @@ const Index = () => {
                     <div className="max-w-2xl mb-16">
                         <span className="text-xs font-bold uppercase tracking-widest text-teal-400">Our learning model</span>
                         <h2 className="mt-4 text-3xl md:text-4xl font-extrabold text-white">
-                            A four-step loop designed for real outcomes.
+                            A four-step loop built around how you actually learn.
                         </h2>
                         <p className="mt-4 text-lg text-gray-400">
-                            We replaced the "watch videos and hope" model with a structured, mentor-led system.
+                            We replaced the "one-size-fits-all" model with an adaptive, mentor-backed system that meets you where you're stuck.
                         </p>
                     </div>
 
@@ -225,7 +223,7 @@ const Index = () => {
             </section>
 
             {/* Teachers */}
-            <section id="mentors" className="py-24 md:py-32 bg-white dark:bg-gray-950">
+            <section id="teachers" className="py-24 md:py-32 bg-white dark:bg-gray-950">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="max-w-2xl mb-16 text-center mx-auto">
                         <span className="text-xs font-bold uppercase tracking-widest text-teal-600 dark:text-teal-400">Meet the team</span>
@@ -241,21 +239,14 @@ const Index = () => {
                         {teachers.map((t) => (
                             <article
                                 key={t.name}
-                                className="group p-6 rounded-2xl bg-gray-50 dark:bg-gray-900 border border-gray-100 dark:border-gray-800 hover:border-teal-200 dark:hover:border-teal-800 transition-colors"
+                                className="group rounded-2xl bg-gray-50 dark:bg-gray-900 border border-gray-100 dark:border-gray-800 hover:border-teal-200 dark:hover:border-teal-800 transition-colors overflow-hidden"
                             >
-                                <div className="h-16 w-16 rounded-2xl bg-gradient-to-br from-teal-100 to-emerald-100 dark:from-teal-900 dark:to-emerald-900 text-teal-700 dark:text-teal-300 grid place-items-center text-xl font-bold shadow-inner">
-                                    {t.initials}
-                                </div>
-                                <h3 className="mt-5 text-lg font-bold text-gray-900 dark:text-white">{t.name}</h3>
-                                <p className="text-sm text-teal-600 dark:text-teal-400 font-medium mb-3">{t.role}</p>
-                                <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">{t.bio}</p>
-                                <div className="mt-6 pt-5 border-t border-gray-200 dark:border-gray-800 flex items-center gap-4">
-                                    <a href="#" aria-label="LinkedIn" className="text-gray-400 hover:text-teal-600 transition-colors">
-                                        <Linkedin className="h-5 w-5" />
-                                    </a>
-                                    <a href="#" aria-label="Twitter" className="text-gray-400 hover:text-teal-600 transition-colors">
-                                        <Twitter className="h-5 w-5" />
-                                    </a>
+                                <div className="w-full overflow-hidden bg-gray-100 dark:bg-gray-800">
+                                    <img
+                                        src={t.gif}
+                                        alt={t.name}
+                                        className="w-full h-full object-cover"
+                                    />
                                 </div>
                             </article>
                         ))}
@@ -264,7 +255,7 @@ const Index = () => {
             </section>
 
             {/* CTA */}
-            <section id="pricing" className="py-20 bg-white dark:bg-gray-950">
+            <section id="about" className="py-20 bg-white dark:bg-gray-950">
                 <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="relative overflow-hidden rounded-3xl bg-teal-900 p-12 md:p-20 text-center shadow-2xl">
                         <div className="absolute top-0 right-0 -m-32 h-64 w-64 rounded-full bg-teal-500 blur-3xl opacity-30" />
