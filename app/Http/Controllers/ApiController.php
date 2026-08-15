@@ -8,6 +8,7 @@ use App\Http\Requests\StudentRedeemVoucherRequest;
 use App\Services\BatchService;
 use App\Services\BatchEnrollmentService;
 use App\Services\BoardService;
+use App\Services\BookService;
 use App\Services\CurriculumSubjectService;
 use App\Services\GradeService;
 use App\Services\LiveClassesService;
@@ -21,6 +22,8 @@ use App\Services\WalletTransactionService;
 
 use App\Models\Batch;
 use App\Models\Wallet;
+use App\Models\Book;
+use App\Models\LiveClass;
 
 use Illuminate\Http\Request;
 
@@ -29,6 +32,7 @@ class ApiController extends Controller
     protected $batchService;
     protected $batchEnrollmentService;
     protected $boardService;
+    protected $bookService;
     protected $curriculumSubjectService;
     protected $gradeService;
     protected $liveClassesService;
@@ -44,6 +48,7 @@ class ApiController extends Controller
         BatchService $batchService,
         BatchEnrollmentService $batchEnrollmentService,
         BoardService $boardService,
+        BookService $bookService,
         CurriculumSubjectService $curriculumSubjectService,
         GradeService $gradeService,
         LiveClassesService $liveClassesService,
@@ -58,6 +63,7 @@ class ApiController extends Controller
         $this->batchService = $batchService;
         $this->batchEnrollmentService = $batchEnrollmentService;
         $this->boardService = $boardService;
+        $this->bookService = $bookService;
         $this->curriculumSubjectService = $curriculumSubjectService;
         $this->gradeService = $gradeService;
         $this->liveClassesService = $liveClassesService;
@@ -68,6 +74,54 @@ class ApiController extends Controller
         $this->voucherService = $voucherService;
         $this->walletService = $walletService;
         $this->walletTransactionService = $walletTransactionService;
+    }
+    public function student_dashboard_data()
+    {
+        $student = $this->studentService->getAuthenticatedStudent();
+
+        if (!$student) {
+            return response()->json(['status' => 'error', 'message' => 'Student profile not found.'], 404);
+        }
+
+        // Profile completion — mirrors the same fields used in profile_update
+        $profileFields = [
+            'first_name', 'middle_name', 'last_name', 'father_name',
+            'phone_number', 'whatsapp_number', 'date_of_birth',
+            'address', 'city', 'country',
+        ];
+        $filled = collect($profileFields)->filter(fn ($f) => !empty($student->$f))->count();
+        $profileCompletion = round(($filled / count($profileFields)) * 100);
+
+        // Wallet balance
+        $wallet = $this->walletService->getAuthenticatedStudentWallet();
+
+        // Recently added books (reusing the same eager-loaded relation as books-data)
+        $recentBooks = Book::with(['curriculumSubject.grade.board'])
+            ->latest()
+            ->take(4)
+            ->get();
+
+        // Upcoming live class batches — ASSUMPTION: a LiveClassBatch model exists
+        // with a student pivot/relation and a starts_at column. Adjust to match
+        // your actual live-classes schema.
+        $upcomingClasses = LiveClass::with(['subject'])
+            ->where('start_time', '>=', now())
+            ->orderBy('start_time')
+            ->take(4)
+            ->get();
+
+        return response()->json([
+            'student' => [
+                'name' => trim("{$student->first_name} {$student->last_name}"),
+                'profile_completion' => $profileCompletion,
+            ],
+            'wallet' => [
+                'balance' => $wallet->balance ?? 0,
+                'currency' => $wallet->currency ?? 'PKR',
+            ],
+            'recent_books' => $recentBooks,
+            'upcoming_classes' => $upcomingClasses,
+        ]);
     }
     public function student_profile_data()
     {
@@ -166,10 +220,24 @@ class ApiController extends Controller
         $teacher = $this->teacherService->getTeacher($id);
         return response()->json($teacher); 
     }
+    public function student_books_data()
+    {
+        $books = $this->bookService->getBooks();
+        $curriculum_subjects = $this->curriculumSubjectService->getCurriculumSubjects();
+        $grades = $this->gradeService->getGrades();
+        $boards = $this->boardService->getBoards();
+
+        return response()->json([
+            'books' => $books,
+            'curriculum_subjects' => $curriculum_subjects,
+            'grades' => $grades,
+            'boards' => $boards,
+        ]);
+    }
     public function student_live_classes_data()
     {
         $liveClassEnrollments = $this->liveClassEnrollmentService->getAuthenticatedStudentEnrollments();
-
+    
         $liveClasses = $liveClassEnrollments
             ->map(fn ($enrollment) => $enrollment->liveClass)
             ->filter()

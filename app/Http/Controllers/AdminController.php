@@ -3,12 +3,10 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Cache;
 use App\Models\AllowedClass;
-use App\Models\Batch;
 use App\Models\CurriculumSubject;
 use App\Models\Role;
 use App\Models\User;
@@ -16,14 +14,9 @@ use App\Models\Teacher;
 use App\Models\TeacherApplication;
 use App\Models\TeacherDoc;
 use App\Models\Student;
-use App\Models\Board;
 use App\Models\Grade;
 use App\Models\Subject;
-use App\Models\Book;
 use App\Models\PearsonCourse;
-use App\Models\PearsonIgcseVideo;
-use App\Models\CaieCourse;
-use App\Models\CaieOlevelVideo;
 
 class AdminController extends Controller
 {

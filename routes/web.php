@@ -143,6 +143,7 @@ Route::middleware(['auth', 'role:student'])->group(function () {
 
     // profile
     Route::get('/profile', [StudentController::class, 'profile'])->name('student.profile');
+    Route::post('/profile-update', [StudentController::class, 'profile_update'])->name('student.profile.update');
 
     // Wallet
     Route::get('/wallet', [StudentController::class, 'wallet'])->name('student.wallet');

@@ -1,11 +1,15 @@
 <?php
 
 namespace App\Http\Controllers;
+use Illuminate\Http\Request;
 
 use App\Services\BatchService;
 use App\Services\BatchEnrollmentService;
 use App\Services\LiveClassesService;
 use App\Services\LiveClassEnrollmentService;
+
+use App\Models\Student;
+
 use App\Services\WalletService;
 use App\Services\WalletTransactionService;
 
@@ -123,6 +127,39 @@ class StudentController extends Controller
     public function profile()
     {
         return view('student.profile.index');
+    }
+    public function profile_update(Request $request)
+    {
+        $request->validate([
+            'first_name' => 'required|string|max:255',
+            'middle_name' => 'nullable|string|max:255',
+            'last_name' => 'required|string|max:255',
+            'father_name' => 'required|string|max:255',
+            'phone_number' => 'nullable|string|max:20',
+            'whatsapp_number' => 'nullable|string|max:20',
+            'date_of_birth' => 'nullable|date',
+            'address' => 'nullable|string|max:500',
+            'city' => 'nullable|string|max:255',
+            'country' => 'nullable|string|max:255',
+        ]);
+
+        $student = Student::where('user_id', auth()->id())->first();
+
+        if (!$student) {
+            return response()->json(['status' => 'error', 'message' => 'Student profile not found.'], 404);
+        }
+
+        $student->update($request->only([
+            'first_name', 'middle_name', 'last_name', 'father_name',
+            'phone_number', 'whatsapp_number', 'date_of_birth',
+            'address', 'city', 'country',
+        ]));
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Profile updated successfully!',
+            'profile' => $student->fresh(),
+        ]);
     }
     public function wallet()
     {

@@ -3,17 +3,26 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Book extends Model
 {
-    use HasFactory;
+    use SoftDeletes;
+
     protected $fillable = [
-        'drive_id',
+        'uuid',
+        'grade_id',
+        'curriculum_subject_id',
         'name',
-        'category',
-        'board',
-        'grade',
-        'subject_id',
+        'drive_link',
     ];
+
+    public function grade()
+    {
+        return $this->belongsTo(Grade::class);
+    }
+    public function curriculumSubject()
+    {
+        return $this->belongsTo(CurriculumSubject::class);
+    }
 }

@@ -3,6 +3,8 @@ import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { motion } from "framer-motion";
 import { withCsrfHeaders } from "../lib/csrf";
+import SearchablePhoneInput from "../components/SearchablePhoneInput";
+import CountrySelect from "../components/CountrySelect";
 import {
   Camera,
   Save,
@@ -15,6 +17,7 @@ import {
   Users,
   Loader2,
   CheckCircle2,
+  AlertCircle,
 } from "lucide-react";
 
 const FIELD_KEYS = [
@@ -24,7 +27,6 @@ const FIELD_KEYS = [
   "father_name",
   "phone_number",
   "whatsapp_number",
-  "email",
   "date_of_birth",
   "address",
   "city",
@@ -80,15 +82,20 @@ const Profile = () => {
     setSaved(false);
 
     try {
-      const res = await fetch("/api/student/profile-data", {
-        method: "PUT",
+      const payload = FIELD_KEYS.reduce((acc, key) => {
+        acc[key] = profileData[key] || "";
+        return acc;
+      }, {});
+
+      const res = await fetch("/profile-update", {
+        method: "POST",
         headers: withCsrfHeaders(),
-        body: JSON.stringify(profileData),
+        body: JSON.stringify(payload),
       });
 
       const data = await res.json().catch(() => ({}));
 
-      if (!res.ok) {
+      if (!res.ok || data.status === "error") {
         throw new Error(data?.message || `Failed to save profile (${res.status})`);
       }
 
@@ -158,6 +165,17 @@ const Profile = () => {
                 </div>
               </div>
 
+              {/* Email — read-only display, not part of the editable form data */}
+              <div className="space-y-2">
+                <label className="text-sm font-semibold text-gray-700 dark:text-gray-300 flex items-center gap-2">
+                  <Mail className="w-4 h-4 text-teal-600" /> Email Address
+                </label>
+                <div className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-gray-100/70 dark:bg-gray-900/40 dark:border-gray-700 text-gray-500 dark:text-gray-400 cursor-not-allowed select-text">
+                  {profileData.email || "—"}
+                </div>
+                <p className="text-xs text-gray-400">Your email address cannot be changed here.</p>
+              </div>
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {/* First Name */}
                 <div className="space-y-2">
@@ -223,14 +241,12 @@ const Profile = () => {
                 <div className="space-y-2">
                   <label className="text-sm font-semibold text-gray-700 dark:text-gray-300 flex items-center gap-2">
                     <Phone className="w-4 h-4 text-teal-600" /> Phone Number
-                  </label>
-                  <input
-                    type="tel"
+                  </label>10
+                  <SearchablePhoneInput
                     name="phone_number"
                     value={profileData.phone_number || ""}
-                    onChange={handleChange}
-                    className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-teal-500 focus:ring-2 focus:ring-teal-200 outline-none transition-all bg-gray-50/50 dark:bg-gray-800/50 dark:border-gray-700 dark:text-white"
-                    placeholder="e.g. 923491855033"
+                    onChange={(phone) => setProfileData((prev) => ({ ...prev, phone_number: phone }))}
+                    defaultCountry="pk"
                   />
                 </div>
 
@@ -239,28 +255,11 @@ const Profile = () => {
                   <label className="text-sm font-semibold text-gray-700 dark:text-gray-300 flex items-center gap-2">
                     <MessageCircle className="w-4 h-4 text-teal-600" /> WhatsApp Number
                   </label>
-                  <input
-                    type="tel"
+                  <SearchablePhoneInput
                     name="whatsapp_number"
                     value={profileData.whatsapp_number || ""}
-                    onChange={handleChange}
-                    className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-teal-500 focus:ring-2 focus:ring-teal-200 outline-none transition-all bg-gray-50/50 dark:bg-gray-800/50 dark:border-gray-700 dark:text-white"
-                    placeholder="e.g. 923491855033"
-                  />
-                </div>
-
-                {/* Email */}
-                <div className="space-y-2">
-                  <label className="text-sm font-semibold text-gray-700 dark:text-gray-300 flex items-center gap-2">
-                    <Mail className="w-4 h-4 text-teal-600" /> Email Address
-                  </label>
-                  <input
-                    type="email"
-                    name="email"
-                    value={profileData.email || ""}
-                    onChange={handleChange}
-                    className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-teal-500 focus:ring-2 focus:ring-teal-200 outline-none transition-all bg-gray-50/50 dark:bg-gray-800/50 dark:border-gray-700 dark:text-white"
-                    placeholder="Enter your email address"
+                    onChange={(whatsapp) => setProfileData((prev) => ({ ...prev, whatsapp_number: whatsapp }))}
+                    defaultCountry="pk"
                   />
                 </div>
 
@@ -298,13 +297,10 @@ const Profile = () => {
                   <label className="text-sm font-semibold text-gray-700 dark:text-gray-300 flex items-center gap-2">
                     <MapPin className="w-4 h-4 text-teal-600" /> Country
                   </label>
-                  <input
-                    type="text"
+                  <CountrySelect
                     name="country"
                     value={profileData.country || ""}
-                    onChange={handleChange}
-                    className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-teal-500 focus:ring-2 focus:ring-teal-200 outline-none transition-all bg-gray-50/50 dark:bg-gray-800/50 dark:border-gray-700 dark:text-white"
-                    placeholder="Enter your country"
+                    onChange={(country) => setProfileData((prev) => ({ ...prev, country }))}
                   />
                 </div>
 
@@ -325,7 +321,12 @@ const Profile = () => {
               </div>
 
               {/* Feedback */}
-              {saveError && <p className="text-sm text-red-500">{saveError}</p>}
+              {saveError && (
+                <div className="flex items-center gap-2 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 p-3 text-sm text-red-700 dark:text-red-400">
+                  <AlertCircle className="h-4 w-4 flex-shrink-0" />
+                  <span>{saveError}</span>
+                </div>
+              )}
               {saved && (
                 <div className="flex items-center gap-2 rounded-lg bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 p-3 text-sm text-green-700 dark:text-green-400">
                   <CheckCircle2 className="h-4 w-4 flex-shrink-0" />

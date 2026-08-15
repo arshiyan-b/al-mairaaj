@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import SpotlightCard from "../components/SpotlightCard";
+import SearchableSelect from "../components/SearchableSelect";
 import { GraduationCap, Search, Filter, BookOpen } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -127,7 +128,7 @@ const Subjects = () => {
       </motion.div>
 
       <motion.div
-        className="bg-white/90 backdrop-blur border border-gray-200 shadow-sm rounded-xl p-4 mb-8 max-w-4xl mx-auto"
+        className="bg-white/90 backdrop-blur border border-gray-200 shadow-sm rounded-xl p-4 mb-8 max-w-4xl mx-auto relative z-30"
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay: 0.1 }}
@@ -154,52 +155,53 @@ const Subjects = () => {
 
         {/* Row 2: Dropdowns */}
         <div className="flex flex-col md:flex-row items-center gap-4 w-full">
-          <select
+          <SearchableSelect
+            className="md:w-1/3"
             value={boardId}
-            onChange={(e) => {
-              setBoardId(e.target.value);
+            onChange={(val) => {
+              setBoardId(val);
               setGradeId("");
               setSubjectId("");
               setVisibleCount(PAGE_SIZE);
             }}
-            className="w-full md:w-1/3 pl-3 pr-8 py-2 text-sm rounded-lg border border-gray-200 focus:ring-2 focus:ring-teal-500 outline-none transition"
-          >
-            <option value="">All Boards</option>
-            {boards.map((board) => (
-              <option key={board.id} value={String(board.id)}>{board.name}</option>
-            ))}
-          </select>
+            placeholder="All Boards"
+            searchPlaceholder="Search boards..."
+            options={boards.map((board) => ({
+              value: board.id,
+              label: board.name,
+            }))}
+          />
 
-          <select
+          <SearchableSelect
+            className="md:w-1/3"
             value={gradeId}
-            onChange={(e) => {
-              setGradeId(e.target.value);
+            onChange={(val) => {
+              setGradeId(val);
               setSubjectId("");
               setVisibleCount(PAGE_SIZE);
             }}
-            className="w-full md:w-1/3 pl-3 pr-8 py-2 text-sm rounded-lg border border-gray-200 focus:ring-2 focus:ring-teal-500 outline-none transition"
-          >
-            <option value="">All Grades</option>
-            {filteredGrades.map((grade) => (
-              <option key={grade.id} value={String(grade.id)}>
-                {boardId ? grade.name : `${grade.board?.name} - ${grade.name}`}
-              </option>
-            ))}
-          </select>
+            placeholder="All Grades"
+            searchPlaceholder="Search grades..."
+            options={filteredGrades.map((grade) => ({
+              value: grade.id,
+              label: boardId ? grade.name : `${grade.board?.name} - ${grade.name}`,
+            }))}
+          />
 
-          <select
+          <SearchableSelect
+            className="md:w-1/3"
             value={subjectId}
-            onChange={(e) => {
-              setSubjectId(e.target.value);
+            onChange={(val) => {
+              setSubjectId(val);
               setVisibleCount(PAGE_SIZE);
             }}
-            className="w-full md:w-1/3 pl-3 pr-8 py-2 text-sm rounded-lg border border-gray-200 focus:ring-2 focus:ring-teal-500 outline-none transition"
-          >
-            <option value="">All Subjects</option>
-            {availableSubjectsForDropdown.map((subject) => (
-              <option key={subject.id} value={String(subject.id)}>{subject.code} - {subject.name}</option>
-            ))}
-          </select>
+            placeholder="All Subjects"
+            searchPlaceholder="Search subjects..."
+            options={availableSubjectsForDropdown.map((subject) => ({
+              value: subject.id,
+              label: `${subject.code} - ${subject.name}`,
+            }))}
+          />
         </div>
       </motion.div>
 
@@ -228,6 +230,11 @@ const Subjects = () => {
                     <div className="p-3 rounded-xl bg-teal-50">
                       <GraduationCap className="h-6 w-6 text-gray-800" />
                     </div>
+                    {subject.grade?.board?.name && (
+                      <span className="text-xs font-semibold text-teal-700 bg-teal-50 px-3 py-1 rounded-full">
+                        {subject.grade.board.name}
+                      </span>
+                    )}
                   </div>
 
                   <h3 className="text-xl font-bold text-gray-800 mb-4">

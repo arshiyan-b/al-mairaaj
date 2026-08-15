@@ -34,8 +34,8 @@ const navLinks = [
 ];
 
 const features = [
-    { icon: BookOpen, title: "Curated learning paths", desc: "Subtext: 60-70 structured live sessions covering your whole syllbi. Pay only for the lessons you need." },
-    { icon: Users, title: "Live mentor sessions (Coming soon)", desc: "1:1 guidance(coming soon). Subtext: live 1 on 1 classes with subject experts to focus on your areas of improvement." },
+    { icon: BookOpen, title: "Curated learning paths", desc: "60-70 structured live sessions covering your whole syllabi. Pay only for the lessons you need." },
+    { icon: Users, title: "1:1 guidance (Coming soon)", desc: "Live 1 on 1 classes with subject experts to focus on your areas of improvement." },
     { icon: Trophy, title: "Recognized certificates (Coming soon)", desc: "Concise recorded lessons for each subtopic in the syllabus. Pay per minute only for the videos you watch." },
     { icon: Zap, title: "Project-based learning (Coming soon)", desc: "Supercharge your homeschooling journey through our portal, with level based learning for tailored education." },
     { icon: Globe2, title: "Global community (Coming soon)", desc: "Use our state of the art simulations to get a (virtual) hands on experience." },
@@ -265,12 +265,12 @@ const Index = () => {
                                 Your future starts with a single class.
                             </h2>
                             <p className="mt-6 text-lg text-teal-100 max-w-xl mx-auto">
-                                Join our community today and start building skills that matter. Your first week is on us.
+                                Pay only for the classes you take with no monthly commitment or upfront package required. Start learning today, one class at a time.
                             </p>
                             <div className="mt-10 flex flex-col sm:flex-row gap-4 justify-center">
                                 <Link to="/register">
                                     <Button size="lg" className="w-full sm:w-auto h-12 bg-white text-teal-900 hover:bg-teal-50 font-semibold px-8 shadow-lg">
-                                        Start free trial <ArrowRight className="ml-2 h-5 w-5" />
+                                        Start Now <ArrowRight className="ml-2 h-5 w-5" />
                                     </Button>
                                 </Link>
                             </div>

@@ -358,7 +358,7 @@ const Wallet = () => {
               </Card>
             </motion.div>
 
-            <motion.div
+            {/* <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.3, delay: 0.3 }}
@@ -377,7 +377,7 @@ const Wallet = () => {
                   <span className="font-semibold text-gray-800 dark:text-gray-200">Withdraw</span>
                 </CardContent>
               </Card>
-            </motion.div>
+            </motion.div> */}
           </div>
         </div>
 
