@@ -241,7 +241,7 @@ const Profile = () => {
                 <div className="space-y-2">
                   <label className="text-sm font-semibold text-gray-700 dark:text-gray-300 flex items-center gap-2">
                     <Phone className="w-4 h-4 text-teal-600" /> Phone Number
-                  </label>10
+                  </label>
                   <SearchablePhoneInput
                     name="phone_number"
                     value={profileData.phone_number || ""}

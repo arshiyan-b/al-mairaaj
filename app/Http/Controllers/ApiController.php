@@ -29,52 +29,22 @@ use Illuminate\Http\Request;
 
 class ApiController extends Controller
 {
-    protected $batchService;
-    protected $batchEnrollmentService;
-    protected $boardService;
-    protected $bookService;
-    protected $curriculumSubjectService;
-    protected $gradeService;
-    protected $liveClassesService;
-    protected $liveClassEnrollmentService;
-    protected $studentService;
-    protected $teacherService;
-    protected $topupRequestService;
-    protected $voucherService;
-    protected $walletService;
-    protected $walletTransactionService;
-
     public function __construct(
-        BatchService $batchService,
-        BatchEnrollmentService $batchEnrollmentService,
-        BoardService $boardService,
-        BookService $bookService,
-        CurriculumSubjectService $curriculumSubjectService,
-        GradeService $gradeService,
-        LiveClassesService $liveClassesService,
-        LiveClassEnrollmentService $liveClassEnrollmentService,
-        StudentService $studentService,
-        TeacherService $teacherService,
-        TopupRequestService $topupRequestService,
-        VoucherService $voucherService,
-        WalletService $walletService,
-        WalletTransactionService $walletTransactionService,
-    ) {
-        $this->batchService = $batchService;
-        $this->batchEnrollmentService = $batchEnrollmentService;
-        $this->boardService = $boardService;
-        $this->bookService = $bookService;
-        $this->curriculumSubjectService = $curriculumSubjectService;
-        $this->gradeService = $gradeService;
-        $this->liveClassesService = $liveClassesService;
-        $this->liveClassEnrollmentService = $liveClassEnrollmentService;
-        $this->studentService = $studentService;
-        $this->teacherService = $teacherService;
-        $this->topupRequestService = $topupRequestService;
-        $this->voucherService = $voucherService;
-        $this->walletService = $walletService;
-        $this->walletTransactionService = $walletTransactionService;
-    }
+    protected BatchService $batchService,
+    protected BatchEnrollmentService $batchEnrollmentService,
+    protected BoardService $boardService,
+    protected BookService $bookService,
+    protected CurriculumSubjectService $curriculumSubjectService,
+    protected GradeService $gradeService,
+    protected LiveClassesService $liveClassesService,
+    protected LiveClassEnrollmentService $liveClassEnrollmentService,
+    protected StudentService $studentService,
+    protected TeacherService $teacherService,
+    protected TopupRequestService $topupRequestService,
+    protected VoucherService $voucherService,
+    protected WalletService $walletService,
+    protected WalletTransactionService $walletTransactionService,
+    ) {}
     public function student_dashboard_data()
     {
         $student = $this->studentService->getAuthenticatedStudent();

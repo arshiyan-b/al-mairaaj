@@ -14,7 +14,7 @@ class Book extends Model
         'grade_id',
         'curriculum_subject_id',
         'name',
-        'drive_link',
+        'file_path',
     ];
 
     public function grade()

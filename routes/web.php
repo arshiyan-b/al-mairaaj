@@ -1,6 +1,8 @@
 <?php
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Route;
+
+use App\Http\Controllers\BookController;
 use App\Http\Controllers\ChatbotController;
 use App\Http\Controllers\CourseController;
 use App\Http\Controllers\LiveClassBatchController;
@@ -68,8 +70,14 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::post('/admin/teacher/{id}/create-user', [AdminController::class, 'teacher_create_user'])->name('admin.teacher.create.user');
     Route::post('/admin/teachers/user', [AdminController::class, 'teacher_user'])->name('admin.teacher_user');
 
-    Route::get('/admin/books/{board}', [AdminController::class, 'books_index'])->name('admin.books.index');
-
+    Route::get('/admin/books', [BookController::class, 'index'])->name('admin.books.index');
+    Route::post('/admin/books', [BookController::class, 'store'])->name('admin.books.store');
+    Route::get('/admin/books/{book}', [BookController::class, 'show'])->name('admin.books.show');
+    Route::get('/admin/books/{book}/edit', [BookController::class, 'edit'])->name('admin.books.edit');
+    Route::put('/admin/books/{book}', [BookController::class, 'update'])->name('admin.books.update');
+    Route::delete('/admin/books/{book}', [BookController::class, 'destroy'])->name('admin.books.destroy');
+    Route::get('/admin/books/{book}/download', [BookController::class, 'download'])->name('admin.books.download');
+        
     Route::get('/admin/courses/{board}/{grade}', [AdminController::class, 'course_index'])->name('admin.course.index');
 
     Route::get('/admin/live_class_batches/{board}/{grade}', [LiveClassBatchController::class, 'index'])->name('admin.live_class_batches.index');

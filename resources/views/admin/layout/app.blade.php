@@ -283,43 +283,10 @@
                 </li>
 
                 <li class="sidebar-item">
-                    <a class="sidebar-link collapsed has-dropdown" data-bs-toggle="collapse"
-                        data-bs-target="#studyMaterial" aria-expanded="false" aria-controls="studyMaterial">
-                        <i class="bi bi-backpack fs-4"></i>
-                        <span class="fs-6">Study Material</span>
+                    <a href="{{ route('admin.books.index') }}" class="sidebar-link">
+                        <i class="bi bi-person fs-4"></i>
+                        <span class="fs-6">Books</span>
                     </a>
-
-                    <ul id="studyMaterial" class="sidebar-dropdown list-unstyled collapse" data-bs-parent="#sidebar">
-                        @foreach ($boards as $board)
-                            <li class="sidebar-item">
-                                <a class="sidebar-link collapsed has-dropdown" data-bs-toggle="collapse"
-                                    data-bs-target="#{{ $board->slug }}Dropdown" aria-expanded="false"
-                                    aria-controls="{{ $board->slug }}Dropdown">
-                                    {{ $board->name }}
-                                </a>
-                                <ul id="{{ $board->slug }}Dropdown" class="sidebar-dropdown list-unstyled collapse" data-bs-parent="#studyMaterial">
-                                    <li class="sidebar-item">
-                                        <a class="sidebar-link collapsed has-dropdown" data-bs-toggle="collapse"
-                                            data-bs-target="#{{ $board->slug }}PastPapers" aria-expanded="false"
-                                            aria-controls="{{ $board->slug }}PastPapers">
-                                            Past Papers
-                                        </a>
-                                        <ul id="{{ $board->slug }}PastPapers" class="sidebar-dropdown list-unstyled collapse" data-bs-parent="#{{ $board->slug }}Dropdown">
-                                            <li class="sidebar-item">
-                                                <a href="#" class="sidebar-link">Yearly Past Papers</a>
-                                            </li>
-                                            <li class="sidebar-item">
-                                                <a href="#" class="sidebar-link">Topical Past Papers</a>
-                                            </li>
-                                        </ul>
-                                    </li>
-                                    <li class="sidebar-item">
-                                        <a href="{{ route('admin.books.index', ['board' => $board->slug]) }}" class="sidebar-link">Books</a>
-                                    </li>
-                                </ul>
-                            </li>
-                        @endforeach
-                    </ul>
                 </li>
                 
                 <li class="sidebar-item">
