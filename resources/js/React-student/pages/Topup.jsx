@@ -59,20 +59,20 @@ const BANK_NAMES = [
 const RECEIVING_ACCOUNTS = {
   easypaisa: {
     type: "mobile",
-    accountTitle: "Learning Platform (Pvt) Ltd",
-    mobileNumber: "0300-1234567",
+    accountTitle: "Kanwar Nomani",
+    mobileNumber: "0336 3384821",
   },
   jazzcash: {
     type: "mobile",
-    accountTitle: "Learning Platform (Pvt) Ltd",
-    mobileNumber: "0300-1234567",
+    accountTitle: "Kanwar Nomani",
+    mobileNumber: "0336 3384821",
   },
   bank: {
     type: "bank",
-    accountTitle: "Learning Platform (Pvt) Ltd",
-    accountNumber: "1234-5678901234-56",
-    bankName: "Meezan Bank",
-    branchCode: "0123",
+    accountTitle: "Kanwar Nomani",
+    accountNumber: "0336 3384821",
+    bankName: "Easy Paisa",
+    branchCode: "",
   },
   kuickpay: null, // coming soon
 };

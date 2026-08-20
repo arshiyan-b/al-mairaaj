@@ -3,9 +3,22 @@
 namespace App\Services;
 
 use App\Models\LiveClass;
+use App\Models\MeetingDetail;
+
+use App\Services\Meetings\JitsiMeetingService;
+use App\Services\Meetings\ZoomMeetingService;
+use App\Services\Meetings\GoogleMeetService;
+
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 class LiveClassesService
 {
+    public function __construct(
+        private JitsiMeetingService $jitsiMeetingService,
+        private ZoomMeetingService $zoomMeetingService,
+        private GoogleMeetService $googleMeetService,
+    ) {}
     public function getLiveClassTitle($id)
     {
         return LiveClass::findOrFail($id)->title;
@@ -32,7 +45,7 @@ class LiveClassesService
     }
     public function getUpcomingLiveClassesByBatchIds($batchIds)
     {
-        return LiveClass::with('batch')
+        return LiveClass::with(['batch', 'meetingDetail'])
             ->whereIn('batch_id', $batchIds)
             ->whereDate('class_date', '>=', now()->toDateString())
             ->orderBy('class_date')
@@ -43,5 +56,39 @@ class LiveClassesService
     {
         $liveClass = LiveClass::findOrFail($id);
         return auth()->user()->student->wallet->balance >= $liveClass->price;
+    }
+    public function create(array $data)
+    {
+        return DB::transaction(function () use ($data) {
+
+            $liveClass = LiveClass::create([
+                'batch_id' => $data['batch_id'],
+                'title' => $data['title'],
+                'description' => $data['description'],
+                'meeting_provider' => $data['meeting_provider'],
+                'meeting_id' => null,
+                'class_date' => $data['class_date'],
+                'start_time' => $data['start_time'],
+                'end_time' => $data['end_time'],
+                'duration' => $data['duration'],
+                'status' => $data['status'],
+            ]);
+
+            $meetingDetail = match ($data['meeting_provider']) {
+
+                'jitsi' => $this->jitsiMeetingService->create($liveClass),
+                'zoom' => $this->zoomMeetingService->create($liveClass),
+                'google_meet' => $this->googleMeetService->create($liveClass),
+                default => null,
+            };
+
+            if ($meetingDetail) {
+                $liveClass->update([
+                    'meeting_id' => $meetingDetail->id,
+                ]);
+            }
+
+            return $liveClass;
+        });
     }
 }

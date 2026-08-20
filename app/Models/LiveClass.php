@@ -13,11 +13,12 @@ class LiveClass extends Model
     protected $table = 'live_classes';
 
     protected $fillable = [
+        'batch_id',
         'title',
         'description',
         'meeting_provider',
         'meeting_link',
-        'meeting_id',
+        'meeting_detail_id',
         'meeting_password',
         'class_date',
         'start_time',
@@ -29,7 +30,6 @@ class LiveClass extends Model
 
     protected $hidden = [
         'uuid',
-        'batch_id',
         'meeting_provider',
         'meeting_link',
         'meeting_id',
@@ -48,11 +48,19 @@ class LiveClass extends Model
     
     protected $appends = [
         'formatted_class_date',
+        'teacher',
+        'board',
+        'grade',
+        'curriculum_subject',
     ];
 
     public function batch()
     {
         return $this->belongsTo(Batch::class);
+    }
+    public function meetingDetail()
+    {
+        return $this->belongsTo(MeetingDetail::class, 'meeting_detail_id');
     }
     public function enrollments()
     {
@@ -63,10 +71,11 @@ class LiveClass extends Model
         $array = parent::toArray();
 
         if ($this->is_enrolled ?? false) {
-            $array['meeting_provider'] = $this->meeting_provider;
-            $array['meeting_link'] = $this->meeting_link;
-            $array['meeting_id'] = $this->meeting_id;
-            $array['meeting_password'] = $this->meeting_password;
+            $detail = $this->meetingDetail;
+            $array['meeting_provider'] = $detail->provider ?? null;
+            $array['meeting_link']     = $detail->link ?? null;
+            $array['meeting_id']       = $detail->meeting_id ?? null;
+            $array['meeting_password'] = $detail->password ?? null;
         }
 
         return $array;
@@ -76,5 +85,21 @@ class LiveClass extends Model
         return $this->class_date
             ? Carbon::parse($this->class_date)->format('d M Y')
             : null;
+    }
+    public function getTeacherAttribute()
+    {
+        return $this->batch->teacher;
+    }
+    public function getBoardAttribute()
+    {
+        return $this->batch->grade->board;
+    }
+    public function getGradeAttribute()
+    {
+        return $this->batch->curriculumSubject->grade;
+    }
+    public function getCurriculumSubjectAttribute()
+    {
+        return $this->batch->curriculumSubject;
     }
 }

@@ -27,6 +27,14 @@ function formatClassDate(raw) {
   if (isNaN(parsed.getTime())) return raw;
   return parsed.toLocaleDateString(undefined, { month: "short", day: "2-digit", year: "numeric" });
 }
+function formatClassTime(raw) {
+  if (!raw) return "";
+  const [hourStr, minute] = raw.split(":");
+  let hour = parseInt(hourStr, 10);
+  const ampm = hour >= 12 ? "PM" : "AM";
+  hour = hour % 12 || 12;
+  return `${hour}:${minute} ${ampm}`;
+}
 
 const LiveClasses = () => {
   const navigate = useNavigate();
@@ -131,21 +139,22 @@ const LiveClasses = () => {
                 >
                   <CardContent className="flex flex-wrap items-center justify-between gap-4 bg-gradient-to-r from-amber-50/60 to-transparent p-5">
                     <div>
+                      <p className="text-xs font-medium text-gray-400">
+                        {c.board?.name} · {c.grade?.name} · {c.curriculum_subject?.code} - {c.curriculum_subject?.name}
+                      </p>
                       <h4 className="text-sm font-semibold text-gray-800">{c.title}</h4>
                       <p className="text-xs text-gray-500">
                         {c.teacher?.name}
-                        {c.curriculum_subject?.name && <> · {c.curriculum_subject.name}</>}
-                        {c.grade?.name && <> · {c.grade.name}</>}
                       </p>
                       <div className="mt-2 flex items-center gap-3 text-xs text-gray-500">
                         <span className="flex items-center gap-1 font-mono">
-                          <Clock className="h-3.5 w-3.5" /> {c.start_time} – {c.end_time}
+                          <Clock className="h-3.5 w-3.5" /> {formatClassTime(c.start_time)} – {formatClassTime(c.end_time)}
                         </span>
                       </div>
                     </div>
                     <Button
                       size="sm"
-                      onClick={() => navigate(`/live-class/${c.id}`)}
+                      onClick={() => window.location.href = `/live-classes-batch/${c.batch_id}`}
                       className="bg-amber-500 text-white shadow-sm hover:bg-amber-600"
                     >
                       Join class

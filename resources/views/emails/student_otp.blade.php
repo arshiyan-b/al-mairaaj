@@ -69,7 +69,7 @@
                                 If you didn't request this code, you can safely ignore this email.
                             </p>
                             <p style="margin:8px 0 0; color:#a0aec0; font-size:12px;">
-                                &copy; {{ date('Y') }} {{ config('app.name') }}. All rights reserved.
+                                &copy; {{ date('Y') }} Noomani Education Hub. All rights reserved.
                             </p>
                         </td>
                     </tr>

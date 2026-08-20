@@ -309,7 +309,7 @@ const Index = () => {
                 </div>
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 border-t border-gray-200 dark:border-gray-800 pt-8">
                     <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-gray-500 dark:text-gray-400">
-                        <span>© {new Date().getFullYear()} Al Mairaaj. All rights reserved.</span>
+                        <span>© {new Date().getFullYear()} Noomani Education Hub. All rights reserved.</span>
                         <span>Crafted with care for curious minds.</span>
                     </div>
                 </div>

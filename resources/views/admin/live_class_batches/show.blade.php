@@ -140,10 +140,9 @@
                         <div class="col-md-6">
                             <label class="form-label">Meeting Provider</label>
                             <select name="meeting_provider" class="form-control" required>
-                                <option value="">Select Provider</option>
+                                <option value="" selected disabled>Select Provider</option>
                                 <option value="zoom">Zoom</option>
-                                <option value="google_meet">Google Meet</option>
-                                <option value="other">Other</option>
+                                <option value="jitsi">Jitsi</option>
                             </select>
                         </div>
                         <div class="col-md-6">

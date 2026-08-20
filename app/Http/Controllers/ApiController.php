@@ -74,8 +74,7 @@ class ApiController extends Controller
         // Upcoming live class batches — ASSUMPTION: a LiveClassBatch model exists
         // with a student pivot/relation and a starts_at column. Adjust to match
         // your actual live-classes schema.
-        $upcomingClasses = LiveClass::with(['subject'])
-            ->where('start_time', '>=', now())
+        $upcomingClasses = LiveClass::where('start_time', '>=', now())
             ->orderBy('start_time')
             ->take(4)
             ->get();
