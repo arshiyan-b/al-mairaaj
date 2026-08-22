@@ -73,7 +73,7 @@
 
                                                     <div class="mb-3">
                                                         <label>Password</label>
-                                                        <input type="password" name="password" class="form-control" required>
+                                                        <input type="text" name="password" class="form-control" required>
                                                     </div>
 
                                                 </div>

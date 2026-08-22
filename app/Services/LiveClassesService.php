@@ -84,7 +84,7 @@ class LiveClassesService
 
             if ($meetingDetail) {
                 $liveClass->update([
-                    'meeting_id' => $meetingDetail->id,
+                    'meeting_detail_id' => $meetingDetail->id,
                 ]);
             }
 

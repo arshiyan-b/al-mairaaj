@@ -2,13 +2,14 @@
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Route;
 
+use App\Http\Controllers\AdminController;
 use App\Http\Controllers\BookController;
 use App\Http\Controllers\ChatbotController;
 use App\Http\Controllers\CourseController;
+use App\Http\Controllers\JitsiController;
 use App\Http\Controllers\LiveClassBatchController;
 use App\Http\Controllers\LiveClassController;
 use App\Http\Controllers\LoginController;
-use App\Http\Controllers\AdminController;
 use App\Http\Controllers\StudentController;
 use App\Http\Controllers\TeacherController;
 use App\Http\Controllers\VideoController;
@@ -158,6 +159,5 @@ Route::middleware(['auth', 'role:student'])->group(function () {
     Route::get('/top-up', [StudentController::class, 'topup'])->name('student.topup');
     Route::get('/withdraw', [StudentController::class, 'withdraw'])->name('student.withdraw');
 
-    Route::get('/courses/caie/olevel', [StudentController::class, 'caie_olevel'])->name('student.caie_olevel');
-    Route::get('/courses/pearson/igcse', [StudentController::class, 'pearson_igcse'])->name('student.pearson_igcse');
+    Route::post('/jitsi/token', [JitsiController::class, 'token'])->name('student.jitsi.token');
 });

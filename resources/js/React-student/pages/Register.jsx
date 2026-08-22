@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import { useState } from "react";
+import { Eye, EyeOff } from "lucide-react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import logo from "../assets/logo_text.png";
@@ -45,6 +46,9 @@ export default function Register() {
   const [errorMsg, setErrorMsg] = useState("");
   const [successMsg, setSuccessMsg] = useState("");
   const [loading, setLoading] = useState(false);
+
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -234,18 +238,30 @@ export default function Register() {
             <label className="block text-gray-700 text-sm font-medium mb-1">
               Password <span className="text-red-500">*</span>
             </label>
+
             {errors.password && (
               <p className="text-red-500 text-xs mb-1">{errors.password}</p>
             )}
-            <input
-              name="password"
-              type="password"
-              placeholder="Enter your password"
-              required
-              value={formData.password}
-              onChange={handleChange}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:outline-none transition-shadow"
-            />
+
+            <div className="relative">
+              <input
+                name="password"
+                type={showPassword ? "text" : "password"}
+                placeholder="Enter your password"
+                required
+                value={formData.password}
+                onChange={handleChange}
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 pr-11 focus:ring-2 focus:ring-indigo-500 focus:outline-none transition-shadow"
+              />
+
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-indigo-500"
+              >
+                {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+              </button>
+            </div>
           </motion.div>
 
           {/* Confirm Password */}
@@ -253,16 +269,27 @@ export default function Register() {
             <label className="block text-gray-700 text-sm font-medium mb-1">
               Confirm Password <span className="text-red-500">*</span>
             </label>
-            <input
-              name="password_confirmation"
-              type="password"
-              placeholder="Confirm your password"
-              required
-              value={formData.password_confirmation}
-              onChange={handleChange}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:outline-none transition-shadow"
-            />
-          </motion.div>
+
+            <div className="relative">
+              <input
+                name="password_confirmation"
+                type={showConfirmPassword ? "text" : "password"}
+                placeholder="Confirm your password"
+                required
+                value={formData.password_confirmation}
+                onChange={handleChange}
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 pr-11 focus:ring-2 focus:ring-indigo-500 focus:outline-none transition-shadow"
+              />
+
+              <button
+                type="button"
+                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-indigo-500"
+              >
+                {showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+              </button>
+            </div>
+          </motion.div>          
 
           {/* Submit Button */}
           <motion.div variants={fieldVariants} className="md:col-span-2">

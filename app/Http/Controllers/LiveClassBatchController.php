@@ -2,25 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\AllowedClass;
 use App\Models\Batch;
 use App\Models\CurriculumSubject;
-use App\Models\Role;
-use App\Models\User;
 use App\Models\Teacher;
-use App\Models\TeacherDoc;
-use App\Models\Student;
 use App\Models\Board;
 use App\Models\Grade;
-use App\Models\Subject;
-use App\Models\Book;
-use App\Models\PearsonCourse;
-use App\Models\PearsonIgcseVideo;
-use App\Models\CaieCourse;
-use App\Models\CaieOlevelVideo;
 
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 
 
 class LiveClassBatchController extends Controller

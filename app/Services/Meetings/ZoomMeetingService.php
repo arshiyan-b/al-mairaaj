@@ -2,10 +2,16 @@
 
 namespace App\Services\Meetings;
 
+use App\Models\LiveClass;
+
 class ZoomMeetingService
 {
-    public function create()
+    public function create(LiveClass $liveClass)
     {
-        // Zoom meeting creation will go here
+        return (object) [
+            'meeting_id' => $liveClass->meeting_id,
+            'meeting_link' => $liveClass->meeting_link,
+            'meeting_password' => $liveClass->meeting_password,
+        ];
     }
 }

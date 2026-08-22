@@ -13,7 +13,6 @@ import {
   CalendarDays,
   Clock,
   BookOpen,
-  CheckCircle2,
   GraduationCap,
   Video,
   X,
@@ -74,6 +73,34 @@ const LiveClassesBatch = () => {
     form.submit();
   };
 
+  const handleJoin = async (liveClassId) => {
+    try {
+      const response = await fetch("/jitsi/token", {
+        method: "POST",
+        headers: {
+          "Accept": "application/json",
+          "Content-Type": "application/json",
+          "X-CSRF-TOKEN": csrfToken,
+        },
+        body: JSON.stringify({
+          live_class_id: liveClassId,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || "Unable to join the class.");
+      }
+
+      const meetingUrl = `https://${data.domain}/${data.room}?jwt=${encodeURIComponent(data.token)}`;
+
+      window.open(meetingUrl, "_blank", "noopener,noreferrer");
+    } catch (error) {
+      console.error("Jitsi join error:", error);
+      alert(error.message || "Unable to join the class.");
+    }
+  };
   if (loading) return <BatchSkeleton />;
 
   if (error || !batch) {
@@ -247,11 +274,9 @@ const LiveClassesBatch = () => {
                         {c.is_enrolled ? (
                           withinCutoff ? (
                             // Enrolled + within 30 min of start (or already started) -> active Join link
-                            <a href={c.meeting_link} target="_blank" rel="noreferrer">
-                              <Button size="sm">
-                                <Video className="mr-2 h-3.5 w-3.5" /> Join
-                              </Button>
-                            </a>
+                            <Button size="sm" onClick={() => handleJoin(c.id)}>
+                              <Video className="mr-2 h-3.5 w-3.5" /> Join
+                            </Button>
                           ) : (
                             // Enrolled but more than 30 min out -> disabled-looking Join that opens an info modal
                             <Button size="sm" variant="outline" onClick={() => setEarlyJoinClass(c)}>

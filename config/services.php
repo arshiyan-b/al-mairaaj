@@ -40,6 +40,12 @@ return [
         'client_secret' => env('GOOGLE_CLIENT_SECRET'),
         'refresh_token' => env('GOOGLE_REFRESH_TOKEN'),
         'folder_id' => env('GOOGLE_DRIVE_FOLDER_ID'),
-    ]
+    ],
+
+    'jitsi' => [
+        'domain' => env('JITSI_DOMAIN'),
+        'app_id' => env('JITSI_APP_ID'),
+        'app_secret' => env('JITSI_APP_SECRET'),
+    ],
 
 ];

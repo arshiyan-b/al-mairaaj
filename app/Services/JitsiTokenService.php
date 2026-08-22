@@ -15,9 +15,9 @@ class JitsiTokenService
         $now = time();
 
         $payload = [
-            'iss' => env('JITSI_APP_ID'),
+            'iss' => config('services.jitsi.app_id'),
             'aud' => 'jitsi',
-            'sub' => env('JITSI_DOMAIN'),
+            'sub' => config('services.jitsi.domain'),
             'room' => $room,
             'iat' => $now,
             'exp' => $now + 3600,
@@ -37,7 +37,7 @@ class JitsiTokenService
 
         return JWT::encode(
             $payload,
-            env('JITSI_APP_SECRET'),
+            config('services.jitsi.app_secret'),
             'HS256'
         );
     }
