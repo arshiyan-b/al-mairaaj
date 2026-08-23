@@ -19,6 +19,6 @@ class MeetingDetail extends Model
 
     public function liveClass()
     {
-        return $this->hasOne(LiveClass::class, 'meeting_detail_id');
+        return $this->belongsTo(LiveClass::class, 'live_class_id');
     }
 }

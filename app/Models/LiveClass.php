@@ -2,9 +2,9 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 
 class LiveClass extends Model
 {
@@ -45,7 +45,7 @@ class LiveClass extends Model
         'price' => 'decimal:2',
         'is_enrolled' => 'boolean',
     ];
-    
+
     protected $appends = [
         'formatted_class_date',
         'teacher',
@@ -72,9 +72,10 @@ class LiveClass extends Model
 
         if ($this->is_enrolled ?? false) {
             $detail = $this->meetingDetail;
-            $array['meeting_provider'] = $detail->provider ?? null;
-            $array['meeting_link']     = $detail->link ?? null;
-            $array['meeting_id']       = $detail->meeting_id ?? null;
+
+            $array['meeting_provider'] = $this->meeting_provider;
+            $array['meeting_link'] = $detail->link ?? null;
+            $array['meeting_id'] = $detail->meeting_id ?? null;
             $array['meeting_password'] = $detail->password ?? null;
         }
 

@@ -26,6 +26,7 @@ class LiveClassesService
     public function getAuthenticatedStudentLiveClassesByBatchId($batchId)
     {
         return LiveClass::where('batch_id', $batchId)
+            ->with('meetingDetail')
             ->withExists([
                 'enrollments as is_enrolled' => function ($query) {
                     $query->where('student_id', auth()->user()->student->id)
@@ -66,7 +67,6 @@ class LiveClassesService
                 'title' => $data['title'],
                 'description' => $data['description'],
                 'meeting_provider' => $data['meeting_provider'],
-                'meeting_id' => null,
                 'class_date' => $data['class_date'],
                 'start_time' => $data['start_time'],
                 'end_time' => $data['end_time'],
