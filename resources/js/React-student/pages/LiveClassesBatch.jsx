@@ -21,6 +21,15 @@ import {
 
 const ENROLL_CUTOFF_MINUTES = 30;
 
+function formatClassTime(raw) {
+  if (!raw) return "";
+  const [hourStr, minute] = raw.split(":");
+  let hour = parseInt(hourStr, 10);
+  const ampm = hour >= 12 ? "PM" : "AM";
+  hour = hour % 12 || 12;
+  return `${hour}:${minute} ${ampm}`;
+}
+
 const LiveClassesBatch = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -30,7 +39,7 @@ const LiveClassesBatch = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [enrollingId, setEnrollingId] = useState(null);
-  const [earlyJoinClass, setEarlyJoinClass] = useState(null); // holds the class object when user clicks Join too early
+  const [modalClass, setModalClass] = useState(null); // holds { ...class, reason: "early" | "ended" }
 
   useEffect(() => {
     setLoading(true);
@@ -51,6 +60,11 @@ const LiveClassesBatch = () => {
   const getMinutesUntilStart = (classDate, startTime) => {
     const target = new Date(`${classDate}T${startTime}`);
     return (target.getTime() - Date.now()) / 60000;
+  };
+
+  const isClassEnded = (classDate, endTime) => {
+    const end = new Date(`${classDate}T${endTime}`);
+    return Date.now() > end.getTime();
   };
 
   const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content || "";
@@ -74,11 +88,15 @@ const LiveClassesBatch = () => {
   };
 
   const handleJoin = async (liveClassId) => {
+    if (joiningId) return;
+
+    setJoiningId(liveClassId);
+
     try {
-      const response = await fetch("/jitsi/token", {
+      const response = await fetch("/meeting/join", {
         method: "POST",
         headers: {
-          "Accept": "application/json",
+          Accept: "application/json",
           "Content-Type": "application/json",
           "X-CSRF-TOKEN": csrfToken,
         },
@@ -90,17 +108,27 @@ const LiveClassesBatch = () => {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.message || "Unable to join the class.");
+        throw new Error(
+          data.message || "Unable to join the meeting."
+        );
       }
 
-      const meetingUrl = `https://${data.domain}/${data.room}?jwt=${encodeURIComponent(data.token)}`;
-
-      window.open(meetingUrl, "_blank", "noopener,noreferrer");
+      window.open(
+        data.meeting_url,
+        "_blank",
+        "noopener,noreferrer"
+      );
     } catch (error) {
-      console.error("Jitsi join error:", error);
-      alert(error.message || "Unable to join the class.");
+      console.error("Meeting join error:", error);
+
+      alert(
+        error.message || "Unable to join the meeting."
+      );
+    } finally {
+      setJoiningId(null);
     }
   };
+
   if (loading) return <BatchSkeleton />;
 
   if (error || !batch) {
@@ -230,6 +258,7 @@ const LiveClassesBatch = () => {
                 const isLive = c.status?.toLowerCase() === "live";
                 const minutesUntilStart = getMinutesUntilStart(c.class_date, c.start_time);
                 const withinCutoff = minutesUntilStart <= ENROLL_CUTOFF_MINUTES;
+                const ended = isClassEnded(c.class_date, c.end_time);
                 const isEnrolling = enrollingId === c.id;
                 const showEnrollButton = !c.is_enrolled && !withinCutoff;
 
@@ -247,7 +276,7 @@ const LiveClassesBatch = () => {
 
                           <span className="flex items-center gap-1 font-mono">
                             <Clock className="h-3.5 w-3.5" />
-                            {c.start_time} – {c.end_time}
+                            {formatClassTime(c.start_time)} – {formatClassTime(c.end_time)}
                           </span>
                         </div>
 
@@ -272,14 +301,27 @@ const LiveClassesBatch = () => {
                         </Badge>
 
                         {c.is_enrolled ? (
-                          withinCutoff ? (
+                          ended ? (
+                            // Enrolled but class has already ended
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => setModalClass({ ...c, reason: "ended" })}
+                            >
+                              <Video className="mr-2 h-3.5 w-3.5" /> Join
+                            </Button>
+                          ) : withinCutoff ? (
                             // Enrolled + within 30 min of start (or already started) -> active Join link
                             <Button size="sm" onClick={() => handleJoin(c.id)}>
                               <Video className="mr-2 h-3.5 w-3.5" /> Join
                             </Button>
                           ) : (
                             // Enrolled but more than 30 min out -> disabled-looking Join that opens an info modal
-                            <Button size="sm" variant="outline" onClick={() => setEarlyJoinClass(c)}>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => setModalClass({ ...c, reason: "early" })}
+                            >
                               <Video className="mr-2 h-3.5 w-3.5" /> Join
                             </Button>
                           )
@@ -314,15 +356,15 @@ const LiveClassesBatch = () => {
         </motion.div>
       </div>
 
-      {/* Small modal shown when an enrolled student clicks Join too early */}
+      {/* Small modal shown when an enrolled student clicks Join too early or after the class has ended */}
       <AnimatePresence>
-        {earlyJoinClass && (
+        {modalClass && (
           <motion.div
             className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            onClick={() => setEarlyJoinClass(null)}
+            onClick={() => setModalClass(null)}
           >
             <motion.div
               className="w-full max-w-sm rounded-xl bg-white p-6 shadow-lg dark:bg-[#171a2e]"
@@ -332,19 +374,31 @@ const LiveClassesBatch = () => {
               onClick={(e) => e.stopPropagation()}
             >
               <div className="flex items-start justify-between">
-                <h3 className="text-sm font-semibold text-gray-800">Meeting Link not available yet</h3>
+                <h3 className="text-sm font-semibold text-gray-800">
+                  {modalClass.reason === "ended" ? "This class has ended" : "Meeting Link not available yet"}
+                </h3>
                 <button
-                  onClick={() => setEarlyJoinClass(null)}
+                  onClick={() => setModalClass(null)}
                   className="text-gray-400 hover:text-gray-600"
                 >
                   <X className="h-4 w-4" />
                 </button>
               </div>
               <p className="mt-2 text-sm text-gray-500">
-                The Join button activates {ENROLL_CUTOFF_MINUTES} minutes before the class starts,
-                at {earlyJoinClass.start_time} on {earlyJoinClass.formatted_class_date ?? earlyJoinClass.class_date}.
+                {modalClass.reason === "ended" ? (
+                  <>
+                    This session took place on {modalClass.formatted_class_date ?? modalClass.class_date} and is
+                    no longer available to join.
+                  </>
+                ) : (
+                  <>
+                    The Join button activates {ENROLL_CUTOFF_MINUTES} minutes before the class starts,
+                    at {formatClassTime(modalClass.start_time)} on{" "}
+                    {modalClass.formatted_class_date ?? modalClass.class_date}.
+                  </>
+                )}
               </p>
-              <Button size="sm" className="mt-4 w-full" onClick={() => setEarlyJoinClass(null)}>
+              <Button size="sm" className="mt-4 w-full" onClick={() => setModalClass(null)}>
                 Got it
               </Button>
             </motion.div>

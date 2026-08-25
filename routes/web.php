@@ -159,5 +159,10 @@ Route::middleware(['auth', 'role:student'])->group(function () {
     Route::get('/top-up', [StudentController::class, 'topup'])->name('student.topup');
     Route::get('/withdraw', [StudentController::class, 'withdraw'])->name('student.withdraw');
 
+    Route::post('/meeting/join', [StudentController::class, 'join'])->name('student.meeting.join');
+
     Route::post('/jitsi/token', [JitsiController::class, 'token'])->name('student.jitsi.token');
+    Route::post('/jitsi/session/claim', [JitsiController::class, 'claimSession'])->name('student.jitsi.session.claim');
+    Route::post('/jitsi/session/heartbeat', [JitsiController::class, 'heartbeat'])->name('student.jitsi.session.heartbeat');
+    Route::post('/jitsi/session/end', [JitsiController::class, 'endSession'])->name('student.jitsi.session.end');
 });

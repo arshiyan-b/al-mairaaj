@@ -5,18 +5,20 @@ use Illuminate\Http\Request;
 
 use App\Services\BatchService;
 use App\Services\BatchEnrollmentService;
+use App\Services\JitsiTokenService;
 use App\Services\LiveClassesService;
 use App\Services\LiveClassEnrollmentService;
-
-use App\Models\Student;
-
 use App\Services\WalletService;
 use App\Services\WalletTransactionService;
+
+use App\Models\Student;
+use App\Models\LiveClass;
 
 class StudentController extends Controller
 {
     protected $batchService;
     protected $batchEnrollmentService;
+    protected $jitsiTokenService;
     protected $liveClassesService;
     protected $liveClassEnrollmentService;
     protected $walletService;
@@ -25,6 +27,7 @@ class StudentController extends Controller
     public function __construct(
         BatchService $batchService,
         BatchEnrollmentService $batchEnrollmentService,
+        JitsiTokenService $jitsiTokenService,
         LiveClassesService $liveClassesService,
         LiveClassEnrollmentService $liveClassEnrollmentService,
         WalletService $walletService,
@@ -32,6 +35,7 @@ class StudentController extends Controller
     ) {
         $this->batchService = $batchService;
         $this->batchEnrollmentService = $batchEnrollmentService;
+        $this->jitsiTokenService = $jitsiTokenService;
         $this->liveClassesService = $liveClassesService;
         $this->liveClassEnrollmentService = $liveClassEnrollmentService;
         $this->walletService = $walletService;
@@ -176,5 +180,83 @@ class StudentController extends Controller
     public function redeem_voucher()
     {
         
+    }
+    public function join(
+        Request $request,
+        JitsiTokenService $jitsiTokenService
+    ) {
+        $request->validate([
+            'live_class_id' => [
+                'required',
+                'integer',
+                'exists:live_classes,id',
+            ],
+        ]);
+
+        $user = $request->user();
+
+        if (!$user || !$user->student) {
+            return response()->json([
+                'message' => 'Unauthenticated.',
+            ], 401);
+        }
+
+        $liveClass = LiveClass::with('meetingDetail')
+            ->findOrFail($request->live_class_id);
+
+        /*
+         * Check enrollment
+         */
+        $isEnrolled = $liveClass->enrollments()
+            ->where('student_id', $user->student->id)
+            ->where('status', 'enrolled')
+            ->exists();
+
+        if (!$isEnrolled) {
+            return response()->json([
+                'message' => 'You are not enrolled in this live class.',
+            ], 403);
+        }
+
+        /*
+         * Check meeting details
+         */
+        if (!$liveClass->meetingDetail) {
+            return response()->json([
+                'message' => 'Meeting is not available for this class.',
+            ], 404);
+        }
+
+        /*
+         * JITSI
+         */
+        if ($liveClass->meeting_provider === 'jitsi') {
+            $tokenData = $jitsiTokenService->generate(
+                liveClass: $liveClass,
+                studentId: $user->student->id,
+                userName: $user->name,
+                userEmail: $user->email,
+                isModerator: false
+            );
+
+            return response()->json([
+                'provider' => 'jitsi',
+                'meeting_url' => $tokenData['meeting_url'],
+            ]);
+        }
+
+        /*
+         * ZOOM
+         */
+        if ($liveClass->meeting_provider === 'zoom') {
+            return response()->json([
+                'provider' => 'zoom',
+                'meeting_url' => $liveClass->meetingDetail->meeting_url,
+            ]);
+        }
+
+        return response()->json([
+            'message' => 'Unsupported meeting provider.',
+        ], 400);
     }
 }

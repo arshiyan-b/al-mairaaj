@@ -14,10 +14,15 @@ import {
   ArrowRight,
   Compass,
   GraduationCap,
+  Video,
+  Loader2,
+  X,
 } from "lucide-react";
 
 const fadeUp = { hidden: { opacity: 0, y: 16 }, show: { opacity: 1, y: 0 } };
 const stagger = { hidden: {}, show: { transition: { staggerChildren: 0.06 } } };
+
+const ENROLL_CUTOFF_MINUTES = 30;
 
 // class_date can come back as an ISO timestamp or an already-formatted date
 // string depending on the cast — normalize for display.
@@ -44,6 +49,8 @@ const LiveClasses = () => {
   const [upcoming, setUpcoming] = useState([]);
   const [stats, setStats] = useState(null);
   const [error, setError] = useState(null);
+  const [joiningId, setJoiningId] = useState(null);
+  const [modalClass, setModalClass] = useState(null);
 
   useEffect(() => {
     fetch("/api/student/live-classes-data", { headers: { Accept: "application/json" } })
@@ -60,6 +67,60 @@ const LiveClasses = () => {
       .catch((err) => setError(err.message));
   }, []);
 
+  const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content || "";
+
+  const getMinutesUntilStart = (classDate, startTime) => {
+    const target = new Date(`${classDate}T${startTime}`);
+    return (target.getTime() - Date.now()) / 60000;
+  };
+
+  const isClassEnded = (classDate, endTime) => {
+    const end = new Date(`${classDate}T${endTime}`);
+    return Date.now() > end.getTime();
+  };
+
+  const handleJoin = async (liveClassId) => {
+    if (joiningId) return;
+
+    setJoiningId(liveClassId);
+
+    try {
+      const response = await fetch("/meeting/join", {
+        method: "POST",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+          "X-CSRF-TOKEN": csrfToken,
+        },
+        body: JSON.stringify({
+          live_class_id: liveClassId,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(
+          data.message || "Unable to join the meeting."
+        );
+      }
+
+      window.open(
+        data.meeting_url,
+        "_blank",
+        "noopener,noreferrer"
+      );
+    } catch (error) {
+      console.error("Meeting join error:", error);
+
+      alert(
+        error.message || "Unable to join the meeting."
+      );
+    } finally {
+      setJoiningId(null);
+    }
+  };
+
   if (error) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-[#F7F6F2] dark:bg-[#0F1120]">
@@ -69,6 +130,10 @@ const LiveClasses = () => {
   }
 
   if (!enrollments) return <LiveClassesSkeleton />;
+
+  // A class only belongs in "Live Now" from its own class_date up until its
+  // end_time — once it ends it drops off this list entirely.
+  const liveNow = liveToday.filter((c) => !isClassEnded(c.class_date, c.end_time));
 
   return (
     <div className="min-h-screen bg-[#F7F6F2] px-4 py-6 dark:bg-[#0F1120] md:px-8 md:py-10">
@@ -111,13 +176,13 @@ const LiveClasses = () => {
             transition={{ duration: 0.4, delay: 0.05 }}
           >
             <StatCard icon={BookOpen} label="Enrolled classes" value={stats.enrolled_classes} />
-            <StatCard icon={Radio} label="Live today" value={stats.live_today_count} accent pulse={stats.live_today_count > 0} />
+            <StatCard icon={Radio} label="Live now" value={liveNow.length} accent pulse={liveNow.length > 0} />
             <StatCard icon={CalendarDays} label="Upcoming" value={stats.upcoming_count} />
           </motion.div>
         )}
 
-        {/* Live today */}
-        {liveToday.length > 0 && (
+        {/* Live now */}
+        {liveNow.length > 0 && (
           <motion.div
             className="mb-10"
             initial={{ opacity: 0, y: 16 }}
@@ -129,39 +194,63 @@ const LiveClasses = () => {
                 <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-amber-400 opacity-75" />
                 <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-amber-500" />
               </span>
-              Live Today
+              Live Now
             </h2>
             <div className="space-y-3">
-              {liveToday.map((c) => (
-                <Card
-                  key={c.id}
-                  className="overflow-hidden rounded-xl border-l-4 border-amber-500 shadow-sm transition hover:shadow-md"
-                >
-                  <CardContent className="flex flex-wrap items-center justify-between gap-4 bg-gradient-to-r from-amber-50/60 to-transparent p-5">
-                    <div>
-                      <p className="text-xs font-medium text-gray-400">
-                        {c.board?.name} · {c.grade?.name} · {c.curriculum_subject?.code} - {c.curriculum_subject?.name}
-                      </p>
-                      <h4 className="text-sm font-semibold text-gray-800">{c.title}</h4>
-                      <p className="text-xs text-gray-500">
-                        {c.teacher?.name}
-                      </p>
-                      <div className="mt-2 flex items-center gap-3 text-xs text-gray-500">
-                        <span className="flex items-center gap-1 font-mono">
-                          <Clock className="h-3.5 w-3.5" /> {formatClassTime(c.start_time)} – {formatClassTime(c.end_time)}
-                        </span>
+              {liveNow.map((c) => {
+                const isJoining = joiningId === c.id;
+                const withinCutoff = getMinutesUntilStart(c.class_date, c.start_time) <= ENROLL_CUTOFF_MINUTES;
+
+                return (
+                  <Card
+                    key={c.id}
+                    className="overflow-hidden rounded-xl border-l-4 border-amber-500 shadow-sm transition hover:shadow-md"
+                  >
+                    <CardContent className="flex flex-wrap items-center justify-between gap-4 bg-gradient-to-r from-amber-50/60 to-transparent p-5">
+                      <div>
+                        <p className="text-xs font-medium text-gray-400">
+                          {c.board?.name} · {c.grade?.name} · {c.curriculum_subject?.code} - {c.curriculum_subject?.name}
+                        </p>
+                        <h4 className="text-sm font-semibold text-gray-800">{c.title}</h4>
+                        <p className="text-xs text-gray-500">
+                          {c.teacher?.name}
+                        </p>
+                        <div className="mt-2 flex items-center gap-3 text-xs text-gray-500">
+                          <span className="flex items-center gap-1 font-mono">
+                            <Clock className="h-3.5 w-3.5" /> {formatClassTime(c.start_time)} – {formatClassTime(c.end_time)}
+                          </span>
+                        </div>
                       </div>
-                    </div>
-                    <Button
-                      size="sm"
-                      onClick={() => window.location.href = `/live-classes-batch/${c.batch_id}`}
-                      className="bg-amber-500 text-white shadow-sm hover:bg-amber-600"
-                    >
-                      Join class
-                    </Button>
-                  </CardContent>
-                </Card>
-              ))}
+                      {withinCutoff ? (
+                        <Button
+                          size="sm"
+                          disabled={isJoining}
+                          onClick={() => handleJoin(c.id)}
+                          className="bg-amber-500 text-white shadow-sm hover:bg-amber-600"
+                        >
+                          {isJoining ? (
+                            <>
+                              <Loader2 className="mr-2 h-3.5 w-3.5 animate-spin" /> Joining...
+                            </>
+                          ) : (
+                            <>
+                              <Video className="mr-2 h-3.5 w-3.5" /> Join class
+                            </>
+                          )}
+                        </Button>
+                      ) : (
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => setModalClass(c)}
+                        >
+                          <Video className="mr-2 h-3.5 w-3.5" /> Join class
+                        </Button>
+                      )}
+                    </CardContent>
+                  </Card>
+                );
+              })}
             </div>
           </motion.div>
         )}
@@ -236,7 +325,9 @@ const LiveClasses = () => {
 
                           <div className="mt-3 flex items-center gap-1 text-xs text-gray-500">
                             <Clock className="h-3.5 w-3.5" />
-                            <span>{liveClass.start_time} – {liveClass.end_time}</span>
+                            <span>
+                              {formatClassTime(liveClass.start_time)} – {formatClassTime(liveClass.end_time)}
+                            </span>
                           </div>
 
                           <Button
@@ -306,6 +397,44 @@ const LiveClasses = () => {
           )}
         </motion.div>
       </div>
+
+      {/* Modal shown when clicking Join on a Live Now class more than 30 min before its start */}
+      <AnimatePresence>
+        {modalClass && (
+          <motion.div
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setModalClass(null)}
+          >
+            <motion.div
+              className="w-full max-w-sm rounded-xl bg-white p-6 shadow-lg dark:bg-[#171a2e]"
+              initial={{ opacity: 0, scale: 0.95, y: 8 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 8 }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="flex items-start justify-between">
+                <h3 className="text-sm font-semibold text-gray-800">Meeting Link not available yet</h3>
+                <button
+                  onClick={() => setModalClass(null)}
+                  className="text-gray-400 hover:text-gray-600"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
+              <p className="mt-2 text-sm text-gray-500">
+                The Join button activates {ENROLL_CUTOFF_MINUTES} minutes before the class starts,
+                at {formatClassTime(modalClass.start_time)} on {formatClassDate(modalClass.class_date)}.
+              </p>
+              <Button size="sm" className="mt-4 w-full" onClick={() => setModalClass(null)}>
+                Got it
+              </Button>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };

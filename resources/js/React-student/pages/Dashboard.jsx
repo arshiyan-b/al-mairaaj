@@ -6,8 +6,9 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   ArrowRight,
   Wallet,
@@ -15,14 +16,41 @@ import {
   Video,
   Sparkles,
   Calendar as CalendarIcon,
+  Loader2,
+  X,
 } from "lucide-react";
 
 const fadeUp = { hidden: { opacity: 0, y: 16 }, show: { opacity: 1, y: 0 } };
 const stagger = { hidden: {}, show: { transition: { staggerChildren: 0.08 } } };
 
+const ENROLL_CUTOFF_MINUTES = 30;
+
+// Sessions from this endpoint may come back either as class_date + start_time +
+// end_time (like the live-classes pages) or as starts_at/ends_at timestamps.
+// These helpers normalize both shapes.
+function getSessionStart(session) {
+  if (session.class_date && session.start_time) {
+    return new Date(`${session.class_date}T${session.start_time}`);
+  }
+  return session.starts_at ? new Date(session.starts_at) : null;
+}
+function getSessionEnd(session) {
+  if (session.class_date && session.end_time) {
+    return new Date(`${session.class_date}T${session.end_time}`);
+  }
+  return session.ends_at ? new Date(session.ends_at) : null;
+}
+function formatSessionTime(session) {
+  const start = getSessionStart(session);
+  if (!start) return "Schedule TBA";
+  return start.toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" });
+}
+
 const Dashboard = ({ user }) => {
   const [data, setData] = useState(null);
   const [error, setError] = useState(null);
+  const [joiningId, setJoiningId] = useState(null);
+  const [modalClass, setModalClass] = useState(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -44,6 +72,41 @@ const Dashboard = ({ user }) => {
     };
   }, []);
 
+  const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content || "";
+
+  const handleJoin = async (liveClassId) => {
+    if (joiningId) return; // guard against double clicks
+    setJoiningId(liveClassId);
+    try {
+      const response = await fetch("/jitsi/token", {
+        method: "POST",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+          "X-CSRF-TOKEN": csrfToken,
+        },
+        body: JSON.stringify({
+          live_class_id: liveClassId,
+        }),
+      });
+
+      const responseData = await response.json();
+
+      if (!response.ok) {
+        throw new Error(responseData.message || "Unable to join the class.");
+      }
+
+      const meetingUrl = `https://${responseData.domain}/${responseData.room}?jwt=${encodeURIComponent(responseData.token)}`;
+
+      window.open(meetingUrl, "_blank", "noopener,noreferrer");
+    } catch (err) {
+      console.error("Jitsi join error:", err);
+      alert(err.message || "Unable to join the class.");
+    } finally {
+      setJoiningId(null);
+    }
+  };
+
   if (error) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-gray-50 dark:bg-gray-900">
@@ -59,7 +122,12 @@ const Dashboard = ({ user }) => {
   const walletBalance = data.wallet?.balance ?? 0;
   const walletCurrency = data.wallet?.currency || "PKR";
   const recentBooks = data.recent_books || [];
-  const upcomingClasses = data.upcoming_classes || [];
+
+  // Drop any session whose end time has already passed.
+  const upcomingClasses = (data.upcoming_classes || []).filter((session) => {
+    const end = getSessionEnd(session);
+    return !end || Date.now() <= end.getTime();
+  });
 
   return (
     <div className="flex-1 p-6 bg-gray-50 dark:bg-gray-900 min-h-screen relative z-0">
@@ -171,32 +239,59 @@ const Dashboard = ({ user }) => {
                   />
                 ) : (
                   <div className="space-y-4">
-                    {upcomingClasses.map((session) => (
-                      <div
-                        key={session.id}
-                        className="flex items-center justify-between group cursor-pointer"
-                      >
-                        <div className="flex items-center space-x-3">
-                          <div className="w-8 h-8 rounded-full flex items-center justify-center bg-teal-100 text-teal-600">
-                            <Video className="h-4 w-4" />
+                    {upcomingClasses.map((session) => {
+                      const start = getSessionStart(session);
+                      const minutesUntilStart = start ? (start.getTime() - Date.now()) / 60000 : Infinity;
+                      const withinCutoff = minutesUntilStart <= ENROLL_CUTOFF_MINUTES;
+                      const isJoining = joiningId === session.id;
+
+                      return (
+                        <div
+                          key={session.id}
+                          className="flex items-center justify-between group"
+                        >
+                          <div className="flex items-center space-x-3 min-w-0">
+                            <div className="w-8 h-8 rounded-full flex items-center justify-center bg-teal-100 text-teal-600 flex-shrink-0">
+                              <Video className="h-4 w-4" />
+                            </div>
+                            <div className="min-w-0">
+                              <p className="font-medium truncate">
+                                {session.subject?.name || session.title || "Live Session"}
+                              </p>
+                              <p className="text-xs text-gray-500">
+                                {formatSessionTime(session)}
+                              </p>
+                            </div>
                           </div>
-                          <div>
-                            <p className="font-medium">
-                              {session.subject?.name || session.title || "Live Session"}
-                            </p>
-                            <p className="text-xs text-gray-500">
-                              {session.starts_at
-                                ? new Date(session.starts_at).toLocaleString(undefined, {
-                                    dateStyle: "medium",
-                                    timeStyle: "short",
-                                  })
-                                : "Schedule TBA"}
-                            </p>
-                          </div>
+
+                          {withinCutoff ? (
+                            <Button
+                              size="sm"
+                              disabled={isJoining}
+                              onClick={() => handleJoin(session.id)}
+                              className="bg-teal-600 text-white hover:bg-teal-700 flex-shrink-0"
+                            >
+                              {isJoining ? (
+                                <>
+                                  <Loader2 className="mr-2 h-3.5 w-3.5 animate-spin" /> Joining...
+                                </>
+                              ) : (
+                                <>
+                                  <Video className="mr-2 h-3.5 w-3.5" /> Join
+                                </>
+                              )}
+                            </Button>
+                          ) : (
+                            <button
+                              onClick={() => setModalClass(session)}
+                              className="flex items-center gap-1 text-gray-400 group-hover:text-teal-500 transition-colors flex-shrink-0"
+                            >
+                              <ArrowRight className="h-4 w-4" />
+                            </button>
+                          )}
                         </div>
-                        <ArrowRight className="h-4 w-4 text-gray-400 group-hover:text-teal-500 transition-colors" />
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 )}
               </CardContent>
@@ -248,6 +343,46 @@ const Dashboard = ({ user }) => {
           </Card>
         </div>
       </div>
+
+      {/* Modal shown when clicking a session more than 30 min before its start */}
+      <AnimatePresence>
+        {modalClass && (
+          <motion.div
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setModalClass(null)}
+          >
+            <motion.div
+              className="w-full max-w-sm rounded-xl bg-white p-6 shadow-lg dark:bg-gray-800"
+              initial={{ opacity: 0, scale: 0.95, y: 8 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 8 }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="flex items-start justify-between">
+                <h3 className="text-sm font-semibold text-gray-800 dark:text-gray-100">
+                  Meeting Link not available yet
+                </h3>
+                <button
+                  onClick={() => setModalClass(null)}
+                  className="text-gray-400 hover:text-gray-600"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
+              <p className="mt-2 text-sm text-gray-500">
+                The Join button activates {ENROLL_CUTOFF_MINUTES} minutes before the class starts, at{" "}
+                {formatSessionTime(modalClass)}.
+              </p>
+              <Button size="sm" className="mt-4 w-full" onClick={() => setModalClass(null)}>
+                Got it
+              </Button>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };

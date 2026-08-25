@@ -56,7 +56,7 @@ class LiveClass extends Model
 
     public function batch()
     {
-        return $this->belongsTo(Batch::class);
+        return $this->belongsTo(Batch::class, 'batch_id');
     }
     public function meetingDetail()
     {
@@ -89,18 +89,18 @@ class LiveClass extends Model
     }
     public function getTeacherAttribute()
     {
-        return $this->batch->teacher;
+        return $this->batch?->teacher;
     }
     public function getBoardAttribute()
     {
-        return $this->batch->grade->board;
+        return $this->batch?->grade?->board;
     }
     public function getGradeAttribute()
     {
-        return $this->batch->curriculumSubject->grade;
+        return $this->batch?->curriculumSubject?->grade;
     }
     public function getCurriculumSubjectAttribute()
     {
-        return $this->batch->curriculumSubject;
+        return $this->batch?->curriculumSubject;
     }
 }
