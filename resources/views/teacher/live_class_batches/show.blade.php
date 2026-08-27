@@ -1,7 +1,7 @@
 @extends('teacher.layout.app')
 
 @section('title')
-    {{ $grade->name }} - {{ $board->name }}
+    {{ $batch->title }}
 @endsection
 @include('scripts.disable_submit_button')
 @section('content')
@@ -9,97 +9,95 @@
     <div class="container">
         @include('teacher.layout.alerts')
 
-        <div class="d-flex justify-content-between align-items-center mb-4">
-
-            <div>
-                <h4 class="mb-1">
-                    {{ $grade->name }}
-                </h4>
-                <span class="text-muted">
-                    {{ $board->name }}
-                </span>
+        <div class="card mb-4">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Batch Description</h5>
             </div>
-
+            <div class="card-body">
+                <table class="table table-bordered table-sm mb-0">
+                    <tbody>
+                        <tr>
+                            <th class="w-25 text-muted">Title</th>
+                            <td>{{ $batch->title }}</td>
+                        </tr>
+                        <tr>
+                            <th class="text-muted">Description</th>
+                            <td>{{ $batch->description }}</td>
+                        </tr>
+                        <tr>
+                            <th class="text-muted">Status</th>
+                            <td>
+                                <span class="badge bg-{{ $batch->status === 'active' ? 'success' : 'secondary' }} text-capitalize">
+                                    {{ $batch->status }}
+                                </span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th class="text-muted">Subject</th>
+                            <td>{{ $batch->curriculumSubject->name }}</td>
+                        </tr>
+                        <tr>
+                            <th class="text-muted">Teacher</th>
+                            <td>{{ $batch->teacher->name }}</td>
+                        </tr>
+                        <tr>
+                            <th class="text-muted">Total Classes</th>
+                            <td>{{ $batch->liveClasses->count() }}</td>
+                        </tr>
+                        <tr>
+                            <th class="text-muted">Start Date</th>
+                            <td>{{ $batch->formatted_start_date }}</td>
+                        </tr>
+                        <tr>
+                            <th class="text-muted">End Date</th>
+                            <td>{{ $batch->formatted_end_date }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
 
-        @if ($batches->isEmpty())
-
-            <div class="alert alert-info">
-                No batches found for this qualification yet.
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Live Classes</h5>
             </div>
 
-        @else
-
-            <div class="card shadow-sm">
-
-                <div class="card-body p-0">
-
-                    <div class="table-responsive">
-
-                        <table class="table table-hover align-middle mb-0">
-
-                            <thead class="table-light">
+            <div class="card-body mx-4">
+                <div class="table-responsive">
+                    <table class="table table-bordered mb-0">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Title</th>
+                                <th>Description</th>
+                                <th>Start Time</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach ($batch->liveClasses as $index => $liveClass)
                                 <tr>
-                                    <th>Batch Name</th>
-                                    <th>Status</th>
-                                    <th>Students</th>
-                                    <th>Schedule</th>
-                                    <th class="text-end">Actions</th>
+                                    <td>{{ $index + 1 }}</td>
+                                    <td>{{ $liveClass->title }}</td>
+                                    <td>{{ $liveClass->description }}</td>
+                                    <td>{{ $liveClass->formatted_class_date }}</td>
+                                    <td>
+                                        <span class="badge bg-{{ $liveClass->status === 'completed' ? 'success' : ($liveClass->status === 'live' ? 'danger' : 'secondary') }} text-capitalize">
+                                            {{ $liveClass->status ?? 'scheduled' }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <a href="{{ route('teacher.live_class.show', $liveClass->id) }}" class="btn btn-sm btn-outline-secondary">
+                                            View
+                                        </a>                                
+                                    </td>
                                 </tr>
-                            </thead>
-
-                            <tbody>
-
-                                @foreach ($batches as $batch)
-                                    <tr>
-                                        <td>
-                                            {{ $batch->title }}
-                                        </td>
-
-                                        <td>
-                                            @php
-                                                $statusColors = [
-                                                    'active' => 'success',
-                                                    'upcoming' => 'warning',
-                                                    'completed' => 'secondary',
-                                                    'cancelled' => 'danger',
-                                                ];
-                                                $statusColor = $statusColors[$batch->status ?? ''] ?? 'secondary';
-                                            @endphp
-
-                                            <span class="badge bg-{{ $statusColor }}">
-                                                {{ ucfirst($batch->status ?? 'N/A') }}
-                                            </span>
-                                        </td>
-
-                                        <td>
-                                            {{ $batch->students_count ?? $batch->students->count() ?? 0 }}
-                                        </td>
-
-                                        <td>
-                                            {{ $batch->schedule ?? '—' }}
-                                        </td>
-
-                                        <td class="text-end">
-
-                                            
-
-                                        </td>
-                                    </tr>
-                                @endforeach
-
-                            </tbody>
-
-                        </table>
-
-                    </div>
-
+                            @endforeach
+                        </tbody>
+                    </table>
                 </div>
-
             </div>
-
-        @endif
-
+        </div>
     </div>
-
 @endsection

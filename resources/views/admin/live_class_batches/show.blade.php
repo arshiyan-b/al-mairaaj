@@ -93,7 +93,9 @@
                                     </span>
                                 </td>
                                 <td>
-                                    <a href="#" class="btn btn-sm btn-outline-secondary">View</a>
+                                    <a href="{{ route('admin.live_classes.index', $liveClass->id) }}" class="btn btn-sm btn-outline-secondary">
+                                        View
+                                    </a>                                
                                 </td>
                             </tr>
                         @empty
@@ -126,9 +128,15 @@
 
                 <div class="modal-body">
 
-                    <div class="mb-3">
-                        <label class="form-label">Title</label>
-                        <input type="text" name="title" class="form-control" required>
+                    <div class="row mb-3">
+                        <div class="col-md-8">
+                            <label class="form-label">Title</label>
+                            <input type="text" name="title" class="form-control" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Price</label>
+                            <input type="number" name="price" class="form-control" required>
+                        </div>
                     </div>
 
                     <div class="mb-3">
@@ -156,22 +164,6 @@
                     </div>
 
                     <div class="mb-3">
-                        <label class="form-label">Meeting Link</label>
-                        <input type="url" name="meeting_link" class="form-control" placeholder="https://...">
-                    </div>
-
-                    <div class="row mb-3">
-                        <div class="col-md-6">
-                            <label class="form-label">Meeting ID</label>
-                            <input type="text" name="meeting_id" class="form-control">
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label">Meeting Password</label>
-                            <input type="text" name="meeting_password" class="form-control">
-                        </div>
-                    </div>
-
-                    <div class="mb-3">
                         <label class="form-label">Class Date</label>
                         <input type="date" name="class_date" class="form-control" required>
                     </div>
@@ -188,6 +180,22 @@
                         <div class="col-md-4">
                             <label class="form-label">Duration (mins)</label>
                             <input type="number" name="duration" class="form-control" id="liveClassDuration" min="1">
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Meeting Link</label>
+                        <input type="url" name="meeting_link" class="form-control" placeholder="https://...">
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Meeting ID</label>
+                            <input type="text" name="meeting_id" class="form-control">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Meeting Password</label>
+                            <input type="text" name="meeting_password" class="form-control">
                         </div>
                     </div>
 

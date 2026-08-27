@@ -211,6 +211,32 @@ class AdminController extends Controller
 
         return redirect()->back()->with('success', 'User created successfully!');
     }
+    public function teacher_reset_passport(Request $request, $id)
+    {
+        $request->validate([
+            'password' => [
+                'required','string','min:8','confirmed',
+            ],
+        ]);
+
+        $teacher = Teacher::findOrFail($id);
+
+        $user = $teacher->user;
+
+        if (!$user) {
+            return redirect()
+                ->back()
+                ->with('error', 'No user account is associated with this teacher.');
+        }
+
+        $user->update([
+            'password' => Hash::make($request->password),
+        ]);
+
+        return redirect()
+            ->back()
+            ->with('success', 'Teacher password reset successfully.');
+    }
     public function teacher_user(Request $request)
     {
         $validated = $request->validate([

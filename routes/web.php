@@ -69,6 +69,7 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::post('admin/teacher/{id}/assign-subjects', [AdminController::class, 'teacher_assign_subjects'])->name('admin.teacher.assign.subjects');
     Route::delete('admin/teacher/{id}/class-destroy', [AdminController::class, 'teacher_class_destroy'])->name('admin.teacher.class.destroy');
     Route::post('/admin/teacher/{id}/create-user', [AdminController::class, 'teacher_create_user'])->name('admin.teacher.create.user');
+    Route::post('/admin/teacher/{teacher}/reset-password', [AdminController::class, 'teacher_reset_passport'])->name('admin.teacher.reset.password');
     Route::post('/admin/teachers/user', [AdminController::class, 'teacher_user'])->name('admin.teacher_user');
 
     Route::get('/admin/books', [BookController::class, 'index'])->name('admin.books.index');
@@ -88,7 +89,7 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::put('/admin/live_class_batches/{board}/{grade}/{batch}', [LiveClassBatchController::class, 'update'])->name('admin.live_class_batches.update');
     Route::delete('/admin/live_class_batches/{board}/{grade}/{batch}', [LiveClassBatchController::class, 'destroy'])->name('admin.live_class_batches.destroy');
 
-    Route::get('/admin/live_class/{live_class}', [LiveClassController::class, 'index'])->name('admin.live_classes.index');
+    Route::get('/admin/live_class/{live_class}', [LiveClassController::class, 'show'])->name('admin.live_classes.index');
     Route::post('/admin/live_class/store', [LiveClassController::class, 'store'])->name('admin.live_classes.store');
 
     Route::get('admin/wallets', [WalletController::class, 'index'])->name('admin.wallet.index');
@@ -110,6 +111,8 @@ Route::middleware(['auth', 'role:teacher'])->group(function () {
 
     Route::get('/teacher/dashboard', [TeacherController::class, 'dashboard'])->name('teacher.dashboard');
     Route::get('/teacher/{board}/{grade}/batches', [TeacherController::class, 'live_class_batches_index'])->name('teacher.live_class_batches.index');
+    Route::get('/teacher/live_class_batch/{id}', [TeacherController::class, 'live_class_batch_show'])->name('teacher.live_class_batch.show');
+    Route::get('/teacher/live_class/{id}', [TeacherController::class, 'live_class_show'])->name('teacher.live_class.show');
     
     Route::post('/mcq/store', [TeacherController::class, 'mcq_store'])->name('mcq.store');
 });

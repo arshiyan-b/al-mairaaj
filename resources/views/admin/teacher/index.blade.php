@@ -41,6 +41,11 @@
                                                 data-bs-target="#createUserModal{{ $teacher->id }}">
                                                 Create User
                                             </button>
+                                        @elseif ($teacher->user_created == 1)
+                                            <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal"
+                                                data-bs-target="#resetPasswordModal{{ $teacher->id }}">
+                                                Reset Password
+                                            </button>
                                         @endif
                                     </td>
                                 </tr>
@@ -85,6 +90,80 @@
                                                     <button type="submit" class="btn btn-primary">
                                                         Create User
                                                     </button>
+                                                </div>
+
+                                            </form>
+
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="modal fade" id="resetPasswordModal{{ $teacher->id }}" tabindex="-1" aria-hidden="true">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+
+                                            <form action="{{ route('admin.teacher.reset.password', $teacher->id) }}" method="POST">
+                                                @csrf
+
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title">
+                                                        Reset Password for {{ $teacher->name }}
+                                                    </h5>
+
+                                                    <button type="button"
+                                                            class="btn-close"
+                                                            data-bs-dismiss="modal"
+                                                            aria-label="Close">
+                                                    </button>
+                                                </div>
+
+                                                <div class="modal-body">
+
+                                                    <div class="mb-3">
+                                                        <label for="password{{ $teacher->id }}" class="form-label">
+                                                            New Password
+                                                        </label>
+
+                                                        <input type="password"
+                                                            name="password"
+                                                            id="password{{ $teacher->id }}"
+                                                            class="form-control"
+                                                            required
+                                                            minlength="8">
+
+                                                        <small class="text-muted">
+                                                            Password must be at least 8 characters.
+                                                        </small>
+                                                    </div>
+
+                                                    <div class="mb-3">
+                                                        <label for="password_confirmation{{ $teacher->id }}" class="form-label">
+                                                            Confirm New Password
+                                                        </label>
+
+                                                        <input type="password"
+                                                            name="password_confirmation"
+                                                            id="password_confirmation{{ $teacher->id }}"
+                                                            class="form-control"
+                                                            required
+                                                            minlength="8">
+                                                    </div>
+
+                                                </div>
+
+                                                <div class="modal-footer">
+
+                                                    <button type="button"
+                                                            class="btn btn-secondary"
+                                                            data-bs-dismiss="modal">
+                                                        Close
+                                                    </button>
+
+                                                    <button type="submit"
+                                                            class="btn btn-primary">
+                                                        Reset Password
+                                                    </button>
+
                                                 </div>
 
                                             </form>

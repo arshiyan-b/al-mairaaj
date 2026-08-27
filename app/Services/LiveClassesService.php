@@ -19,6 +19,10 @@ class LiveClassesService
         private ZoomMeetingService $zoomMeetingService,
         private GoogleMeetService $googleMeetService,
     ) {}
+    public function getLiveClass($id)
+    {
+        return LiveClass::findOrFail($id);
+    }
     public function getLiveClassTitle($id)
     {
         return LiveClass::findOrFail($id)->title;
@@ -72,6 +76,7 @@ class LiveClassesService
                 'end_time' => $data['end_time'],
                 'duration' => $data['duration'],
                 'status' => $data['status'],
+                'price' => $data['price'],
             ]);
 
             $meetingDetail = match ($data['meeting_provider']) {

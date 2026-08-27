@@ -19,7 +19,13 @@ import {
   Loader2,
 } from "lucide-react";
 
-const ENROLL_CUTOFF_MINUTES = 30;
+// Used for the "enrolled student can Join" cutoff (Join button becomes active
+// this many minutes before the class starts).
+const JOIN_CUTOFF_MINUTES = 30;
+
+// Used for the "enrollment closed" cutoff. Enrollment now stays OPEN until
+// this many minutes AFTER the class start time, then closes.
+const ENROLLMENT_CLOSE_AFTER_START_MINUTES = 10;
 
 function formatClassTime(raw) {
   if (!raw) return "";
@@ -39,6 +45,7 @@ const LiveClassesBatch = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [enrollingId, setEnrollingId] = useState(null);
+  const [joiningId, setJoiningId] = useState(null);
   const [modalClass, setModalClass] = useState(null); // holds { ...class, reason: "early" | "ended" }
 
   useEffect(() => {
@@ -60,6 +67,13 @@ const LiveClassesBatch = () => {
   const getMinutesUntilStart = (classDate, startTime) => {
     const target = new Date(`${classDate}T${startTime}`);
     return (target.getTime() - Date.now()) / 60000;
+  };
+
+  // Positive once the class has started; e.g. 12 means the class started
+  // 12 minutes ago.
+  const getMinutesSinceStart = (classDate, startTime) => {
+    const target = new Date(`${classDate}T${startTime}`);
+    return (Date.now() - target.getTime()) / 60000;
   };
 
   const isClassEnded = (classDate, endTime) => {
@@ -256,11 +270,21 @@ const LiveClassesBatch = () => {
             <div className="space-y-3">
               {liveClasses.map((c) => {
                 const isLive = c.status?.toLowerCase() === "live";
+
+                // Controls when the "Join" button becomes active for an
+                // already-enrolled student (opens JOIN_CUTOFF_MINUTES before start).
                 const minutesUntilStart = getMinutesUntilStart(c.class_date, c.start_time);
-                const withinCutoff = minutesUntilStart <= ENROLL_CUTOFF_MINUTES;
+                const withinJoinCutoff = minutesUntilStart <= JOIN_CUTOFF_MINUTES;
+
+                // Controls when enrollment closes: it now stays open until
+                // ENROLLMENT_CLOSE_AFTER_START_MINUTES after the class has
+                // started, instead of closing 30 minutes before start.
+                const minutesSinceStart = getMinutesSinceStart(c.class_date, c.start_time);
+                const enrollmentClosed = minutesSinceStart >= ENROLLMENT_CLOSE_AFTER_START_MINUTES;
+
                 const ended = isClassEnded(c.class_date, c.end_time);
                 const isEnrolling = enrollingId === c.id;
-                const showEnrollButton = !c.is_enrolled && !withinCutoff;
+                const showEnrollButton = !c.is_enrolled && !enrollmentClosed;
 
                 return (
                   <Card key={c.id} className={`rounded-xl shadow-sm ${isLive ? "border-l-4 border-amber-500" : ""}`}>
@@ -310,7 +334,7 @@ const LiveClassesBatch = () => {
                             >
                               <Video className="mr-2 h-3.5 w-3.5" /> Join
                             </Button>
-                          ) : withinCutoff ? (
+                          ) : withinJoinCutoff ? (
                             // Enrolled + within 30 min of start (or already started) -> active Join link
                             <Button size="sm" onClick={() => handleJoin(c.id)}>
                               <Video className="mr-2 h-3.5 w-3.5" /> Join
@@ -325,13 +349,13 @@ const LiveClassesBatch = () => {
                               <Video className="mr-2 h-3.5 w-3.5" /> Join
                             </Button>
                           )
-                        ) : withinCutoff ? (
-                          // Not enrolled + within 30 min of start -> can no longer enroll
+                        ) : enrollmentClosed ? (
+                          // Not enrolled + more than 10 min past start -> can no longer enroll
                           <Button size="sm" variant="outline" disabled>
                             Enrollment Closed
                           </Button>
                         ) : (
-                          // Not enrolled + more than 30 min out -> can enroll
+                          // Not enrolled + still within 10 min of start (or before it) -> can enroll
                           <Button
                             size="sm"
                             disabled={isEnrolling}
@@ -392,7 +416,7 @@ const LiveClassesBatch = () => {
                   </>
                 ) : (
                   <>
-                    The Join button activates {ENROLL_CUTOFF_MINUTES} minutes before the class starts,
+                    The Join button activates {JOIN_CUTOFF_MINUTES} minutes before the class starts,
                     at {formatClassTime(modalClass.start_time)} on{" "}
                     {modalClass.formatted_class_date ?? modalClass.class_date}.
                   </>

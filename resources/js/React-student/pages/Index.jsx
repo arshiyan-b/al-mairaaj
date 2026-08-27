@@ -2,21 +2,16 @@ import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import {
     ArrowRight,
-    Play,
     Sparkles,
     BookOpen,
     Users,
-    Trophy,
-    Zap,
-    Globe2,
-    ShieldCheck,
+    Camera,
+    House,
+    Settings2,
     Compass,
-    Hammer,
-    MessagesSquare,
-    Rocket,
+    FlaskConical,
     GraduationCap,
 } from "lucide-react";
-import heroImg from "../assets/sideimage.png";
 import logoImg from "../assets/logo.png";
 import logoTextImg from "../assets/logo_text.svg";
 
@@ -34,19 +29,19 @@ const navLinks = [
 ];
 
 const features = [
-    { icon: BookOpen, title: "Curated learning paths", desc: "60-70 structured live sessions covering your whole syllabi. Pay only for the lessons you need." },
-    { icon: Users, title: "1:1 guidance (Coming soon)", desc: "Live 1 on 1 classes with subject experts to focus on your areas of improvement." },
-    { icon: Trophy, title: "Recognized certificates (Coming soon)", desc: "Concise recorded lessons for each subtopic in the syllabus. Pay per minute only for the videos you watch." },
-    { icon: Zap, title: "Project-based learning (Coming soon)", desc: "Supercharge your homeschooling journey through our portal, with level based learning for tailored education." },
-    { icon: Globe2, title: "Global community (Coming soon)", desc: "Use our state of the art simulations to get a (virtual) hands on experience." },
-    { icon: ShieldCheck, title: "Lifetime access (Coming soon)", desc: "Prefer physical sessions? Request top level subject experts to come to your home for in person sessions." },
+    { icon: BookOpen, title: "Live Lectures", desc: "60-70 structured live sessions covering your whole syllabi. Pay only for the lessons you need." },
+    { icon: Users, title: "1:1 Guidance (Coming soon)", desc: "Live 1 on 1 classes with subject experts to focus on your areas of improvement." },
+    { icon: Camera, title: "Lecorded Lectures (Coming soon)", desc: "Concise recorded lessons for each subtopic in the syllabus. Pay per minute only for the videos you watch." },
+    { icon: House, title: "Home Schooling (Coming soon)", desc: "Supercharge your homeschooling journey through our portal, with level based learning for tailored education." },
+    { icon: Settings2, title: "EdTech Tools (Coming soon)", desc: "Use our state of the art simulations to get a (virtual) hands on experience." },
+    { icon: FlaskConical, title: "Virtual Practicals (Coming soon)", desc: "Learn how to conduct practicals step by step through virtual classes, with expert demonstrations, guidance, and practical homework." },
 ];
 
 const steps = [
     { icon: Compass, step: "01", title: "Find Your Weakness", desc: "Start with a diagnostic that pinpoints exactly where you're falling behind, so you spend time on what matters instead of guessing." },
-    { icon: MessagesSquare, step: "02", title: "Watch & Learn", desc: "Jump straight into a recorded lesson matched to that exact gap — bite-sized, on-demand, and ready whenever you are." },
-    { icon: Hammer, step: "03", title: "Join a Live Class", desc: "Still stuck? Sit in on a live session covering that topic, with real-time explanations and the chance to ask questions as they come up." },
-    { icon: Rocket, step: "04", title: "Book a 1-on-1 Session", desc: "Need more? Request a one-on-one with your preferred tutor for focused, personalized help until it finally clicks." },
+    { icon: Camera, step: "02", title: "Watch & Learn", desc: "Jump straight into a recorded lesson matched to that exact gap — bite-sized, on-demand, and ready whenever you are." },
+    { icon: BookOpen, step: "03", title: "Join a Live Class", desc: "Still stuck? Sit in on a live session covering that topic, with real-time explanations and the chance to ask questions as they come up." },
+    { icon: Users, step: "04", title: "Book a 1-on-1 Session", desc: "Need more? Request a one-on-one with your preferred tutor for focused, personalized help until it finally clicks." },
 ];
 
 const teachers = [
@@ -57,8 +52,31 @@ const teachers = [
 ];
 
 const footerCols = [
-    { title: "Platform", links: ["Courses", "Mentors", "Certificates", "Pricing"] },
-    { title: "Company", links: ["About", "Blog", "Careers", "Contact"] },
+    {
+        title: "Contact Us",
+        links: [
+            {
+                name: "Email",
+                url: "mailto:info@almairaaj.com",
+            },
+            {
+                name: "WhatsApp",
+                url: "https://wa.me/message/6ZTX4BXOGXVZK1",
+            },
+            {
+                name: "Instagram",
+                url: "https://www.instagram.com/almairaaj.oes/",
+            },
+            {
+                name: "Facebook",
+                url: "https://web.facebook.com/almairaaj.oes/",
+            },
+            {
+                name: "YouTube",
+                url: "https://www.youtube.com/@AlMairaaj-oes",
+            },
+        ],
+    },
 ];
 
 const Index = () => {
@@ -95,17 +113,8 @@ const Index = () => {
 
                     <div className="flex items-center gap-3">
                         <a href="/login">
-                            <Button
-                                variant="ghost"
-                                className="hidden sm:inline-flex text-teal-700 hover:text-teal-900 hover:bg-teal-50 dark:text-teal-400 dark:hover:bg-teal-950"
-                            >
-                                Sign in
-                            </Button>
-                        </a>
-
-                        <a href="/register">
                             <Button className="bg-teal-600 hover:bg-teal-700 text-white shadow-md shadow-teal-500/20">
-                                Get started
+                                Login in / Sign up
                             </Button>
                         </a>
                     </div>
@@ -132,8 +141,8 @@ const Index = () => {
                         </h1>
 
                         <p className="mt-6 text-lg text-gray-600 dark:text-gray-400 max-w-xl">
-                            Al Mairaaj is the modern EdTech platform where live mentors, immersive paths,
-                            and globally recognized certificates meet — designed for the next generation of curious minds.
+                            Al Mairaaj is an online education system that puts you in the driving seat, 
+                            empowering you to learn what you need, when you need it, at an affordable price.
                         </p>
 
                         <div className="mt-10 flex flex-col sm:flex-row gap-4">
@@ -165,7 +174,7 @@ const Index = () => {
             <section id="why-al-mairaaj" className="py-24 md:py-32 bg-gray-50 dark:bg-gray-950/50">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="max-w-2xl">
-                        <span className="text-xs font-bold uppercase tracking-widest text-teal-600 dark:text-teal-400">Why Al Mairaaj</span>
+                        <span className="text-lg font-bold uppercase tracking-widest text-teal-600 dark:text-teal-400">Why Al Mairaaj</span>
                         <h2 className="mt-4 text-3xl md:text-4xl font-extrabold text-gray-900 dark:text-white">
                             A platform built around how you actually learn.
                         </h2>
@@ -195,7 +204,7 @@ const Index = () => {
             <section id="learning-model" className="py-24 md:py-32 bg-gray-900 text-white">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="max-w-2xl mb-16">
-                        <span className="text-xs font-bold uppercase tracking-widest text-teal-400">Our learning model</span>
+                        <span className="text-lg font-bold uppercase tracking-widest text-teal-600 dark:text-teal-400">Our learning model</span>
                         <h2 className="mt-4 text-3xl md:text-4xl font-extrabold text-white">
                             A four-step loop built around how you actually learn.
                         </h2>
@@ -226,7 +235,7 @@ const Index = () => {
             <section id="teachers" className="py-24 md:py-32 bg-white dark:bg-gray-950">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="max-w-2xl mb-16 text-center mx-auto">
-                        <span className="text-xs font-bold uppercase tracking-widest text-teal-600 dark:text-teal-400">Meet the team</span>
+                        <span className="text-lg font-bold uppercase tracking-widest text-teal-600 dark:text-teal-400">Meet the team</span>
                         <h2 className="mt-4 text-3xl md:text-4xl font-extrabold text-gray-900 dark:text-white">
                             Learn from active practitioners.
                         </h2>
@@ -296,11 +305,21 @@ const Index = () => {
 
                     {footerCols.map((col) => (
                         <div key={col.title}>
-                            <h4 className="font-bold text-sm uppercase tracking-wider text-gray-900 dark:text-white">{col.title}</h4>
-                            <ul className="mt-6 space-y-3">
-                                {col.links.map((l) => (
-                                    <li key={l}>
-                                        <a href="#" className="text-gray-600 dark:text-gray-400 hover:text-teal-600 dark:hover:text-teal-400 transition-colors">{l}</a>
+                            <h4 className="font-bold text-sm uppercase tracking-wider text-gray-900 dark:text-white">
+                                {col.title}
+                            </h4>
+
+                            <ul className="mt-6 flex flex-nowrap items-center gap-x-6">
+                                {col.links.map((link) => (
+                                    <li key={link.name} className="whitespace-nowrap">
+                                        <a
+                                            href={link.url}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="text-gray-600 dark:text-gray-400 hover:text-teal-600 dark:hover:text-teal-400 transition-colors"
+                                        >
+                                            {link.name}
+                                        </a>
                                     </li>
                                 ))}
                             </ul>
@@ -309,7 +328,7 @@ const Index = () => {
                 </div>
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 border-t border-gray-200 dark:border-gray-800 pt-8">
                     <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-gray-500 dark:text-gray-400">
-                        <span>© {new Date().getFullYear()} Noomani Education Hub. All rights reserved.</span>
+                        <span>© {new Date().getFullYear()} Noomanis Education Hub. All rights reserved.</span>
                         <span>Crafted with care for curious minds.</span>
                     </div>
                 </div>

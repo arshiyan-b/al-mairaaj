@@ -30,20 +30,20 @@ use Illuminate\Http\Request;
 class ApiController extends Controller
 {
     public function __construct(
-    protected BatchService $batchService,
-    protected BatchEnrollmentService $batchEnrollmentService,
-    protected BoardService $boardService,
-    protected BookService $bookService,
-    protected CurriculumSubjectService $curriculumSubjectService,
-    protected GradeService $gradeService,
-    protected LiveClassesService $liveClassesService,
-    protected LiveClassEnrollmentService $liveClassEnrollmentService,
-    protected StudentService $studentService,
-    protected TeacherService $teacherService,
-    protected TopupRequestService $topupRequestService,
-    protected VoucherService $voucherService,
-    protected WalletService $walletService,
-    protected WalletTransactionService $walletTransactionService,
+        protected BatchService $batchService,
+        protected BatchEnrollmentService $batchEnrollmentService,
+        protected BoardService $boardService,
+        protected BookService $bookService,
+        protected CurriculumSubjectService $curriculumSubjectService,
+        protected GradeService $gradeService,
+        protected LiveClassesService $liveClassesService,
+        protected LiveClassEnrollmentService $liveClassEnrollmentService,
+        protected StudentService $studentService,
+        protected TeacherService $teacherService,
+        protected TopupRequestService $topupRequestService,
+        protected VoucherService $voucherService,
+        protected WalletService $walletService,
+        protected WalletTransactionService $walletTransactionService,
     ) {}
     public function student_dashboard_data()
     {

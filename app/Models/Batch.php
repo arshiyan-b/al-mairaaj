@@ -55,7 +55,7 @@ class Batch extends Model
     }
     public function enrollments()
     {
-        return $this->hasMany(Enrollment::class, 'batch_id');
+        return $this->hasMany(BatchEnrollment::class, 'batch_id');
     }
     public function students()
     {

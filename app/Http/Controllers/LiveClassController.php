@@ -8,43 +8,28 @@ use App\Models\Enrollment;
 use App\Models\Board;
 use App\Models\Grade;
 use App\Models\LiveClass;
-
 use App\Services\LiveClassesService;
-
-use Illuminate\Http\Request;
-
+use App\Http\Requests\StoreLiveClassRequest;
 
 class LiveClassController extends Controller
 {
     public function __construct(
         protected LiveClassesService $liveClassesService,
     ){}
-    public function index()
+    public function show($id)
     {
-        $batches = Batch::with(['teacher', 'grade', 'curriculumSubject'])->get();
-        return view('admin.live_classes.index', compact('batches'));
+        $liveClass = $this->liveClassesService->getLiveClass($id);
+        return view('admin.live_classes.show', compact('liveClass'));
     }
-    public function store(Request $request)
+    public function store(StoreLiveClassRequest $request)
     {
-        $validated = $request->validate([
-            'batch_id' => 'required|exists:batches,id',
-            'title' => 'required|string|max:255',
-            'description' => 'nullable|string',
-
-            'meeting_provider' => 'required|in:jitsi,zoom',
-
-            'class_date' => 'required|date',
-            'start_time' => 'required|date_format:H:i',
-            'end_time' => 'required|date_format:H:i|after:start_time',
-
-            'duration' => 'nullable|integer|min:1',
-
-            'status' => 'required|in:scheduled,completed,canceled',
-        ]);
+        $validated = $request->validated();
 
         $this->liveClassesService->create($validated);
 
-        return redirect()->back()->with('success', 'Live class created successfully.');
+        return redirect()
+            ->back()
+            ->with('success', 'Live class created successfully.');
     }
     public function student_live_classes_data()
     {

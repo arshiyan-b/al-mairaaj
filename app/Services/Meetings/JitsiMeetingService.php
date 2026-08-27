@@ -15,7 +15,7 @@ class JitsiMeetingService
         return MeetingDetail::create([
             'live_class_id' => $liveClass->id,
             'meeting_id' => $meetingId,
-            'link' => rtrim(config('services.jitsi.domain'), '/') . '/' . $meetingId,
+            'link' => 'https://' . rtrim(config('services.jitsi.domain'), '/') . '/' . $meetingId,
             'password' => null,
         ]);
     }

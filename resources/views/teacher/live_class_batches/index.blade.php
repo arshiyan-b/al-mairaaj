@@ -26,6 +26,7 @@
                             <th>Status</th>
                             <th>Subject</th>
                             <th>Date Range</th>
+                            <th>Total Classes</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
@@ -49,6 +50,13 @@
                                     {{ $batch->date_range }}
                                 </td>
                                 <td>
+                                    {{ $batch->liveClasses->count() }}
+                                </td>
+                                <td>
+                                    <a href="{{ route('teacher.live_class_batch.show', $batch->id) }}"
+                                    class="btn btn-sm btn-primary">
+                                        Show Classes
+                                    </a>
                                 </td>
                             </tr>
                         @endforeach

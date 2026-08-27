@@ -39,7 +39,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @forelse ($batches as $index => $batch)
+                        @foreach ($batches as $index => $batch)
                             <tr>
                                 <td>{{ $index + 1 }}</td>
                                 <td>{{ $batch->teacher->name }}</td>
@@ -58,11 +58,7 @@
                                     </form>
                                 </td>
                             </tr>
-                        @empty
-                            <tr>
-                                <td colspan="8" class="text-center">No batches found.</td>
-                            </tr>
-                        @endforelse
+                        @endforeach
                     </tbody>
                 </table>
 
