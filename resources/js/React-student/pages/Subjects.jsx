@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import SpotlightCard from "../components/SpotlightCard";
 import SearchableSelect from "../components/SearchableSelect";
+import { getSubjectDropdownLabel } from "../lib/subjectLabel";
 import { GraduationCap, Search, Filter, BookOpen } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -199,7 +200,7 @@ const Subjects = () => {
             searchPlaceholder="Search subjects..."
             options={availableSubjectsForDropdown.map((subject) => ({
               value: subject.id,
-              label: `${subject.complete_name}`,
+              label: getSubjectDropdownLabel(subject, boardId, gradeId),
             }))}
           />
         </div>
@@ -221,7 +222,12 @@ const Subjects = () => {
         >
           <AnimatePresence>
             {visibleSubjects.map((subject) => (
-              <motion.div key={subject.id} variants={fadeUp} transition={{ duration: 0.3 }} layout>
+              <motion.div
+                key={subject.id}
+                variants={fadeUp}
+                transition={{ duration: 0.3 }}
+                layout
+              >
                 <SpotlightCard
                   spotlightColor="rgba(0,229,255,0.3)"
                   className="bg-white rounded-2xl shadow-md hover:shadow-xl p-6 transform hover:-translate-y-2 transition-all duration-300 flex flex-col h-full"
@@ -230,15 +236,25 @@ const Subjects = () => {
                     <div className="p-3 rounded-xl bg-teal-50">
                       <GraduationCap className="h-6 w-6 text-gray-800" />
                     </div>
-                    {subject.grade?.board?.name && (
-                      <span className="text-xs font-semibold text-teal-700 bg-teal-50 px-3 py-1 rounded-full">
-                        {subject.grade.board.name}
-                      </span>
-                    )}
+
+                    {/* Board & Grade */}
+                    <div className="flex items-center gap-2">
+                      {subject.grade?.board?.name && (
+                        <span className="text-xs font-semibold text-teal-700 bg-teal-50 px-3 py-1 rounded-full">
+                          {subject.grade.board.name}
+                        </span>
+                      )}
+
+                      {subject.grade?.name && (
+                        <span className="text-xs font-semibold text-teal-700 bg-teal-50 px-3 py-1 rounded-full">
+                          {subject.grade.name}
+                        </span>
+                      )}
+                    </div>
                   </div>
 
                   <h3 className="text-xl font-bold text-gray-800 mb-4">
-                    {subject.code} - {subject.name}
+                    {subject.complete_name || subject.name}
                   </h3>
 
                   <Button

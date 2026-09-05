@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Search, Filter, BookOpen, Mail, GraduationCap, User, Briefcase } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Skeleton } from "@/components/ui/skeleton";
+import { getSubjectDropdownLabel } from "../lib/subjectLabel";
 
 const fadeUp = { hidden: { opacity: 0, y: 16 }, show: { opacity: 1, y: 0 } };
 const stagger = { hidden: {}, show: { transition: { staggerChildren: 0.08 } } };
@@ -15,7 +16,7 @@ function getSubjectLabels(teacher) {
     const board = ac.grade?.board?.name || "";
     const grade = ac.grade?.name || "";
     (ac.curriculum_subjects || []).forEach((s) => {
-      const subjectLabel = [s.code, s.name].filter(Boolean).join(" ");
+      const subjectLabel = s.complete_name || [s.code, s.name].filter(Boolean).join(" ");
       const label = [board, grade, subjectLabel].filter(Boolean).join(" • ");
       if (label) seen.set(s.id, label);
     });
@@ -208,7 +209,9 @@ export default function Teachers() {
           >
             <option value="">All Subjects</option>
             {availableSubjectsForDropdown.map((subject) => (
-              <option key={subject.id} value={String(subject.id)}>{subject.code} - {subject.name}</option>
+              <option key={subject.id} value={String(subject.id)}>
+                {getSubjectDropdownLabel(subject, boardId, gradeId)}
+              </option>
             ))}
           </select>
         </div>

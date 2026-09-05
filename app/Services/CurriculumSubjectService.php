@@ -12,6 +12,6 @@ class CurriculumSubjectService
     }
     public function getCurriculumSubjects()
     {
-        return CurriculumSubject::with('grade.board')->orderBy('name')->get();
+        return CurriculumSubject::with('grade.board')->orderBy('grade_id')->orderBy('name')->get();
     }
 }
