@@ -9,7 +9,7 @@ class JitsiMeetingSession extends Model
 {
     protected $fillable = [
         'uuid',
-        'student_id',
+        'user_id',
         'live_class_id',
         'session_id',
         'jti',
@@ -24,9 +24,9 @@ class JitsiMeetingSession extends Model
         'last_seen_at' => 'datetime',
     ];
 
-    public function student(): BelongsTo
+    public function user(): BelongsTo
     {
-        return $this->belongsTo(Student::class);
+        return $this->belongsTo(User::class);
     }
     public function liveClass(): BelongsTo
     {

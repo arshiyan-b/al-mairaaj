@@ -3,13 +3,20 @@ import { useParams, Link } from "react-router-dom";
 import { BookOpen, Mail, Phone, MapPin, ArrowLeft, Briefcase, GraduationCap } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 
-// Flattens allowed_classes into a de-duplicated list of subject names
+// Flattens allowed_classes into a de-duplicated list of "Board - Grade - Subject" labels
 function getSubjects(teacher) {
-  const subjects = (teacher.allowed_classes || []).flatMap(
-    (ac) => ac.curriculum_subjects || []
-  );
   const seen = new Map();
-  subjects.forEach((s) => seen.set(s.id, s.name));
+
+  (teacher.allowed_classes || []).forEach((ac) => {
+    const board = ac.grade?.board?.name || "";
+    const grade = ac.grade?.name || "";
+    (ac.curriculum_subjects || []).forEach((s) => {
+      const subjectLabel = [s.code, s.name].filter(Boolean).join(" ");
+      const label = [board, grade, subjectLabel].filter(Boolean).join(" • ");
+      if (label) seen.set(s.id, label);
+    });
+  });
+
   return Array.from(seen.values());
 }
 
@@ -116,7 +123,7 @@ export default function Teacher() {
           )}
 
           {subjects.length > 0 && (
-            <div className="mt-4 flex flex-wrap justify-center gap-1.5">
+            <div className="mt-4 flex flex-wrap justify-center gap-1.5 mb-3">
               {subjects.map((s) => (
                 <span
                   key={s}
@@ -164,28 +171,6 @@ export default function Teacher() {
             )}
           </div>
 
-          {/* Actions */}
-          <div className="flex justify-center gap-4 mt-10">
-            {teacher.email && (
-              <a
-                href={`mailto:${teacher.email}`}
-                className="flex items-center gap-2 px-5 py-2 text-sm font-semibold text-gray-600 border rounded-lg hover:text-indigo-600"
-              >
-                <Mail className="w-4 h-4" />
-                Message
-              </a>
-            )}
-
-            {teacher.phone_number && (
-              <a
-                href={`tel:${teacher.phone_number}`}
-                className="flex items-center gap-2 px-5 py-2 text-sm font-semibold text-gray-600 border rounded-lg hover:text-indigo-600"
-              >
-                <Phone className="w-4 h-4" />
-                Call
-              </a>
-            )}
-          </div>
         </div>
       </div>
     </div>

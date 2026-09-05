@@ -92,6 +92,8 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::get('/admin/live_class/{live_class}', [LiveClassController::class, 'show'])->name('admin.live_classes.index');
     Route::post('/admin/live_class/store', [LiveClassController::class, 'store'])->name('admin.live_classes.store');
 
+    Route::get('/admin/jitsi/{liveClass}/join', [JitsiController::class, 'adminJoin'])->name('admin.jitsi.join');
+
     Route::get('admin/wallets', [WalletController::class, 'index'])->name('admin.wallet.index');
     Route::get('admin/wallet/top-up/requests', [WalletController::class, 'topup_requests'])->name('admin.top-up.requests');
     Route::get('admin/wallet/top-up/request/{id}', [WalletController::class, 'topup_request_details'])->name('admin.top-up.request.details');
@@ -113,6 +115,8 @@ Route::middleware(['auth', 'role:teacher'])->group(function () {
     Route::get('/teacher/{board}/{grade}/batches', [TeacherController::class, 'live_class_batches_index'])->name('teacher.live_class_batches.index');
     Route::get('/teacher/live_class_batch/{id}', [TeacherController::class, 'live_class_batch_show'])->name('teacher.live_class_batch.show');
     Route::get('/teacher/live_class/{id}', [TeacherController::class, 'live_class_show'])->name('teacher.live_class.show');
+
+    Route::get('/teacher/jitsi/{liveClass}/join', [JitsiController::class, 'teacherJoin'])->name('teacher.jitsi.join');
     
     Route::post('/mcq/store', [TeacherController::class, 'mcq_store'])->name('mcq.store');
 });

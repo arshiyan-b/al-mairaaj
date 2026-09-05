@@ -7,27 +7,24 @@ import { Skeleton } from "@/components/ui/skeleton";
 const fadeUp = { hidden: { opacity: 0, y: 16 }, show: { opacity: 1, y: 0 } };
 const stagger = { hidden: {}, show: { transition: { staggerChildren: 0.08 } } };
 
-// Flattens a teacher's allowed_classes into a de-duplicated list of subject names
-function getSubjects(teacher) {
-  const subjects = (teacher.allowed_classes || []).flatMap(
-    (ac) => ac.curriculum_subjects || []
-  );
+// Flattens a teacher's allowed_classes into a de-duplicated list of "Board - Grade - Subject" labels
+function getSubjectLabels(teacher) {
   const seen = new Map();
-  subjects.forEach((s) => seen.set(s.id, s.name));
+
+  (teacher.allowed_classes || []).forEach((ac) => {
+    const board = ac.grade?.board?.name || "";
+    const grade = ac.grade?.name || "";
+    (ac.curriculum_subjects || []).forEach((s) => {
+      const subjectLabel = [s.code, s.name].filter(Boolean).join(" ");
+      const label = [board, grade, subjectLabel].filter(Boolean).join(" • ");
+      if (label) seen.set(s.id, label);
+    });
+  });
+
   return Array.from(seen.values());
 }
 
-// Flattens a teacher's allowed_classes into a de-duplicated list of "Board - Grade" labels
-function getBoardGrades(teacher) {
-  const labels = (teacher.allowed_classes || []).map((ac) => {
-    const board = ac.grade?.board?.name || ac.board;
-    const grade = ac.grade?.name;
-    return [board, grade].filter(Boolean).join(" · ");
-  });
-  return Array.from(new Set(labels.filter(Boolean)));
-}
-
-// Flattens a teacher's allowed_classes into de-duplicated grade_id and board_id lists (for filtering)
+// Flattens a teacher's allowed_classes into de-duplicated grade_id and board_id sets (for filtering)
 function getGradeBoardIds(teacher) {
   const gradeIds = new Set();
   const boardIds = new Set();
@@ -86,18 +83,26 @@ export default function Teachers() {
     };
   }, []);
 
-  const enrichedTeachers = useMemo(() => {
-    return (teachers || []).map((t) => {
-      const { gradeIds, boardIds } = getGradeBoardIds(t);
-      return {
-        ...t,
-        _subjects: getSubjects(t),
-        _boardGrades: getBoardGrades(t),
-        _gradeIds: gradeIds,
-        _boardIds: boardIds,
-      };
-    });
-  }, [teachers]);
+  // Guard BEFORE touching `teachers` with .map() — this is what was crashing.
+  if (error) {
+    return (
+      <div className="flex h-64 items-center justify-center">
+        <p className="text-sm text-red-500">{error}</p>
+      </div>
+    );
+  }
+
+  if (!teachers) return <TeachersSkeleton />;
+
+  const teachersWithSubjects = teachers.map((teacher) => {
+    const { gradeIds, boardIds } = getGradeBoardIds(teacher);
+    return {
+      ...teacher,
+      _subjects: getSubjectLabels(teacher),
+      _gradeIds: gradeIds,
+      _boardIds: boardIds,
+    };
+  });
 
   const filteredGrades = boardId
     ? grades.filter((g) => String(g.board_id) === String(boardId))
@@ -110,7 +115,7 @@ export default function Teachers() {
     return matchesBoard && matchesGrade;
   });
 
-  const filteredTeachers = enrichedTeachers.filter((teacher) => {
+  const filteredTeachers = teachersWithSubjects.filter((teacher) => {
     const matchesSearch = teacher.name?.toLowerCase().includes(search.toLowerCase());
     const matchesBoard = !boardId || teacher._boardIds.has(String(boardId));
     const matchesGrade = !gradeId || teacher._gradeIds.has(String(gradeId));
@@ -121,16 +126,6 @@ export default function Teachers() {
         );
     return matchesSearch && matchesBoard && matchesGrade && matchesSubject;
   });
-
-  if (error) {
-    return (
-      <div className="flex h-64 items-center justify-center">
-        <p className="text-sm text-red-500">{error}</p>
-      </div>
-    );
-  }
-
-  if (!teachers) return <TeachersSkeleton />;
 
   return (
     <div className="max-w-6xl mx-auto px-6 pt-6 pb-10">
@@ -266,32 +261,8 @@ export default function Teachers() {
                     </div>
                   )}
 
-                  <div className="text-gray-500 text-sm mb-6 leading-relaxed space-y-1">
-                    {teacher.field_of_study && teacher.highest_degree && (
-                      <p>
-                        {teacher.highest_degree.toUpperCase()} in {teacher.field_of_study}
-                        {teacher.university ? ` · ${teacher.university}` : ""}
-                      </p>
-                    )}
-                    {teacher._boardGrades.length > 0 && (
-                      <p className="text-xs text-gray-400">{teacher._boardGrades.join(", ")}</p>
-                    )}
-                  </div>
-
                   {/* Stats */}
                   <div className="flex items-center justify-center gap-6 w-full pt-5 border-t border-gray-100 mt-auto">
-                    {teacher.experience && (
-                      <div className="flex flex-col items-center">
-                        <div className="flex items-center gap-1.5 text-indigo-600 font-bold">
-                          <Briefcase className="w-4 h-4 text-indigo-500" />
-                          <span className="text-sm">{teacher.experience}</span>
-                        </div>
-                        <span className="text-[11px] text-gray-400 uppercase tracking-widest mt-1">
-                          Experience
-                        </span>
-                      </div>
-                    )}
-
                     {teacher._subjects.length > 0 && (
                       <>
                         <div className="h-8 w-px bg-gray-200"></div>
@@ -311,22 +282,7 @@ export default function Teachers() {
 
                 {/* Bottom Action Area */}
                 <div className="bg-gray-50/80 px-6 py-4 flex items-center justify-between border-t border-gray-100">
-                  {teacher.email ? (
-                    <a
-                      href={`mailto:${teacher.email}`}
-                      className="flex items-center gap-2 text-sm font-semibold text-gray-500 hover:text-indigo-600 transition-colors"
-                    >
-                      <Mail className="w-4 h-4" /> Message
-                    </a>
-                  ) : (
-                    <span />
-                  )}
-                  <Link
-                    to={`/teacher/${teacher.id}`}
-                    className="text-sm font-bold text-indigo-700 bg-indigo-100/50 hover:bg-indigo-100 px-4 py-2 rounded-lg transition-colors shadow-sm"
-                  >
-                    View Profile
-                  </Link>
+                  
                 </div>
               </motion.div>
             ))

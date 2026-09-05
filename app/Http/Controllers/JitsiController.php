@@ -49,12 +49,12 @@ class JitsiController extends Controller
         }
 
         /*
-        * Check whether this student already has
-        * an active session for this live class.
-        */
+         * Check whether this user already has
+         * an active session for this live class.
+         */
         $existingSession = JitsiMeetingSession::where(
-            'student_id',
-            $user->student->id
+            'user_id',
+            $user->id
         )
             ->where('live_class_id', $liveClass->id)
             ->where('status', 'active')
@@ -71,12 +71,11 @@ class JitsiController extends Controller
             ], 409);
         }
 
-        $tokenData = $jitsiTokenService->generate(
+        $tokenData = $jitsiTokenService->createTokenForStudent(
             liveClass: $liveClass,
-            studentId: $user->student->id,
+            userId: $user->id,
             userName: $user->name,
             userEmail: $user->email,
-            isModerator: false
         );
 
         return response()->json([
@@ -87,6 +86,7 @@ class JitsiController extends Controller
             'room' => $liveClass->meetingDetail->meeting_id,
         ]);
     }
+
     public function claimSession(Request $request)
     {
         $request->validate([
@@ -101,8 +101,11 @@ class JitsiController extends Controller
             ], 401);
         }
 
-        $session = JitsiMeetingSession::where('session_id', $request->session_id)
-            ->where('student_id', $user->student->id)
+        $session = JitsiMeetingSession::where(
+            'session_id',
+            $request->session_id
+        )
+            ->where('user_id', $user->id)
             ->where('status', 'issued')
             ->where('expires_at', '>', now())
             ->first();
@@ -123,6 +126,7 @@ class JitsiController extends Controller
             'session_id' => $session->session_id,
         ]);
     }
+
     public function heartbeat(Request $request)
     {
         $request->validate([
@@ -137,8 +141,11 @@ class JitsiController extends Controller
             ], 401);
         }
 
-        $session = JitsiMeetingSession::where('session_id', $request->session_id)
-            ->where('student_id', $user->student->id)
+        $session = JitsiMeetingSession::where(
+            'session_id',
+            $request->session_id
+        )
+            ->where('user_id', $user->id)
             ->where('status', 'active')
             ->where('expires_at', '>', now())
             ->first();
@@ -157,6 +164,7 @@ class JitsiController extends Controller
             'success' => true,
         ]);
     }
+
     public function endSession(Request $request)
     {
         $request->validate([
@@ -171,8 +179,11 @@ class JitsiController extends Controller
             ], 401);
         }
 
-        $session = JitsiMeetingSession::where('session_id', $request->session_id)
-            ->where('student_id', $user->student->id)
+        $session = JitsiMeetingSession::where(
+            'session_id',
+            $request->session_id
+        )
+            ->where('user_id', $user->id)
             ->whereIn('status', ['issued', 'active'])
             ->first();
 
@@ -190,5 +201,55 @@ class JitsiController extends Controller
         return response()->json([
             'success' => true,
         ]);
+    }
+
+    public function teacherJoin(
+        LiveClass $liveClass,
+        JitsiTokenService $jitsiTokenService
+    ) {
+        $user = request()->user();
+
+        if (!$user || !$user->teacher) {
+            abort(403, 'Teacher access required.');
+        }
+
+        if (
+            !$liveClass->meetingDetail ||
+            $liveClass->meeting_provider !== 'jitsi'
+        ) {
+            abort(404, 'Jitsi meeting is not available for this class.');
+        }
+
+        $tokenData = $jitsiTokenService->createTokenForTeacher(
+            liveClass: $liveClass,
+            userId: $user->id,
+            userName: $user->name,
+            userEmail: $user->email
+        );
+
+        return redirect()->away($tokenData['meeting_url']);
+    }
+
+    public function AdminJoin(
+        LiveClass $liveClass,
+        JitsiTokenService $jitsiTokenService
+    ) {
+        $user = request()->user();
+
+        if (
+            !$liveClass->meetingDetail ||
+            $liveClass->meeting_provider !== 'jitsi'
+        ) {
+            abort(404, 'Jitsi meeting is not available for this class.');
+        }
+
+        $tokenData = $jitsiTokenService->createTokenForAdmin(
+            liveClass: $liveClass,
+            userId: $user->id,
+            userName: $user->name,
+            userEmail: $user->email
+        );
+
+        return redirect()->away($tokenData['meeting_url']);
     }
 }

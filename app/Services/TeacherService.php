@@ -12,6 +12,7 @@ class TeacherService
             'allowed_classes.grade.board',
         ])->get();
     }
+
     public function getTeacher($id)
     {
         return Teacher::with([

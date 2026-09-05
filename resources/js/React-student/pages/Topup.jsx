@@ -4,13 +4,14 @@ import { Skeleton } from "@/components/ui/skeleton";
 import {
   Wallet as WalletIcon,
   CreditCard,
+  ChevronDown,
   Smartphone,
   Building2,
-  CheckCircle2,
   Loader2,
   ArrowLeft,
   Upload,
   Landmark,
+  Search,
   Copy,
   Check,
 } from "lucide-react";
@@ -71,6 +72,7 @@ const RECEIVING_ACCOUNTS = {
     type: "bank",
     accountTitle: "Kanwar Nomani",
     accountNumber: "0336 3384821",
+    accountIBAN: "PK06 TMFB 0000000037875528",
     bankName: "Easy Paisa",
     branchCode: "",
   },
@@ -111,6 +113,13 @@ const Topup = () => {
   // not one JS reconstructs, so submit moves these nodes into a throwaway form.
   const screenshotInputRef = useRef(null);
   const bankScreenshotInputRef = useRef(null);
+
+  const [bankSearch, setBankSearch] = useState("");
+  const [bankDropdownOpen, setBankDropdownOpen] = useState(false);
+
+  const filteredBanks = BANK_NAMES.filter((name) =>
+    name.toLowerCase().includes(bankSearch.toLowerCase())
+  );
 
   useEffect(() => {
     let cancelled = false;
@@ -516,6 +525,13 @@ const Topup = () => {
                             copied={copiedField === "accountNumber"}
                             onCopy={() => handleCopy("accountNumber", receiving.accountNumber)}
                           />
+                          <DetailRow
+                            label="IBAN"
+                            value={receiving.accountIBAN}
+                            copyable
+                            copied={copiedField === "accountIBAN"}
+                            onCopy={() => handleCopy("accountIBAN", receiving.accountIBAN)}
+                          />
                           {receiving.branchCode && (
                             <DetailRow label="Branch Code" value={receiving.branchCode} />
                           )}
@@ -535,24 +551,81 @@ const Topup = () => {
                             placeholder="Name on the sending account"
                           />
 
-                          <div>
+                          <div className="relative">
                             <label className="text-xs text-gray-500 dark:text-gray-400 mb-1 block">
                               Your Bank Name
                             </label>
-                            <select
-                              value={bankName}
-                              onChange={(e) => setBankName(e.target.value)}
-                              className="w-full rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/50 px-3 py-2 text-sm text-gray-900 dark:text-gray-100 outline-none focus:border-indigo-400"
+
+                            {/* Selected Bank */}
+                            <button
+                              type="button"
+                              onClick={() => setBankDropdownOpen((prev) => !prev)}
+                              className="w-full flex items-center justify-between rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/50 px-3 py-2 text-sm text-gray-900 dark:text-gray-100 outline-none focus:border-indigo-400"
                             >
-                              <option value="" disabled>
-                                Select your bank
-                              </option>
-                              {BANK_NAMES.map((name) => (
-                                <option key={name} value={name}>
-                                  {name}
-                                </option>
-                              ))}
-                            </select>
+                              <span className={bankName ? "" : "text-gray-400"}>
+                                {bankName || "Select your bank"}
+                              </span>
+
+                              <ChevronDown
+                                size={16}
+                                className={`transition-transform ${
+                                  bankDropdownOpen ? "rotate-180" : ""
+                                }`}
+                              />
+                            </button>
+
+                            {/* Dropdown */}
+                            {bankDropdownOpen && (
+                              <div className="absolute z-50 mt-1 w-full rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-lg overflow-hidden">
+                                
+                                {/* Search */}
+                                <div className="p-2 border-b border-gray-200 dark:border-gray-700">
+                                  <div className="relative">
+                                    <Search
+                                      size={16}
+                                      className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+                                    />
+
+                                    <input
+                                      type="text"
+                                      value={bankSearch}
+                                      onChange={(e) => setBankSearch(e.target.value)}
+                                      placeholder="Search bank..."
+                                      autoFocus
+                                      className="w-full rounded-md border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/50 pl-9 pr-3 py-2 text-sm text-gray-900 dark:text-gray-100 outline-none focus:border-indigo-400"
+                                    />
+                                  </div>
+                                </div>
+
+                                {/* Bank List */}
+                                <div className="max-h-60 overflow-y-auto">
+                                  {filteredBanks.length > 0 ? (
+                                    filteredBanks.map((name) => (
+                                      <button
+                                        key={name}
+                                        type="button"
+                                        onClick={() => {
+                                          setBankName(name);
+                                          setBankDropdownOpen(false);
+                                          setBankSearch("");
+                                        }}
+                                        className={`w-full text-left px-3 py-2 text-sm hover:bg-indigo-50 dark:hover:bg-gray-700 ${
+                                          bankName === name
+                                            ? "bg-indigo-50 dark:bg-gray-700 text-indigo-600 dark:text-indigo-400"
+                                            : "text-gray-900 dark:text-gray-100"
+                                        }`}
+                                      >
+                                        {name}
+                                      </button>
+                                    ))
+                                  ) : (
+                                    <div className="px-3 py-3 text-sm text-gray-500 dark:text-gray-400">
+                                      No banks found
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
+                            )}
                           </div>
 
                           <ScreenshotUpload

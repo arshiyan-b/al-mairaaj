@@ -147,7 +147,7 @@
                     <div class="row mb-3">
                         <div class="col-md-6">
                             <label class="form-label">Meeting Provider</label>
-                            <select name="meeting_provider" class="form-control" required>
+                            <select name="meeting_provider" id="meetingProvider" class="form-control" required>
                                 <option value="" selected disabled>Select Provider</option>
                                 <option value="zoom">Zoom</option>
                                 <option value="jitsi">Jitsi</option>
@@ -163,9 +163,11 @@
                         </div>
                     </div>
 
-                    <div class="mb-3">
-                        <label class="form-label">Class Date</label>
-                        <input type="date" name="class_date" class="form-control" required>
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <label class="form-label">Class Date</label>
+                            <input type="date" name="class_date" class="form-control" required>
+                        </div>
                     </div>
 
                     <div class="row mb-3">
@@ -185,17 +187,17 @@
 
                     <div class="mb-3">
                         <label class="form-label">Meeting Link</label>
-                        <input type="url" name="meeting_link" class="form-control" placeholder="https://...">
+                        <input type="url" name="meeting_link" id="meetingLink" class="form-control" placeholder="https://...">
                     </div>
 
                     <div class="row mb-3">
                         <div class="col-md-6">
                             <label class="form-label">Meeting ID</label>
-                            <input type="text" name="meeting_id" class="form-control">
+                            <input type="text" name="meeting_id" id="meetingId" class="form-control">
                         </div>
                         <div class="col-md-6">
                             <label class="form-label">Meeting Password</label>
-                            <input type="text" name="meeting_password" class="form-control">
+                            <input type="text" name="meeting_password" id="meetingPassword" class="form-control">
                         </div>
                     </div>
 
@@ -212,8 +214,8 @@
 </div>
 
 <script>
-    // Auto-calculate duration from start_time/end_time
     document.addEventListener('DOMContentLoaded', function () {
+        // Duration auto-calculation logic
         const startInput = document.getElementById('liveClassStartTime');
         const endInput = document.getElementById('liveClassEndTime');
         const durationInput = document.getElementById('liveClassDuration');
@@ -231,8 +233,27 @@
 
         startInput.addEventListener('change', updateDuration);
         endInput.addEventListener('change', updateDuration);
+
+        // Disable meeting fields if Jitsi is selected
+        const meetingProvider = document.getElementById('meetingProvider');
+        const meetingLink = document.getElementById('meetingLink');
+        const meetingId = document.getElementById('meetingId');
+        const meetingPassword = document.getElementById('meetingPassword');
+
+        function toggleMeetingFields() {
+            const isJitsi = meetingProvider.value === 'jitsi';
+            
+            [meetingLink, meetingId, meetingPassword].forEach(field => {
+                field.disabled = isJitsi;
+                if (isJitsi) {
+                    field.value = ''; // Clears input value when disabled
+                }   
+            });
+        }
+
+        meetingProvider.addEventListener('change', toggleMeetingFields);
+        toggleMeetingFields(); // Run on initial load
     });
 </script>
-
 
 @endsection

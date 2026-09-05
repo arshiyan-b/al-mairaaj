@@ -231,12 +231,11 @@ class StudentController extends Controller
          * JITSI
          */
         if ($liveClass->meeting_provider === 'jitsi') {
-            $tokenData = $jitsiTokenService->generate(
+            $tokenData = $jitsiTokenService->createTokenForStudent(
                 liveClass: $liveClass,
                 studentId: $user->student->id,
-                userName: $user->name,
+                userName: $user->student->full_name,
                 userEmail: $user->email,
-                isModerator: false
             );
 
             return response()->json([

@@ -14,22 +14,9 @@ class StoreLiveClassRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'batch_id' => [
-                'required',
-                'exists:batches,id',
-            ],
-
-            'title' => [
-                'required',
-                'string',
-                'max:255',
-            ],
-
-            'price' => [
-                'required',
-                'integer',
-                'min:0',
-            ],
+            'batch_id' => ['required', 'exists:batches,id'],
+            'title' => ['required', 'string', 'max:255'],
+            'price' => ['required', 'integer', 'min:0'],
 
             'description' => [
                 'nullable',
@@ -57,16 +44,8 @@ class StoreLiveClassRequest extends FormRequest
                 'after:start_time',
             ],
 
-            'duration' => [
-                'nullable',
-                'integer',
-                'min:1',
-            ],
-
-            'status' => [
-                'required',
-                'in:scheduled,completed,canceled',
-            ],
+            'duration' => ['nullable', 'integer', 'min:1'],
+            'status' => ['required', 'in:scheduled,completed,canceled'],
         ];
     }
 }

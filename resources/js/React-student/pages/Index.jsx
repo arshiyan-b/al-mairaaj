@@ -31,7 +31,7 @@ const navLinks = [
 const features = [
     { icon: BookOpen, title: "Live Lectures", desc: "60-70 structured live sessions covering your whole syllabi. Pay only for the lessons you need." },
     { icon: Users, title: "1:1 Guidance (Coming soon)", desc: "Live 1 on 1 classes with subject experts to focus on your areas of improvement." },
-    { icon: Camera, title: "Lecorded Lectures (Coming soon)", desc: "Concise recorded lessons for each subtopic in the syllabus. Pay per minute only for the videos you watch." },
+    { icon: Camera, title: "Recorded Lectures (Coming soon)", desc: "Concise recorded lessons for each subtopic in the syllabus. Pay per minute only for the videos you watch." },
     { icon: House, title: "Home Schooling (Coming soon)", desc: "Supercharge your homeschooling journey through our portal, with level based learning for tailored education." },
     { icon: Settings2, title: "EdTech Tools (Coming soon)", desc: "Use our state of the art simulations to get a (virtual) hands on experience." },
     { icon: FlaskConical, title: "Virtual Practicals (Coming soon)", desc: "Learn how to conduct practicals step by step through virtual classes, with expert demonstrations, guidance, and practical homework." },
@@ -114,7 +114,7 @@ const Index = () => {
                     <div className="flex items-center gap-3">
                         <a href="/login">
                             <Button className="bg-teal-600 hover:bg-teal-700 text-white shadow-md shadow-teal-500/20">
-                                Login in / Sign up
+                                Log in / Sign up
                             </Button>
                         </a>
                     </div>

@@ -364,10 +364,10 @@
                             </label>
 
                             <div class="mt-1">
-                                <a href="{{ $liveClass->meetingDetail->link }}"
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    class="btn btn-sm btn-primary">
+                                <a href="{{ route('admin.jitsi.join', $liveClass) }}"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                class="btn btn-sm btn-primary">
 
                                     <i class="fas fa-external-link-alt me-1"></i>
                                     Open Meeting

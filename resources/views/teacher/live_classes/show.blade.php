@@ -363,13 +363,13 @@
                             </label>
 
                             <div class="mt-1">
-                                <a href="{{ $liveClass->meetingDetail->link }}"
+                                <a href="{{ route('teacher.jitsi.join', $liveClass->id) }}"
                                     target="_blank"
                                     rel="noopener noreferrer"
                                     class="btn btn-sm btn-primary">
 
-                                    <i class="fas fa-external-link-alt me-1"></i>
-                                    Open Meeting
+                                        <i class="fas fa-external-link-alt me-1"></i>
+                                        Open Meeting
                                 </a>
                             </div>
 
