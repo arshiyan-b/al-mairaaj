@@ -3,8 +3,10 @@
 namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Log;
 
 use App\Models\Role;
 use App\Models\Student;
@@ -59,54 +61,82 @@ class LoginController extends Controller
             'preferred_timings' => 'required|array|min:1',
             'preferred_timings.*' => 'required|string|in:Morning,Afternoon,Evening,Night',
 
-            'resume' => 'required|file|mimes:pdf,doc,docx',
-            'picture' => 'required|image',
-            'agree' => 'required',
+            // Picture is presented as optional on the form, so the validation
+            // now matches that instead of silently rejecting valid submissions.
+            'resume' => 'required|file|mimes:pdf,doc,docx|max:5120',
+            'picture' => 'nullable|image|max:3072',
+            'agree' => 'accepted',
+        ], [
+            'teacher_cnic.unique' => 'That CNIC is already registered with us.',
+            'teacher_email.unique' => 'That email is already registered with us.',
+            'resume.max' => 'Your resume is a bit large — please keep it under 5MB.',
+            'picture.max' => 'Your picture is a bit large — please keep it under 3MB.',
+            'agree.accepted' => 'Please accept the terms to continue.',
         ]);
 
-        $teacherApplication = TeacherApplication::create([
-            'name' => $request->teacher_name,
-            'cnic' => $request->teacher_cnic,
-            'gender' => $request->teacher_gender,
-            'phone_number' => $request->teacher_phone_no,
-            'whatsapp_number' => $request->teacher_whatsapp_no,
-            'email' => $request->teacher_email,
-            'city' => $request->teacher_city,
-            'address' => $request->teacher_address,
-            'highest_degree' => $request->highest_degree,
-            'field_of_study' => $request->field_of_study,
-            'university' => $request->university,
-            'experience' => $request->experience,
-            'preferred_grades' => $request->preferred_grades,
-            'preferred_subjects' => $request->preferred_subjects,
-            'preferred_timings' => $request->preferred_timings,
-            'agree' => 'yes',
-            'user_created' => 0,
-        ]);
+        // Everything past this point is no longer covered by the validation
+        // above, so wrap it and make sure a failure here (a bad upload, a
+        // database hiccup, etc.) still tells the applicant what happened
+        // instead of leaving them looking at a blank error page.
+        try {
 
-        if ($request->hasFile('resume')) {
-            $path = $request->file('resume')->store('teacher_docs/resumes', 'public');
+            DB::transaction(function () use ($request) {
 
-            TeacherDoc::create([
-                'application_id' => $teacherApplication->id,
-                'type' => 'resume',
-                'file_path' => $path,
-            ]);
-        }
+                $teacherApplication = TeacherApplication::create([
+                    'name' => $request->teacher_name,
+                    'cnic' => $request->teacher_cnic,
+                    'gender' => $request->teacher_gender,
+                    'phone_number' => $request->teacher_phone_no,
+                    'whatsapp_number' => $request->teacher_whatsapp_no,
+                    'email' => $request->teacher_email,
+                    'city' => $request->teacher_city,
+                    'address' => $request->teacher_address,
+                    'highest_degree' => $request->highest_degree,
+                    'field_of_study' => $request->field_of_study,
+                    'university' => $request->university,
+                    'experience' => $request->experience,
+                    'preferred_grades' => $request->preferred_grades,
+                    'preferred_subjects' => $request->preferred_subjects,
+                    'preferred_timings' => $request->preferred_timings,
+                    'agree' => 'yes',
+                    'user_created' => 0,
+                ]);
 
-        if ($request->hasFile('picture')) {
-            $path = $request->file('picture')->store('teacher_docs/pictures', 'public');
+                if ($request->hasFile('resume')) {
+                    $path = $request->file('resume')->store('teacher_docs/resumes', 'public');
 
-            TeacherDoc::create([
-                'application_id' => $teacherApplication->id,
-                'type' => 'picture',
-                'file_path' => $path,
-            ]);
+                    TeacherDoc::create([
+                        'application_id' => $teacherApplication->id,
+                        'type' => 'resume',
+                        'file_path' => $path,
+                    ]);
+                }
+
+                if ($request->hasFile('picture')) {
+                    $path = $request->file('picture')->store('teacher_docs/pictures', 'public');
+
+                    TeacherDoc::create([
+                        'application_id' => $teacherApplication->id,
+                        'type' => 'picture',
+                        'file_path' => $path,
+                    ]);
+                }
+
+            });
+
+        } catch (\Throwable $e) {
+
+            Log::error('Teacher application submission failed: ' . $e->getMessage());
+
+            return redirect()
+                ->back()
+                ->withInput()
+                ->with('error', "We hit a snag saving your application and it wasn't submitted. Please try again, and if it keeps happening, reach out to us directly so we can help.");
         }
 
         return redirect()
             ->back()
-            ->with('success', 'Registration submitted successfully.');
+            ->with('success', "Thank you, {$request->teacher_name}! Your application is in good hands - our academic team will review it and reach out soon.");
     }
 
     public function register()

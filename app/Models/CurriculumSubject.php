@@ -20,8 +20,8 @@ class CurriculumSubject extends Model
     {
         return $this->belongsTo(Grade::class);
     }
-    public function getCompleteNameAttribute() 
-    { 
-        return $this->code . ' - ' . $this->name; 
-    } 
+    public function getCompleteNameAttribute()
+    {
+        return $this->code ? $this->code . ' - ' . $this->name : $this->name;
+    }
 }

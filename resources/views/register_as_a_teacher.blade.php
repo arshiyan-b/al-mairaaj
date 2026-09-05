@@ -4,7 +4,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Register | Al Mairaaj</title>
+    <title>Teach With Us | Al Mairaaj</title>
 
     <link rel="icon" type="image/png" href="{{ asset('build/assets/book_logo.png') }}">
 
@@ -13,9 +13,16 @@
         integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
         crossorigin="anonymous">
 
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
     <!-- Select2 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css"
         rel="stylesheet" />
+
+    <!-- Warm, friendly display font for headings -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 
     <!-- jQuery -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -31,16 +38,143 @@
 </head>
 
 <style>
+    :root {
+        --teal: #0d6d72;
+        --teal-dark: #094f53;
+        --teal-tint: #e7f3f3;
+        --gold: #cf9a3f;
+        --gold-tint: #faf3e4;
+        --ink: #22333b;
+        --paper: #faf7f2;
+    }
+
+    body {
+        background: var(--paper);
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        color: var(--ink);
+    }
+
+    h1, h2, h3, h4, .brand-heading {
+        font-family: 'Poppins', 'Inter', sans-serif;
+    }
+
+    .teach-hero {
+        background: linear-gradient(135deg, var(--teal) 0%, var(--teal-dark) 100%);
+        border-radius: 1.25rem 1.25rem 0 0;
+        color: #fff;
+        padding: 2.25rem 2rem;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .teach-hero::after {
+        content: "";
+        position: absolute;
+        right: -60px;
+        top: -60px;
+        width: 220px;
+        height: 220px;
+        background: rgba(255, 255, 255, 0.08);
+        border-radius: 50%;
+    }
+
+    .teach-hero .hero-icon {
+        width: 52px;
+        height: 52px;
+        border-radius: 14px;
+        background: rgba(255, 255, 255, 0.15);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        margin-bottom: 0.9rem;
+    }
+
+    .teach-hero p {
+        color: rgba(255, 255, 255, 0.85);
+        max-width: 640px;
+        margin-bottom: 0;
+    }
+
+    .teach-hero .hero-meta {
+        margin-top: 1.1rem;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1.25rem;
+        font-size: 0.875rem;
+        color: rgba(255, 255, 255, 0.85);
+    }
+
+    .teach-hero .hero-meta span {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+    }
+
+    .teach-card {
+        border: none;
+        border-radius: 1.25rem;
+        overflow: hidden;
+    }
+
+    .teach-card .card-body {
+        padding: 2.25rem;
+    }
+
+    .section-heading {
+        display: flex;
+        align-items: center;
+        gap: 0.65rem;
+        margin-bottom: 1.1rem;
+        padding-bottom: 0.6rem;
+        border-bottom: 1px solid #eee1cd;
+    }
+
+    .section-heading .icon-badge {
+        width: 34px;
+        height: 34px;
+        border-radius: 10px;
+        background: var(--gold-tint);
+        color: var(--gold);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1rem;
+        flex-shrink: 0;
+    }
+
+    .section-heading h5 {
+        margin: 0;
+        font-size: 1.05rem;
+        color: var(--ink);
+    }
+
+    label {
+        font-weight: 500;
+        font-size: 0.92rem;
+        margin-bottom: 0.3rem;
+    }
+
+    .form-control,
+    .form-select {
+        border-radius: 0.6rem;
+        border-color: #dcd6ca;
+    }
+
     .form-control:focus,
     .form-control:hover {
-        border-color: black !important;
-        box-shadow: 0 0 0 0.25rem rgba(0, 0, 0, 0.25) !important;
+        border-color: var(--teal) !important;
+        box-shadow: 0 0 0 0.2rem rgba(13, 109, 114, 0.15) !important;
     }
 
     /* Required field star */
     .required-star {
-        color: red;
+        color: var(--gold);
         font-weight: bold;
+    }
+
+    .form-text {
+        font-size: 0.8rem;
     }
 
     /* Make Select2 match Bootstrap input */
@@ -52,8 +186,8 @@
         line-height: 1.5;
         color: #212529;
         background-color: #fff;
-        border: 1px solid #ced4da;
-        border-radius: 0.375rem;
+        border: 1px solid #dcd6ca;
+        border-radius: 0.6rem;
     }
 
     .select2-container .select2-selection--multiple {
@@ -70,10 +204,10 @@
     }
 
     .select2-container--default .select2-selection--multiple .select2-selection__choice {
-        background-color: rgb(13, 109, 114);
+        background-color: var(--teal);
         border: none;
         color: #fff;
-        border-radius: 0.2rem;
+        border-radius: 0.35rem;
     }
 
     /* Select2 validation error */
@@ -90,46 +224,117 @@
         display: block;
     }
 
+    .teal-checkbox {
+        background: var(--teal-tint);
+        border-radius: 0.75rem;
+        padding: 1rem 1.1rem;
+    }
+
     .teal-checkbox input[type="checkbox"] {
-        accent-color: #5f9ea0;
+        accent-color: var(--teal);
     }
 
     .teal-checkbox label {
-        color: #0d6d72;
+        color: var(--teal-dark);
+        font-weight: 500;
+    }
+
+    .agreement-box {
+        background: #fbfaf7;
+        border: 1px solid #eee1cd;
+        border-radius: 0.85rem;
+        padding: 1.1rem 1.25rem;
+        font-size: 0.9rem;
+        color: #4a5a60;
+    }
+
+    .agreement-box strong {
+        color: var(--ink);
+    }
+
+    .btn-submit {
+        background: var(--teal);
+        border: none;
+        color: #fff;
+        border-radius: 50px;
+        padding: 0.7rem 2rem;
+        font-weight: 600;
+        transition: background 0.2s ease, transform 0.15s ease;
+    }
+
+    .btn-submit:hover:not(:disabled) {
+        background: var(--teal-dark);
+        color: #fff;
+        transform: translateY(-1px);
+    }
+
+    .btn-submit:disabled {
+        opacity: 0.8;
+    }
+
+    .alert-feelgood {
+        border: none;
+        border-radius: 0.85rem;
+    }
+
+    .alert-feelgood.alert-success {
+        background: var(--teal-tint);
+        color: var(--teal-dark);
+    }
+
+    .alert-feelgood.alert-danger {
+        background: #fbeceb;
+        color: #8a2f2a;
     }
 </style>
 
 <body>
 
-<div class="container mt-5">
+<div class="container my-5" style="max-width: 960px;">
 
     @if (session('success'))
-        <div class="alert alert-success mt-3 mx-3">
-            {{ session('success') }}
+        <div class="alert alert-feelgood alert-success d-flex align-items-start gap-2 mb-3" role="alert">
+            <i class="bi bi-check-circle-fill fs-5 mt-1"></i>
+            <div>{{ session('success') }}</div>
         </div>
     @endif
 
     @if (session('error'))
-        <div class="alert alert-danger mt-3 mx-3">
-            {{ session('error') }}
+        <div class="alert alert-feelgood alert-danger d-flex align-items-start gap-2 mb-3" role="alert">
+            <i class="bi bi-exclamation-triangle-fill fs-5 mt-1"></i>
+            <div>{{ session('error') }}</div>
         </div>
     @endif
 
     @if ($errors->any())
-        <div class="alert alert-danger mt-3 mx-3">
-            <strong>Please fix the following before submitting:</strong>
-            <ul class="mb-0">
-                @foreach ($errors->all() as $error)
-                    <li>{{ $error }}</li>
-                @endforeach
-            </ul>
+        <div class="alert alert-feelgood alert-danger mb-3" role="alert">
+            <div class="d-flex align-items-start gap-2">
+                <i class="bi bi-exclamation-triangle-fill fs-5 mt-1"></i>
+                <div>
+                    <strong>A few things need a second look:</strong>
+                    <ul class="mb-0 mt-1">
+                        @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            </div>
         </div>
     @endif
 
-    <div class="card shadow">
+    <div class="card teach-card shadow-sm">
 
-        <div class="card-header bg-dark text-white">
-            <h4 class="mb-0">Teacher Registration</h4>
+        <div class="teach-hero">
+            <div class="hero-icon"><i class="bi bi-mortarboard-fill"></i></div>
+            <h1 class="h3 mb-2">Bring your teaching to Al Mairaaj</h1>
+            <p>
+                Tell us a little about yourself and the subjects you love to teach. Our academic
+                team reviews every application personally and will reach out about next steps.
+            </p>
+            <div class="hero-meta">
+                <span><i class="bi bi-clock"></i> About 5 minutes to complete</span>
+                <span><i class="bi bi-shield-check"></i> Your details stay private</span>
+            </div>
         </div>
 
         <div class="card-body">
@@ -137,11 +342,17 @@
             <form action="{{ route('teacher.register.store') }}"
                 method="POST"
                 enctype="multipart/form-data"
-                id="teacherRegistrationForm">
+                id="teacherRegistrationForm"
+                novalidate>
 
                 @csrf
 
                 <!-- Basic Information -->
+                <div class="section-heading">
+                    <span class="icon-badge"><i class="bi bi-person-fill"></i></span>
+                    <h5>Personal details</h5>
+                </div>
+
                 <div class="row mb-4">
 
                     <div class="col-md-4">
@@ -152,11 +363,14 @@
                         <input type="text"
                             class="form-control @error('teacher_name') is-invalid @enderror"
                             name="teacher_name"
+                            id="teacher_name"
                             value="{{ old('teacher_name') }}"
                             required>
 
                         @error('teacher_name')
                             <div class="invalid-feedback">{{ $message }}</div>
+                        @else
+                            <div class="invalid-feedback">Please tell us your full name.</div>
                         @enderror
                     </div>
 
@@ -194,6 +408,7 @@
 
                         <select class="form-control @error('teacher_gender') is-invalid @enderror"
                             name="teacher_gender"
+                            id="teacher_gender"
                             required>
 
                             <option value="" {{ old('teacher_gender') ? '' : 'selected' }} disabled>
@@ -208,13 +423,20 @@
 
                         @error('teacher_gender')
                             <div class="invalid-feedback">{{ $message }}</div>
+                        @else
+                            <div class="invalid-feedback">Please select a gender.</div>
                         @enderror
                     </div>
 
                 </div>
 
                 <!-- Contact Information -->
-                <div class="row mb-3">
+                <div class="section-heading">
+                    <span class="icon-badge"><i class="bi bi-telephone-fill"></i></span>
+                    <h5>How can we reach you?</h5>
+                </div>
+
+                <div class="row mb-4">
 
                     <div class="col-md-4">
                         <label>
@@ -274,18 +496,21 @@
                         <input type="email"
                             class="form-control @error('teacher_email') is-invalid @enderror"
                             name="teacher_email"
+                            id="teacher_email"
                             value="{{ old('teacher_email') }}"
                             required>
 
                         @error('teacher_email')
                             <div class="invalid-feedback">{{ $message }}</div>
+                        @else
+                            <div class="invalid-feedback">Please enter a valid email address.</div>
                         @enderror
                     </div>
 
                 </div>
 
                 <!-- Address -->
-                <div class="row mb-3">
+                <div class="row mb-4">
 
                     <div class="col-md-4">
                         <label>
@@ -295,11 +520,14 @@
                         <input type="text"
                             class="form-control @error('teacher_city') is-invalid @enderror"
                             name="teacher_city"
+                            id="teacher_city"
                             value="{{ old('teacher_city') }}"
                             required>
 
                         @error('teacher_city')
                             <div class="invalid-feedback">{{ $message }}</div>
+                        @else
+                            <div class="invalid-feedback">Please tell us your city.</div>
                         @enderror
                     </div>
 
@@ -310,18 +538,26 @@
 
                         <textarea class="form-control @error('teacher_address') is-invalid @enderror"
                             name="teacher_address"
+                            id="teacher_address"
                             rows="2"
                             required>{{ old('teacher_address') }}</textarea>
 
                         @error('teacher_address')
                             <div class="invalid-feedback">{{ $message }}</div>
+                        @else
+                            <div class="invalid-feedback">Please enter your address.</div>
                         @enderror
                     </div>
 
                 </div>
 
                 <!-- Education -->
-                <div class="row mb-3">
+                <div class="section-heading">
+                    <span class="icon-badge"><i class="bi bi-mortarboard"></i></span>
+                    <h5>Education &amp; experience</h5>
+                </div>
+
+                <div class="row mb-4">
 
                     <div class="col-md-4">
                         <label>
@@ -331,11 +567,14 @@
                         <input type="text"
                             class="form-control @error('highest_degree') is-invalid @enderror"
                             name="highest_degree"
+                            id="highest_degree"
                             value="{{ old('highest_degree') }}"
                             required>
 
                         @error('highest_degree')
                             <div class="invalid-feedback">{{ $message }}</div>
+                        @else
+                            <div class="invalid-feedback">Please enter your highest degree.</div>
                         @enderror
                     </div>
 
@@ -347,11 +586,14 @@
                         <input type="text"
                             class="form-control @error('field_of_study') is-invalid @enderror"
                             name="field_of_study"
+                            id="field_of_study"
                             value="{{ old('field_of_study') }}"
                             required>
 
                         @error('field_of_study')
                             <div class="invalid-feedback">{{ $message }}</div>
+                        @else
+                            <div class="invalid-feedback">Please enter your field of study.</div>
                         @enderror
                     </div>
 
@@ -363,18 +605,26 @@
                         <input type="text"
                             class="form-control @error('university') is-invalid @enderror"
                             name="university"
+                            id="university"
                             value="{{ old('university') }}"
                             required>
 
                         @error('university')
                             <div class="invalid-feedback">{{ $message }}</div>
+                        @else
+                            <div class="invalid-feedback">Please enter your university.</div>
                         @enderror
                     </div>
 
                 </div>
 
                 <!-- Experience and Preferences -->
-                <div class="row mb-3">
+                <div class="section-heading">
+                    <span class="icon-badge"><i class="bi bi-easel2"></i></span>
+                    <h5>What and when you'd like to teach</h5>
+                </div>
+
+                <div class="row mb-4">
 
                     <div class="col-md-4">
                         <label>
@@ -383,6 +633,7 @@
 
                         <select class="form-control @error('experience') is-invalid @enderror"
                             name="experience"
+                            id="experience"
                             required>
 
                             <option value="" {{ old('experience') ? '' : 'selected' }} disabled>
@@ -413,6 +664,8 @@
 
                         @error('experience')
                             <div class="invalid-feedback">{{ $message }}</div>
+                        @else
+                            <div class="invalid-feedback">Please select your experience level.</div>
                         @enderror
                     </div>
 
@@ -487,7 +740,7 @@
                 </div>
 
                 <!-- Preferred Timings -->
-                <div class="row mb-3">
+                <div class="row mb-4">
 
                     <div class="col-md-4">
 
@@ -533,9 +786,14 @@
                 </div>
 
                 <!-- Documents -->
-                <div class="row mb-3">
+                <div class="section-heading">
+                    <span class="icon-badge"><i class="bi bi-paperclip"></i></span>
+                    <h5>Resume &amp; photo</h5>
+                </div>
 
-                    <div class="col-md-4">
+                <div class="row mb-4">
+
+                    <div class="col-md-6">
 
                         <label for="resume">
                             Upload Resume
@@ -551,23 +809,22 @@
 
                         @error('resume')
                             <div class="invalid-feedback">{{ $message }}</div>
+                        @else
+                            <div class="invalid-feedback">Please attach your resume (PDF, DOC or DOCX).</div>
                         @enderror
 
                         <div class="form-text">
-                            If the form is sent back due to an error, please re-select your resume.
+                            PDF, DOC or DOCX, up to 5MB. If the form is sent back due to an error,
+                            please re-select your resume.
                         </div>
 
                     </div>
 
-                    <div class="col-md-4">
+                    <div class="col-md-6">
 
                         <label for="picture">
-                            Upload Picture
+                            Upload Picture <span class="text-muted small">(optional)</span>
                         </label>
-
-                        <span class="text-muted small">
-                            (By uploading this image, you grant permission for it to be used for marketing purposes on social media platforms.)
-                        </span>
 
                         <input type="file"
                             class="form-control @error('picture') is-invalid @enderror"
@@ -580,7 +837,8 @@
                         @enderror
 
                         <div class="form-text">
-                            If the form is sent back due to an error, please re-select your picture.
+                            By uploading a photo, you allow us to use it for marketing on our social
+                            platforms. If the form is sent back due to an error, please re-select your picture.
                         </div>
 
                     </div>
@@ -588,28 +846,19 @@
                 </div>
 
                 <!-- Intellectual Property -->
-                <div class="mb-3">
+                <div class="agreement-box mb-3">
 
-                    <strong>Intellectual Property:</strong>
+                    <p class="mb-2"><strong>Intellectual property.</strong> Teaching materials you
+                        create for use at the academy remain the property of Al Mairaaj. Please
+                        don't use or share them outside the academy without permission.</p>
 
-                    <p class="mb-1">
-                        Teaching materials created by the teacher for use at the academy remain the
-                        property of Academy.
-                        The teacher agrees not to use or distribute these materials outside the
-                        academy without permission.
-                    </p>
-
-                    <strong>Acknowledgment:</strong>
-
-                    <p>
-                        By accepting this agreement, the teacher acknowledges that they have read,
-                        understood, and agreed to the terms and conditions outlined above.
-                    </p>
+                    <p class="mb-0"><strong>Acknowledgment.</strong> By accepting below, you confirm
+                        you've read, understood, and agree to the terms above.</p>
 
                 </div>
 
                 <!-- Agreement -->
-                <div class="form-check mb-3">
+                <div class="form-check teal-checkbox mb-4">
 
                     <input type="checkbox"
                         class="form-check-input @error('agree') is-invalid @enderror"
@@ -625,14 +874,16 @@
 
                     @error('agree')
                         <div class="invalid-feedback">{{ $message }}</div>
+                    @else
+                        <div class="invalid-feedback">Please accept the terms to continue.</div>
                     @enderror
 
                 </div>
 
                 <button type="submit"
-                    class="btn btn-dark"
+                    class="btn btn-submit"
                     id="registerBtn">
-                    Register
+                    <i class="bi bi-send-fill me-1"></i> Submit My Application
                 </button>
 
             </form>
@@ -685,7 +936,35 @@
 
         /*
         |--------------------------------------------------------------------------
+        | Small helpers to toggle validation state consistently, including
+        | Select2 fields (whose real <select> is hidden behind a rendered
+        | .select2-container, so the error class has to go on that instead).
+        |--------------------------------------------------------------------------
+        */
+
+        function setFieldState(el, valid) {
+
+            const $el = $(el);
+            const $target = $el.hasClass('select2-hidden-accessible')
+                ? $el.next('.select2-container')
+                : $el;
+
+            $target.toggleClass('is-invalid', !valid);
+            $target.toggleClass('is-valid', valid);
+        }
+
+        function isFilled(value) {
+            return value !== null && value !== undefined && String(value).trim().length > 0;
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
         | Form Validation
+        |
+        | Runs on submit for every required field, so nothing is ever left to
+        | the browser's own (inconsistent, unstyled) validation messages -
+        | every failure shows the same inline, friendly feedback text.
         |--------------------------------------------------------------------------
         */
 
@@ -693,152 +972,65 @@
 
             let isValid = true;
 
+            function check(selector, valid) {
+                setFieldState($(selector), valid);
+                if (!valid) isValid = false;
+            }
 
-            /*
-            |--------------------------------------------------------------------------
-            | CNIC Validation
-            |--------------------------------------------------------------------------
-            */
 
+            // Simple required text/textarea fields
+            [
+                '#teacher_name',
+                '#teacher_city',
+                '#teacher_address',
+                '#highest_degree',
+                '#field_of_study',
+                '#university'
+            ].forEach(function (selector) {
+                check(selector, isFilled($(selector).val()));
+            });
+
+
+            // Required selects
+            ['#teacher_gender', '#experience'].forEach(function (selector) {
+                check(selector, isFilled($(selector).val()));
+            });
+
+
+            // Email
+            const email = $('#teacher_email').val().trim();
+            check('#teacher_email', /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email));
+
+
+            // CNIC
             const cnic = $('#teacher_cnic').val().trim();
-
-            if (!/^[0-9]{13}$/.test(cnic)) {
-
-                $('#teacher_cnic')
-                    .addClass('is-invalid')
-                    .removeClass('is-valid');
-
-                isValid = false;
-
-            } else {
-
-                $('#teacher_cnic')
-                    .removeClass('is-invalid')
-                    .addClass('is-valid');
-
-            }
+            check('#teacher_cnic', /^[0-9]{13}$/.test(cnic));
 
 
-            /*
-            |--------------------------------------------------------------------------
-            | Phone Number Validation
-            |--------------------------------------------------------------------------
-            */
-
+            // Phone Number
             const phone = $('#teacher_phone_no').val().trim();
-
-            if (!/^03[0-9]{9}$/.test(phone)) {
-
-                $('#teacher_phone_no')
-                    .addClass('is-invalid')
-                    .removeClass('is-valid');
-
-                isValid = false;
-
-            } else {
-
-                $('#teacher_phone_no')
-                    .removeClass('is-invalid')
-                    .addClass('is-valid');
-
-            }
+            check('#teacher_phone_no', /^03[0-9]{9}$/.test(phone));
 
 
-            /*
-            |--------------------------------------------------------------------------
-            | WhatsApp Number Validation
-            |--------------------------------------------------------------------------
-            */
-
+            // WhatsApp Number
             const whatsapp = $('#teacher_whatsapp_no').val().trim();
-
-            if (!/^03[0-9]{9}$/.test(whatsapp)) {
-
-                $('#teacher_whatsapp_no')
-                    .addClass('is-invalid')
-                    .removeClass('is-valid');
-
-                isValid = false;
-
-            } else {
-
-                $('#teacher_whatsapp_no')
-                    .removeClass('is-invalid')
-                    .addClass('is-valid');
-
-            }
+            check('#teacher_whatsapp_no', /^03[0-9]{9}$/.test(whatsapp));
 
 
-            /*
-            |--------------------------------------------------------------------------
-            | Preferred Grades Validation
-            |--------------------------------------------------------------------------
-            */
-
-            if ($('#preferred_grades').val() === null ||
-                $('#preferred_grades').val().length === 0) {
-
-                $('#preferred_grades')
-                    .next('.select2-container')
-                    .addClass('is-invalid');
-
-                isValid = false;
-
-            } else {
-
-                $('#preferred_grades')
-                    .next('.select2-container')
-                    .removeClass('is-invalid');
-
-            }
+            // Preferred Grades / Subjects / Timings (Select2 multi-selects)
+            ['#preferred_grades', '#preferred_subjects', '#preferred_timings'].forEach(function (selector) {
+                const val = $(selector).val();
+                check(selector, val !== null && val.length > 0);
+            });
 
 
-            /*
-            |--------------------------------------------------------------------------
-            | Preferred Subjects Validation
-            |--------------------------------------------------------------------------
-            */
-
-            if ($('#preferred_subjects').val() === null ||
-                $('#preferred_subjects').val().length === 0) {
-
-                $('#preferred_subjects')
-                    .next('.select2-container')
-                    .addClass('is-invalid');
-
-                isValid = false;
-
-            } else {
-
-                $('#preferred_subjects')
-                    .next('.select2-container')
-                    .removeClass('is-invalid');
-
-            }
+            // Resume (required file)
+            const resumeFiles = $('#resume')[0].files;
+            check('#resume', resumeFiles && resumeFiles.length > 0);
 
 
-            /*
-            |--------------------------------------------------------------------------
-            | Preferred Timings Validation
-            |--------------------------------------------------------------------------
-            */
-
-            if ($('#preferred_timings').val() === null ||
-                $('#preferred_timings').val().length === 0) {
-
-                $('#preferred_timings')
-                    .next('.select2-container')
-                    .addClass('is-invalid');
-
-                isValid = false;
-
-            } else {
-
-                $('#preferred_timings')
-                    .next('.select2-container')
-                    .removeClass('is-invalid');
-
-            }
+            // Agreement checkbox
+            check('#agree', $('#agree').is(':checked'));
 
 
             /*
@@ -868,7 +1060,7 @@
                 // so a failed client-side check never leaves the button stuck.
                 $('#registerBtn')
                     .prop('disabled', true)
-                    .html('Registering... <span class="spinner-border spinner-border-sm ms-1"></span>');
+                    .html('Submitting... <span class="spinner-border spinner-border-sm ms-1"></span>');
 
             }
 
@@ -877,31 +1069,34 @@
 
         /*
         |--------------------------------------------------------------------------
-        | Remove Validation Error While Typing
+        | Remove Validation Error While Typing / Choosing
         |--------------------------------------------------------------------------
         */
 
-        $('#teacher_cnic, #teacher_phone_no, #teacher_whatsapp_no').on('input', function () {
+        $('#teacherRegistrationForm').on('input change', 'input, textarea, select', function () {
 
-            $(this).removeClass('is-invalid');
+            setFieldState(this, true);
 
-        });
+            // Immediately re-flag empty required fields rather than showing
+            // a false "valid" state while the user is still typing.
+            const $this = $(this);
 
+            if ($this.prop('required')) {
 
-        /*
-        |--------------------------------------------------------------------------
-        | Remove Select2 Validation Error When Selection Changes
-        |--------------------------------------------------------------------------
-        */
+                if ($this.attr('type') === 'checkbox') {
 
-        $('#preferred_grades, #preferred_subjects, #preferred_timings').on('change', function () {
+                    if (!$this.is(':checked')) setFieldState(this, false);
 
-            if ($(this).val() && $(this).val().length > 0) {
+                } else if ($this.is('select') && $this.attr('multiple')) {
 
-                $(this)
-                    .next('.select2-container')
-                    .removeClass('is-invalid');
+                    const val = $this.val();
+                    if (!val || val.length === 0) setFieldState(this, false);
 
+                } else if (!isFilled($this.val())) {
+
+                    setFieldState(this, false);
+
+                }
             }
 
         });

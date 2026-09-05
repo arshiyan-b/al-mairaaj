@@ -199,7 +199,7 @@ const Subjects = () => {
             searchPlaceholder="Search subjects..."
             options={availableSubjectsForDropdown.map((subject) => ({
               value: subject.id,
-              label: `${subject.code} - ${subject.name}`,
+              label: `${subject.complete_name}`,
             }))}
           />
         </div>

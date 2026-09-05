@@ -8,7 +8,12 @@ class GradeService
 {
     public function getGrades()
     {
-        return Grade::with('board')->get();
+        return Grade::with('board')
+            ->where('is_active', 1)
+            ->whereHas('board', function ($query) {
+                $query->where('is_active', 1);
+            })
+            ->get();
     }
     public function getGrade($id)
     {

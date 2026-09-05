@@ -13,6 +13,7 @@ class Grade extends Model
         'board_id',
         'name',
         'slug',
+        'is_active',
     ];
 
     public function board()
