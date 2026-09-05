@@ -10,6 +10,7 @@ class TeacherService
     {
         return Teacher::with([
             'allowed_classes.grade.board',
+            'application.teacherDocs',
         ])->get();
     }
 
@@ -17,6 +18,7 @@ class TeacherService
     {
         return Teacher::with([
             'allowed_classes.grade.board',
+            'application.teacherDocs',
         ])->findOrFail($id);
     }
 }

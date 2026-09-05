@@ -16,7 +16,7 @@ function getSubjectLabels(teacher) {
     const board = ac.grade?.board?.name || "";
     const grade = ac.grade?.name || "";
     (ac.curriculum_subjects || []).forEach((s) => {
-      const subjectLabel = s.complete_name || [s.code, s.name].filter(Boolean).join(" ");
+      const subjectLabel = s.complete_name || [s.code, s.name].filter(Boolean).join(" - ");
       const label = [board, grade, subjectLabel].filter(Boolean).join(" • ");
       if (label) seen.set(s.id, label);
     });
@@ -237,7 +237,21 @@ export default function Teachers() {
               >
                 {/* Top Banner / Avatar Area */}
                 <div className="h-28 bg-gradient-to-r from-indigo-50 to-teal-50 relative flex justify-center">
-                  <div className="absolute -bottom-10 flex h-24 w-24 items-center justify-center rounded-full border-4 border-white bg-indigo-100 text-2xl font-bold text-indigo-600 shadow-md z-10">
+                  {teacher.picture_url ? (
+                    <img
+                      src={teacher.picture_url}
+                      alt={teacher.name}
+                      className="absolute -bottom-10 h-24 w-24 rounded-full border-4 border-white object-cover shadow-md z-10"
+                      onError={(e) => {
+                        e.currentTarget.style.display = "none";
+                        e.currentTarget.nextElementSibling.style.display = "flex";
+                      }}
+                    />
+                  ) : null}
+                  <div
+                    className="absolute -bottom-10 h-24 w-24 items-center justify-center rounded-full border-4 border-white bg-indigo-100 text-2xl font-bold text-indigo-600 shadow-md z-10"
+                    style={{ display: teacher.picture_url ? "none" : "flex" }}
+                  >
                     {getInitials(teacher.name)}
                   </div>
                 </div>

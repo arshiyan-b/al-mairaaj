@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use App\Models\Subject;
+use Illuminate\Support\Facades\Storage;
 
 class Teacher extends Model
 {
@@ -20,8 +20,13 @@ class Teacher extends Model
     protected $hidden = [
         'created_at',
         'updated_at',
+        'application',
     ];
-    
+
+    protected $appends = [
+        'picture_url',
+    ];
+
     public function user()
     {
         return $this->belongsTo(User::class);
@@ -33,5 +38,17 @@ class Teacher extends Model
     public function allowed_classes()
     {
         return $this->hasMany(AllowedClass::class);
+    }
+
+    public function getPictureUrlAttribute()
+    {
+        $picture = $this->application?->teacherDocs
+            ?->firstWhere('type', 'picture');
+
+        if (! $picture) {
+            return null;
+        }
+
+        return Storage::disk('public')->url($picture->file_path);
     }
 }
