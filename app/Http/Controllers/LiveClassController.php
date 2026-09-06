@@ -10,6 +10,7 @@ use App\Models\Grade;
 use App\Models\LiveClass;
 use App\Services\LiveClassesService;
 use App\Http\Requests\StoreLiveClassRequest;
+use App\Http\Requests\UpdateLiveClassRequest;
 
 class LiveClassController extends Controller
 {
@@ -30,6 +31,16 @@ class LiveClassController extends Controller
         return redirect()
             ->back()
             ->with('success', 'Live class created successfully.');
+    }
+    public function update(UpdateLiveClassRequest $request, $live_class)
+    {
+        $liveClass = $this->liveClassesService->getLiveClass($live_class);
+
+        $this->liveClassesService->update($liveClass, $request->validated());
+
+        return redirect()
+            ->back()
+            ->with('success', 'Live class updated successfully.');
     }
     public function student_live_classes_data()
     {

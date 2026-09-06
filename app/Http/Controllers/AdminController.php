@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Storage;
 use App\Models\AllowedClass;
 use App\Models\CurriculumSubject;
 use App\Models\Role;
@@ -134,6 +135,81 @@ class AdminController extends Controller
             'grades' => $this->grades,
             'subjects' => $this->subjects,
             'curriculumSubjects' => $curriculumSubjects,
+        ]);
+    }
+
+    public function teacher_update(Request $request, Teacher $teacher)
+    {
+        $application = $teacher->application;
+
+        $validated = $request->validate([
+            'name' => 'required|string|max:50',
+            'cnic' => 'required|string|max:15|unique:teacher_applications,cnic,' . $application->id,
+            'gender' => 'required|in:male,female,other',
+            'phone_number' => 'required|string|max:15',
+            'whatsapp_number' => 'required|string|max:15',
+            'email' => 'required|email|max:60|unique:teacher_applications,email,' . $application->id,
+            'city' => 'required|string|max:50',
+            'address' => 'required|string|max:120',
+            'highest_degree' => 'required|string|max:45',
+            'field_of_study' => 'required|string|max:65',
+            'university' => 'required|string|max:75',
+            'experience' => 'required|string|max:45',
+            'resume' => 'nullable|file|mimes:pdf,doc,docx|max:5120',
+            'picture' => 'nullable|image|max:3072',
+        ], [
+            'cnic.unique' => 'That CNIC is already registered with another application.',
+            'email.unique' => 'That email is already registered with another application.',
+            'resume.max' => 'Resume must be under 5MB.',
+            'picture.max' => 'Picture must be under 3MB.',
+        ]);
+
+        $application->update([
+            'name' => $validated['name'],
+            'cnic' => $validated['cnic'],
+            'gender' => $validated['gender'],
+            'phone_number' => $validated['phone_number'],
+            'whatsapp_number' => $validated['whatsapp_number'],
+            'email' => $validated['email'],
+            'city' => $validated['city'],
+            'address' => $validated['address'],
+            'highest_degree' => $validated['highest_degree'],
+            'field_of_study' => $validated['field_of_study'],
+            'university' => $validated['university'],
+            'experience' => $validated['experience'],
+        ]);
+
+        // The Teacher record keeps its own copy of the name, so update both.
+        $teacher->update(['name' => $validated['name']]);
+
+        if ($request->hasFile('resume')) {
+            $this->replaceTeacherDoc($application, 'resume', $request->file('resume'), 'teacher_docs/resumes');
+        }
+
+        if ($request->hasFile('picture')) {
+            $this->replaceTeacherDoc($application, 'picture', $request->file('picture'), 'teacher_docs/pictures');
+        }
+
+        return redirect()
+            ->route('admin.teachers.show', $teacher->id)
+            ->with('success', 'Teacher details updated successfully.');
+    }
+
+    private function replaceTeacherDoc(TeacherApplication $application, string $type, $file, string $directory): void
+    {
+        $existing = $application->teacherDocs()->where('type', $type)->first();
+
+        if ($existing) {
+            Storage::disk('public')->delete($existing->file_path);
+            $existing->delete();
+        }
+
+        $path = $file->store($directory, 'public');
+
+        TeacherDoc::create([
+            'application_id' => $application->id,
+            'type' => $type,
+            'file_path' => $path,
         ]);
     }
 

@@ -252,6 +252,25 @@
         color: var(--ink);
     }
 
+    .agreement-scroll {
+        max-height: 260px;
+        overflow-y: auto;
+        padding-right: 0.5rem;
+    }
+
+    .agreement-scroll p,
+    .agreement-scroll ul {
+        font-size: 0.88rem;
+    }
+
+    .agreement-scroll ul {
+        padding-left: 1.25rem;
+    }
+
+    .agreement-scroll ul li {
+        margin-bottom: 0.25rem;
+    }
+
     .btn-submit {
         background: var(--teal);
         border: none;
@@ -845,15 +864,84 @@
 
                 </div>
 
-                <!-- Intellectual Property -->
+                <!-- Teacher Agreement -->
                 <div class="agreement-box mb-3">
 
-                    <p class="mb-2"><strong>Intellectual property.</strong> Teaching materials you
-                        create for use at the academy remain the property of Al Mairaaj. Please
-                        don't use or share them outside the academy without permission.</p>
+                    <h6 class="fw-bold mb-3">Teacher Agreement</h6>
 
-                    <p class="mb-0"><strong>Acknowledgment.</strong> By accepting below, you confirm
-                        you've read, understood, and agree to the terms above.</p>
+                    <div class="agreement-scroll">
+
+                        <p>
+                            The teacher is employed on a contractual basis, starting from the date
+                            mentioned above in the form. Employment is subject to a probationary
+                            period of 2 months, during which either party can terminate the
+                            contract within 15 days' notice.
+                        </p>
+
+                        <p class="mb-1"><strong>Roles and Responsibilities</strong></p>
+                        <ul>
+                            <li>The teacher will provide high-quality instruction in subjects as assigned by the Academy.</li>
+                            <li>The teacher must have a stable connection and properly working devices to use as a tool for learning and teaching.</li>
+                            <li>The teacher will deliver lessons and assess student performance according to the Academy's standards.</li>
+                            <li>The teacher will maintain accurate records of student attendance, grades, and progress.</li>
+                            <li>The teacher will participate in subject-wise meetings, training sessions, and professional development activities organized by the Academy.</li>
+                            <li>The teacher will adhere to the Academy's curriculum and teaching methods while also contributing to the development of new materials.</li>
+                        </ul>
+
+                        <p class="mb-1"><strong>Code of Conduct</strong></p>
+                        <ul>
+                            <li>The teacher will maintain a professional demeanor, dressing appropriately and communicating respectfully with students, parents, and admin.</li>
+                            <li>The teacher will uphold the Academy's values, promoting a positive and inclusive learning environment.</li>
+                            <li>The teacher will maintain confidentiality regarding student information and Academy operations.</li>
+                            <li>The teacher will refrain from engaging in any activities that conflict with the interests of the Academy.</li>
+                        </ul>
+
+                        <p class="mb-1"><strong>Working Hours and Presence</strong></p>
+                        <ul>
+                            <li>The teacher is expected to be present during scheduled working hours and inform the Academy of any absences in advance.</li>
+                            <li>The teacher will be online punctually for classes and other scheduled activities.</li>
+                            <li>The teacher may be required to work additional hours for meetings, parent-teacher conferences, or special events, with prior notice.</li>
+                        </ul>
+
+                        <p class="mb-1"><strong>Compensation and Benefits</strong></p>
+                        <ul>
+                            <li>The teacher will receive a share of 70% (for group tuitions) and 60% (for one-on-one teaching) per month, paid monthly.</li>
+                            <li>The teacher may be eligible for certificates and titles based on performance, as determined by the Academy.</li>
+                        </ul>
+
+                        <p class="mb-1"><strong>Performance Evaluation</strong></p>
+                        <ul>
+                            <li>The teacher's performance will be regularly evaluated based on student outcomes, lesson quality, and adherence to Academy policies.</li>
+                            <li>The teacher will receive feedback and opportunities for professional development based on evaluation results.</li>
+                        </ul>
+
+                        <p class="mb-1"><strong>Termination of Employment</strong></p>
+                        <ul>
+                            <li>Either party may terminate this agreement with 1 month of written notice.</li>
+                            <li>The Academy reserves the right to terminate the agreement immediately in cases of gross misconduct or breach of contract.</li>
+                        </ul>
+
+                        <p class="mb-1"><strong>Intellectual Property</strong></p>
+                        <ul>
+                            <li>Teaching materials created by the teacher for use at the Academy remain the property of the Academy.</li>
+                            <li>The teacher agrees not to use or distribute these materials outside the Academy without permission.</li>
+                        </ul>
+
+                        <p class="mb-1"><strong>Dispute Resolution</strong></p>
+                        <ul class="mb-3">
+                            <li>Any disputes arising from this agreement will be resolved through mediation or arbitration, as mutually agreed upon by both parties.</li>
+                        </ul>
+
+                        <p class="mb-1"><strong>Amendments</strong></p>
+                        <ul>
+                            <li>Any changes to this agreement must be made in writing and acknowledged by both the teacher and a representative of the Academy.</li>
+                        </ul>
+
+                    </div>
+
+                    <p class="mb-0 mt-3"><strong>Acknowledgment.</strong> By accepting this
+                        agreement below, you confirm that you have read, understood, and agree to
+                        the terms and conditions outlined above.</p>
 
                 </div>
 

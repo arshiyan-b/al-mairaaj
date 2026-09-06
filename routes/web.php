@@ -66,6 +66,7 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
 
     Route::get('/admin/teachers', [AdminController::class, 'teacher'])->name('admin.teacher.index');
     Route::get('/admin/teachers/{teacher}', [AdminController::class, 'teacher_show'])->name('admin.teachers.show');
+    Route::put('/admin/teacher/{teacher}/update', [AdminController::class, 'teacher_update'])->name('admin.teacher.update');
     Route::post('admin/teacher/{id}/assign-subjects', [AdminController::class, 'teacher_assign_subjects'])->name('admin.teacher.assign.subjects');
     Route::delete('admin/teacher/{id}/class-destroy', [AdminController::class, 'teacher_class_destroy'])->name('admin.teacher.class.destroy');
     Route::post('/admin/teacher/{id}/create-user', [AdminController::class, 'teacher_create_user'])->name('admin.teacher.create.user');
@@ -91,6 +92,7 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
 
     Route::get('/admin/live_class/{live_class}', [LiveClassController::class, 'show'])->name('admin.live_classes.index');
     Route::post('/admin/live_class/store', [LiveClassController::class, 'store'])->name('admin.live_classes.store');
+    Route::put('/admin/live_class/{live_class}', [LiveClassController::class, 'update'])->name('admin.live_classes.update');
 
     Route::get('/admin/jitsi/{liveClass}/join', [JitsiController::class, 'adminJoin'])->name('admin.jitsi.join');
 

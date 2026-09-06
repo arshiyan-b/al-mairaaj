@@ -62,6 +62,22 @@ class LiveClassesService
         $liveClass = LiveClass::findOrFail($id);
         return auth()->user()->student->wallet->balance >= $liveClass->price;
     }
+    public function update(LiveClass $liveClass, array $data)
+    {
+        $liveClass->update([
+            'title' => $data['title'],
+            'description' => $data['description'] ?? null,
+            'class_date' => $data['class_date'],
+            'start_time' => $data['start_time'],
+            'end_time' => $data['end_time'],
+            'duration' => $data['duration'] ?? null,
+            'status' => $data['status'],
+            'price' => $data['price'],
+        ]);
+
+        return $liveClass;
+    }
+
     public function create(array $data)
     {
         return DB::transaction(function () use ($data) {
