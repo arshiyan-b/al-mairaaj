@@ -90,8 +90,26 @@ class JitsiTokenService
 
             'context' => [
                 'user' => [
+                    'id' => (string) $userId,
                     'name' => $userName,
                     'email' => $userEmail,
+
+                    /*
+                     * This is the field Jitsi/Prosody's token auth plugin
+                     * actually checks to decide room ownership. Without it,
+                     * Jitsi falls back to its default behaviour of making
+                     * whoever joins the room first the owner/moderator -
+                     * regardless of who they are. 'owner' grants moderator
+                     * rights, 'member' explicitly denies them.
+                     */
+                    'affiliation' => $isModerator ? 'owner' : 'member',
+
+                    /*
+                     * Some Jitsi/Prosody deployments check this boolean
+                     * instead of (or alongside) 'affiliation' above -
+                     * included for compatibility.
+                     */
+                    'moderator' => $isModerator,
                 ],
 
                 'features' => [

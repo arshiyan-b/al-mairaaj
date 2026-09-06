@@ -100,7 +100,7 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::get('admin/wallet/top-up/requests', [WalletController::class, 'topup_requests'])->name('admin.top-up.requests');
     Route::get('admin/wallet/top-up/request/{id}', [WalletController::class, 'topup_request_details'])->name('admin.top-up.request.details');
     Route::get('admin/wallet/top-up/request/{id}/screenshot', [WalletController::class, 'topup_request_screenshot'])->name('admin.top-up.request.screenshot');
-    Route::post('admin/wallet/top-up-request/{id}/status', [WalletController::class, 'topup_request_update_status'])->name('admin.top-up.request.update-status');
+    Route::patch('admin/wallet/top-up-request/{id}/status', [WalletController::class, 'topup_request_update_status'])->name('admin.top-up.request.update-status');
     Route::get('admin/vouchers', [WalletController::class, 'vouchers'])->name('admin.vouchers.index');
     Route::get('admin/voucher/{id}', [WalletController::class, 'voucher_show'])->name('admin.vouchers.show');
     Route::post('admin/voucher/store', [WalletController::class, 'voucher_store'])->name('admin.vouchers.store');
