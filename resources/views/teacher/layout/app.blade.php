@@ -414,6 +414,45 @@
 
                         @endif
 
+
+                        {{-- ================= I N T E R M E D I A T E ================= --}}
+                        @if ($classes->contains('board', 'intermediate'))
+
+                            <li class="sidebar-item">
+
+                                <a class="sidebar-link collapsed has-dropdown"
+                                    data-bs-toggle="collapse"
+                                    data-bs-target="#intermediateQualifications"
+                                    aria-expanded="false">
+
+                                    Intermediate
+                                </a>
+
+                                <ul id="intermediateQualifications"
+                                    class="sidebar-dropdown list-unstyled collapse"
+                                    data-bs-parent="#classes">
+
+                                    @if ($classes->contains(fn($c) => $c->board === 'intermediate' && $c->grade === 'x-i'))
+                                        <li class="sidebar-item">
+                                            <a href="{{ route('teacher.live_class_batches.index', ['board' => 'intermediate', 'grade' => 'x-i']) }}" class="sidebar-link">
+                                                X-I
+                                            </a>
+                                        </li>
+                                    @endif
+
+                                    @if ($classes->contains(fn($c) => $c->board === 'intermediate' && $c->grade === 'x-ii'))
+                                        <li class="sidebar-item">
+                                            <a href="{{ route('teacher.live_class_batches.index', ['board' => 'intermediate', 'grade' => 'x-ii']) }}" class="sidebar-link">
+                                                X-II
+                                            </a>
+                                        </li>
+                                    @endif
+
+                                </ul>
+                            </li>
+
+                        @endif
+
                     </ul>
                 </li>
             </ul>

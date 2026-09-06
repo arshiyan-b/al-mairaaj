@@ -9,6 +9,16 @@
 <div class="container">
     @include('teacher.layout.alerts')
 
+    @if ($errors->any())
+        <div class="alert alert-danger mb-3">
+            <ul class="mb-0">
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
+
     {{-- Page Header --}}
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
@@ -17,6 +27,10 @@
                 View complete information about this live class.
             </p>
         </div>
+
+        <button type="button" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#editLiveClassModal">
+            <i class="fas fa-edit me-1"></i> Edit
+        </button>
     </div>
 
 
@@ -540,4 +554,108 @@
 
     </div>
 </div>
+
+<div class="modal fade" id="editLiveClassModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form method="POST" action="{{ route('teacher.live_classes.update', $liveClass->id) }}">
+                @csrf
+                @method('PUT')
+
+                <div class="modal-header">
+                    <h5 class="modal-title">Edit Live Class</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+
+                <div class="modal-body">
+
+                    <div class="mb-3">
+                        <label class="form-label">Title</label>
+                        <input type="text" name="title" class="form-control" value="{{ old('title', $liveClass->title) }}" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Description</label>
+                        <textarea name="description" class="form-control" rows="2">{{ old('description', $liveClass->description) }}</textarea>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Status</label>
+                        <select name="status" class="form-control" required>
+                            <option value="scheduled" {{ $liveClass->status === 'scheduled' ? 'selected' : '' }}>Scheduled</option>
+                            <option value="completed" {{ $liveClass->status === 'completed' ? 'selected' : '' }}>Completed</option>
+                            <option value="canceled" {{ $liveClass->status === 'canceled' ? 'selected' : '' }}>Canceled</option>
+                        </select>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <label class="form-label">Class Date</label>
+                            <input type="date" name="class_date" class="form-control"
+                                value="{{ old('class_date', $liveClass->class_date ? \Carbon\Carbon::parse($liveClass->class_date)->format('Y-m-d') : '') }}"
+                                required>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <label class="form-label">Start Time</label>
+                            <input type="time" name="start_time" class="form-control" id="editLiveClassStartTime"
+                                value="{{ old('start_time', $liveClass->start_time ? $liveClass->start_time->format('H:i') : '') }}"
+                                required>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">End Time</label>
+                            <input type="time" name="end_time" class="form-control" id="editLiveClassEndTime"
+                                value="{{ old('end_time', $liveClass->end_time ? $liveClass->end_time->format('H:i') : '') }}"
+                                required>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Duration (mins)</label>
+                            <input type="number" name="duration" class="form-control" id="editLiveClassDuration"
+                                value="{{ old('duration', $liveClass->duration) }}" min="1">
+                        </div>
+                    </div>
+
+                    <div class="alert alert-secondary small mb-0">
+                        Price is set to the batch's price
+                        (<strong>{{ number_format((float) ($liveClass->batch->price ?? 0), 2) }}</strong>)
+                        and meeting provider, link and credentials can't be changed here since a
+                        meeting has already been created for this class.
+                    </div>
+
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-warning">Save Changes</button>
+                </div>
+
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const startInput = document.getElementById('editLiveClassStartTime');
+        const endInput = document.getElementById('editLiveClassEndTime');
+        const durationInput = document.getElementById('editLiveClassDuration');
+
+        function updateDuration() {
+            if (startInput.value && endInput.value) {
+                const [sh, sm] = startInput.value.split(':').map(Number);
+                const [eh, em] = endInput.value.split(':').map(Number);
+                const diff = (eh * 60 + em) - (sh * 60 + sm);
+                if (diff > 0) {
+                    durationInput.value = diff;
+                }
+            }
+        }
+
+        startInput.addEventListener('change', updateDuration);
+        endInput.addEventListener('change', updateDuration);
+    });
+</script>
+
 @endsection

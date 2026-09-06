@@ -292,6 +292,10 @@ const LiveClassesBatch = () => {
                       <div>
                         <h4 className="text-sm font-semibold text-gray-800">{c.title}</h4>
 
+                        {c.description && (
+                          <p className="mt-1 text-xs text-gray-500">{c.description}</p>
+                        )}
+
                         <div className="mt-2 flex items-center gap-3 text-xs text-gray-500">
                           <span className="flex items-center gap-1">
                             <CalendarDays className="h-3.5 w-3.5" />

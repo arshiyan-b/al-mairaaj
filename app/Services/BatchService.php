@@ -26,8 +26,10 @@ class BatchService
         $batch = Batch::findOrFail($id);
         return auth()->user()->student->wallet->balance >= $batch->price;
     }
-    public function getBatchFromAuthenticatedTeacherID()
+    public function getBatchFromAuthenticatedTeacherID($gradeId = null)
     {
-        return Batch::where('teacher_id', auth()->user()->teacher->id)->get();
+        return Batch::where('teacher_id', auth()->user()->teacher->id)
+            ->when($gradeId, fn ($query) => $query->where('grade_id', $gradeId))
+            ->get();
     }
 }
