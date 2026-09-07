@@ -28,7 +28,7 @@ class WalletController extends Controller
     }
     public function index()
     {
-        $wallets = Wallet::all();
+        $wallets = Wallet::with('student')->latest()->get();
         return view("admin.wallet.index", compact('wallets'));
     }
     public function topup_requests()
@@ -70,7 +70,7 @@ class WalletController extends Controller
     }
     public function voucher_show($id)
     {
-        $voucher = $this->voucherService->getVoucher($id);
+        $voucher = $this->voucherService->getVoucherWithRedemptions($id);
         return view('admin.wallet.vouchers.show', compact('voucher'));
     }
     public function voucher_store(Request $request)

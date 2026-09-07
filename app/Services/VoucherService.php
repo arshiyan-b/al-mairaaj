@@ -17,6 +17,12 @@ class VoucherService
     {
         return Voucher::find($id);
     }
+    public function getVoucherWithRedemptions($id)
+    {
+        return Voucher::with(['redemptions' => function ($query) {
+            $query->with('student')->latest('redeemed_at');
+        }])->findOrFail($id);
+    }
     public function create(array $data)
     {
         return Voucher::create($data);
