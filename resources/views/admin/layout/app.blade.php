@@ -5,13 +5,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@yield('title') | Al Mairaaj</title>
-    <link rel="icon" type="image/png" href="{{ asset('build/assets/book_logo.png') }}">
+    <link rel="icon" type="image/png" href="{{ asset('images/book_logo.png') }}">
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
     <link href="https://cdn.lineicons.com/4.0/lineicons.css" rel="stylesheet" />
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-KK94CHFLLe+nY2dmCWGMq91rCGa5gtU4mk92HdvYe+M/SXH301p5ILy+dN9+nJOZ" crossorigin="anonymous">
-    
+
         <!-- Select2 CSS -->
         <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 
@@ -21,6 +21,14 @@
         <!-- Select2 JS -->
         <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <style>
+        :root {
+            --brand-teal: #0d6d72;
+            --brand-teal-dark: #094f53;
+            --brand-ink: #1f2429;
+            --sidebar-width-collapsed: 76px;
+            --sidebar-width-expanded: 280px;
+        }
+
         body {
             font-family: 'Poppins', sans-serif;
             margin: 0;
@@ -38,49 +46,61 @@
             top: 0;
             left: 0;
             height: 100vh;
-            width: 75px;
-            min-width: 75px;
-            z-index: 1000;
-            transition: all 0.62s ease-in-out;
+            width: var(--sidebar-width-collapsed);
+            min-width: var(--sidebar-width-collapsed);
+            z-index: 1040;
+            transition: width 0.3s ease-in-out, min-width 0.3s ease-in-out, transform 0.3s ease-in-out;
             background-color: #000000;
+            box-shadow: 2px 0 12px rgba(0, 0, 0, 0.15);
             display: flex;
-            flex-direction: column;  
-            max-height: 100vh;      
+            flex-direction: column;
+            max-height: 100vh;
             overflow-y: auto;
             overflow-x: hidden;
         }
 
-
-        #sidebar.expand  {
-            width: 300px;
-            min-width: 300px;
+        #sidebar.expand {
+            width: var(--sidebar-width-expanded);
+            min-width: var(--sidebar-width-expanded);
         }
 
         #sidebar.expand ~ .main {
-            margin-left: 260px;
+            margin-left: var(--sidebar-width-expanded);
         }
 
         .main {
             flex: 1;
             background-color: #fafbfe;
-            padding: 20px;
-            margin-left: 5px;
-            transition: all 0.35s ease-in-out;
-            min-height: calc(100vh - 60px);
+            padding: 24px;
+            margin-left: var(--sidebar-width-collapsed);
+            transition: margin-left 0.3s ease-in-out;
+            min-height: 100vh;
+            width: 100%;
         }
 
-        #sidebar.expand ~ .main {
-            margin-left: 260px;
+        .sidebar-header {
+            display: flex;
+            align-items: center;
+            min-height: 68px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            flex-shrink: 0;
         }
 
         .toggle-btn {
             background-color: transparent;
             cursor: pointer;
             border: 0;
-            padding: 1rem;
+            padding: 0.9rem;
             display: flex;
             align-items: center;
             justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .toggle-btn img {
+            width: 34px;
+            height: auto;
+            display: block;
         }
 
         .toggle-btn i {
@@ -89,22 +109,15 @@
         }
 
         .sidebar-logo {
-            margin: auto 0;
             display: flex;
             align-items: center;
-            justify-content: center;
-            color: #FFF;
+            overflow: hidden;
         }
 
-        #sidebar-heading{
-            margin-top: 13px;
-            font-size: 25px;
-        }
-
-        .sidebar-logo a {
-            color: #FFF;
-            font-size: 1.15rem;
-            font-weight: 600;
+        .sidebar-logo img {
+            height: 30px;
+            width: auto;
+            display: block;
         }
 
         #sidebar:not(.expand) .sidebar-logo,
@@ -113,40 +126,51 @@
         }
 
         .sidebar-nav {
-            padding: 2rem 0;
+            padding: 1.25rem 0;
             flex: 1;
         }
 
         a.sidebar-link {
-            padding: .625rem 1.625rem;
-            color: #FFF;
-            display: block;
+            padding: .7rem 1.625rem;
+            color: rgba(255, 255, 255, 0.85);
+            display: flex;
+            align-items: center;
             font-size: 0.9rem;
             white-space: nowrap;
             border-left: 3px solid transparent;
             text-decoration: none;
+            border-radius: 0 6px 6px 0;
+            margin: 2px 6px 2px 0;
+            transition: background-color 0.15s ease, color 0.15s ease;
         }
 
         .sidebar-link i {
             font-size: 1.1rem;
             margin-right: .75rem;
+            flex-shrink: 0;
+            width: 1.3rem;
+            text-align: center;
         }
 
-        a.sidebar-link:hover {
-            background-color: rgba(255, 255, 255, .075);
-            border-left: 3px solid #008080;
+        a.sidebar-link:hover,
+        a.sidebar-link.active {
+            background-color: rgba(13, 109, 114, 0.35);
+            border-left: 3px solid var(--brand-teal);
+            color: #FFF;
         }
 
         .sidebar-item {
-            position: relative; 
+            position: relative;
         }
 
         #sidebar:not(.expand) .sidebar-item .sidebar-dropdown {
             position: absolute;
             top: 0;
-            left: 70px;
-            background-color: #00000;
-            padding: 0;
+            left: var(--sidebar-width-collapsed);
+            background-color: #111417;
+            border-radius: 0 8px 8px 0;
+            box-shadow: 4px 4px 16px rgba(0, 0, 0, 0.35);
+            padding: 0.5rem 0;
             min-width: 15rem;
             display: none;
         }
@@ -157,9 +181,7 @@
             content: "";
             display: inline-block;
             padding: 2px;
-            position: absolute;
-            right: 1.5rem;
-            top: 1.4rem;
+            margin-left: auto;
             transform: rotate(-135deg);
             transition: all .2s ease-out;
         }
@@ -168,27 +190,20 @@
             transform: rotate(45deg);
             transition: all .2s ease-out;
         }
+
+        .sidebar-footer {
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+            flex-shrink: 0;
+        }
+
         .sidebar-footer form {
             display: block;
             width: 100%;
         }
 
         .sidebar-footer button.sidebar-link {
-            padding: .625rem 1.625rem;
-            color: #FFF;
-            display: block;
-            font-size: 0.9rem;
-            white-space: nowrap;
-            border-left: 3px solid transparent;
-            cursor: pointer;
-        }
-        #sidebar:not(.expand) .sidebar-footer span {
-            display: none;
-        }
-
-        .sidebar-footer button.sidebar-link:hover {
-            padding: .625rem 1.625rem;
-            color: #FFF;
+            padding: .75rem 1.625rem;
+            color: rgba(255, 255, 255, 0.85);
             display: flex;
             align-items: center;
             font-size: 0.9rem;
@@ -198,29 +213,108 @@
             width: 100%;
             text-align: left;
             background: transparent;
-            border: 0;
-        } 
+            border-top: none;
+            border-right: none;
+            border-bottom: none;
+        }
+
+        #sidebar:not(.expand) .sidebar-footer span {
+            display: none;
+        }
+
+        .sidebar-footer button.sidebar-link:hover {
+            background-color: rgba(220, 53, 69, 0.25);
+            border-left: 3px solid #dc3545;
+            color: #FFF;
+        }
+
         .sidebar-dropdown .sidebar-item {
-            padding-left: 20px; 
+            padding-left: 20px;
         }
 
         .sidebar-dropdown .sidebar-dropdown .sidebar-item {
-            padding-left: 30px; 
+            padding-left: 30px;
+        }
+
+        /* Mobile top bar - only shown on small screens so the menu toggle
+           is always reachable, even while the drawer itself is closed. */
+        .mobile-topbar {
+            display: none;
+        }
+
+        .sidebar-backdrop {
+            display: none;
         }
 
         /* Mobile Responsiveness */
-        @media (max-width: 768px) {
-            .main{
-                margin-left: 45px;
+        @media (max-width: 991.98px) {
+            .mobile-topbar {
+                display: flex;
+                align-items: center;
+                gap: 0.75rem;
+                position: sticky;
+                top: 0;
+                z-index: 1030;
+                background-color: #000000;
+                color: #fff;
+                padding: 0.75rem 1rem;
+                box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
             }
+
+            .mobile-topbar img {
+                height: 26px;
+                width: auto;
+            }
+
+            .mobile-topbar .mobile-toggle-btn {
+                background: transparent;
+                border: 0;
+                color: #fff;
+                font-size: 1.5rem;
+                display: flex;
+                align-items: center;
+                padding: 0.25rem 0.5rem;
+            }
+
+            .main {
+                margin-left: 0;
+            }
+
             #sidebar {
-                width: 0;
+                transform: translateX(-100%);
+                width: var(--sidebar-width-expanded);
+                min-width: var(--sidebar-width-expanded);
+                box-shadow: 4px 0 20px rgba(0, 0, 0, 0.4);
             }
 
             #sidebar.expand {
-                width: 200px;
+                transform: translateX(0);
+            }
+
+            /* On mobile the drawer is always full/expanded once opened,
+               so the logo and link labels should always show. */
+            #sidebar .sidebar-logo,
+            #sidebar a.sidebar-link span {
+                display: flex !important;
+            }
+
+            #sidebar.expand ~ .main {
+                margin-left: 0;
+            }
+
+            .sidebar-header .toggle-btn {
+                display: none;
+            }
+
+            .sidebar-backdrop.show {
+                display: block;
+                position: fixed;
+                inset: 0;
+                background: rgba(0, 0, 0, 0.5);
+                z-index: 1035;
             }
         }
+
         .form-control:focus,
         .form-control:hover {
             border-color: black !important;
@@ -232,27 +326,37 @@
 </head>
 
 <body>
+
+    <div class="mobile-topbar">
+        <button class="mobile-toggle-btn" type="button" aria-label="Open menu">
+            <i class="bi bi-list"></i>
+        </button>
+        <img src="{{ asset('images/AlMairaaj_logo.png') }}" alt="Al Mairaaj">
+    </div>
+
+    <div class="sidebar-backdrop"></div>
+
     <div class="wrapper">
         <aside id="sidebar">
-            <div class="d-flex">
-                <button class="toggle-btn" type="button">
-                    <img src="{{ asset('build/assets/book_logo.png') }}" alt="Icon" style="width: 36px; height: 36px;" class="ms-2">
+            <div class="sidebar-header d-flex">
+                <button class="toggle-btn" type="button" aria-label="Toggle sidebar">
+                    <img src="{{ asset('images/book_logo.png') }}" alt="Al Mairaaj">
                 </button>
                 <div class="sidebar-logo">
-                    <a id="sidebar-heading">
-                        <img src="{{ asset('build/assets/AlMairaaj_logo.png') }}" alt="Al Mairaaj Logo" style="width: 210px; height: 56px;" class="mt-2">
+                    <a id="sidebar-heading" href="{{ route('admin.dashboard') }}">
+                        <img src="{{ asset('images/AlMairaaj_logo.png') }}" alt="Al Mairaaj Logo">
                     </a>
                 </div>
             </div>
             <ul class="sidebar-nav">
                 <li class="sidebar-item">
-                    <a href="{{ route('admin.dashboard') }}" class="sidebar-link">
+                    <a href="{{ route('admin.dashboard') }}" class="sidebar-link {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
                         <i class="bi bi-clipboard-data fs-4"></i>
                         <span class="fs-6">Dashboard</span>
                     </a>
                 </li>
                 <li class="sidebar-item">
-                    <a href="{{ route('admin.student') }}" class="sidebar-link">
+                    <a href="{{ route('admin.student') }}" class="sidebar-link {{ request()->routeIs('admin.student') ? 'active' : '' }}">
                         <i class="bi bi-person fs-4"></i>
                         <span class="fs-6">Student</span>
                     </a>
@@ -269,13 +373,13 @@
 
                         <li class="sidebar-item">
                             <a href="{{ route('admin.teacher.applications') }}"
-                                class="sidebar-link">Teacher Applications
+                                class="sidebar-link {{ request()->routeIs('admin.teacher.applications*') ? 'active' : '' }}">Teacher Applications
                             </a>
                         </li>
 
                         <li class="sidebar-item">
                             <a href="{{ route('admin.teacher.index') }}"
-                                class="sidebar-link">Teachers List
+                                class="sidebar-link {{ request()->routeIs('admin.teacher.index') || request()->routeIs('admin.teachers.*') ? 'active' : '' }}">Teachers List
                             </a>
                         </li>
 
@@ -283,7 +387,7 @@
                 </li>
 
                 <li class="sidebar-item">
-                    <a href="{{ route('admin.books.index') }}" class="sidebar-link">
+                    <a href="{{ route('admin.books.index') }}" class="sidebar-link {{ request()->routeIs('admin.books.*') ? 'active' : '' }}">
                         <i class="bi bi-person fs-4"></i>
                         <span class="fs-6">Books</span>
                     </a>
@@ -406,10 +510,40 @@
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
     <script>
+        const sidebar = document.querySelector("#sidebar");
         const hamBurger = document.querySelector(".toggle-btn");
+        const mobileToggle = document.querySelector(".mobile-toggle-btn");
+        const backdrop = document.querySelector(".sidebar-backdrop");
+
+        function openSidebar() {
+            sidebar.classList.add("expand");
+            if (window.innerWidth < 992) {
+                backdrop.classList.add("show");
+            }
+        }
+
+        function closeSidebar() {
+            sidebar.classList.remove("expand");
+            backdrop.classList.remove("show");
+        }
 
         hamBurger.addEventListener("click", function () {
-            document.querySelector("#sidebar").classList.toggle("expand");
+            sidebar.classList.contains("expand") ? closeSidebar() : openSidebar();
+        });
+
+        mobileToggle.addEventListener("click", function () {
+            sidebar.classList.contains("expand") ? closeSidebar() : openSidebar();
+        });
+
+        backdrop.addEventListener("click", closeSidebar);
+
+        // If the viewport is resized from mobile to desktop (or back) while
+        // the drawer is open, drop the mobile-only backdrop state so it
+        // doesn't linger incorrectly.
+        window.addEventListener("resize", function () {
+            if (window.innerWidth >= 992) {
+                backdrop.classList.remove("show");
+            }
         });
 
         document.addEventListener('DOMContentLoaded', function () {
@@ -451,9 +585,7 @@
 
         sidebarLinks.forEach(link => {
                 link.addEventListener('click', function(event) {
-                    const sidebar = document.getElementById('sidebar');
-                    
-                    if (!sidebar.classList.contains('expand')) {
+                    if (window.innerWidth >= 992 && !sidebar.classList.contains('expand')) {
                         sidebar.classList.add('expand');
                     }
                 });
