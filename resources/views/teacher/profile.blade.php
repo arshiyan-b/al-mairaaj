@@ -1,7 +1,7 @@
 @extends('teacher.layout.app')
 
 @section('title')
-    My Batches
+    Profile
 @endsection
 
 @section('content')

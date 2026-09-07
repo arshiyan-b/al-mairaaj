@@ -15,6 +15,7 @@ export default defineConfig({
                 // ✅ Add your React dashboard entry
                 // 'resources/js/app.jsx',
                 'resources/js/React-student/app.jsx',
+                'resources/js/React-teacher/app.jsx',
             ],
             refresh: true,
         }),

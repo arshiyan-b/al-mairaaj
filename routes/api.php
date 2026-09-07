@@ -25,3 +25,18 @@ Route::middleware(['web', 'auth'])->prefix('student')->group(function () {
     Route::get('/browse-live-classes-data', [ApiController::class, 'browse_live_classes_data'])->name('student.browse_live_classes.data');
     Route::get('/live-class-batch/{id}', [ApiController::class, 'student_live_class_batch'])->name('student.live_class_batch');
 });
+
+Route::middleware(['web', 'auth'])->prefix('teacher')->group(function () {
+
+    Route::get('/dashboard-data', [ApiController::class, 'teacher_dashboard_data'])->name('teacher.dashboard.data');
+
+    Route::get('/profile-data', [ApiController::class, 'teacher_profile_data'])->name('teacher.profile.data');
+    Route::post('/profile-update', [ApiController::class, 'teacher_profile_update'])->name('teacher.profile.update');
+
+    Route::get('/live-class-batches-data/{board}/{grade}', [ApiController::class, 'teacher_live_class_batches_data'])->name('teacher.live_class_batches.data');
+    Route::get('/live-class-batch-data/{id}', [ApiController::class, 'teacher_live_class_batch_data'])->name('teacher.live_class_batch.data');
+    Route::get('/live-class-data/{id}', [ApiController::class, 'teacher_live_class_data'])->name('teacher.live_class.data');
+
+    Route::post('/live-class-store', [ApiController::class, 'teacher_live_class_store'])->name('teacher.live_class.store');
+    Route::put('/live-class-update/{live_class}', [ApiController::class, 'teacher_live_class_update'])->name('teacher.live_class.update');
+});

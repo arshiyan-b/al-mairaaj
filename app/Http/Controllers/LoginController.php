@@ -372,6 +372,15 @@ class LoginController extends Controller
             $user = Auth::user();
 
             if ($user->role->slug === 'student') {
+                // Enforce a single active session per student: deleting every
+                // other session row for this user invalidates them - the
+                // next request on those other devices/tabs will find no
+                // matching session and be treated as logged out.
+                DB::table('sessions')
+                    ->where('user_id', $user->id)
+                    ->where('id', '!=', $request->session()->getId())
+                    ->delete();
+
                 return response()->json([
                     'status' => 'success',
                     'redirect' => route('student.dashboard'),

@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreTopupRequestRequest;
 use App\Http\Requests\StudentRedeemVoucherRequest;
+use App\Http\Requests\TeacherStoreLiveClassRequest;
+use App\Http\Requests\TeacherUpdateLiveClassRequest;
 
 use App\Services\BatchService;
 use App\Services\BatchEnrollmentService;
@@ -21,6 +23,8 @@ use App\Services\WalletService;
 use App\Services\WalletTransactionService;
 
 use App\Models\Batch;
+use App\Models\Board;
+use App\Models\Grade;
 use App\Models\Wallet;
 use App\Models\Book;
 use App\Models\LiveClass;
@@ -276,6 +280,149 @@ class ApiController extends Controller
         return response()->json([
             'batch' => $batch,
             'live_classes' => $liveClasses,
+        ]);
+    }
+
+    public function teacher_dashboard_data()
+    {
+        $teacher = auth()->user()->teacher;
+
+        abort_unless($teacher, 403);
+
+        $classes = $teacher->allowed_classes()
+            ->with('grade.board')
+            ->get()
+            ->filter(fn ($allowed) => $allowed->grade && $allowed->grade->board)
+            ->map(fn ($allowed) => [
+                'board_name' => $allowed->grade->board->name,
+                'board_slug' => $allowed->grade->board->slug,
+                'grade_name' => $allowed->grade->name,
+                'grade_slug' => $allowed->grade->slug,
+            ])
+            ->unique(fn ($item) => $item['board_slug'] . '|' . $item['grade_slug'])
+            ->values();
+
+        return response()->json([
+            'teacher' => $teacher,
+            'classes' => $classes,
+        ]);
+    }
+
+    public function teacher_live_class_batches_data($board, $grade)
+    {
+        $board = Board::where('slug', $board)->firstOrFail();
+        $grade = Grade::where('board_id', $board->id)->where('slug', $grade)->firstOrFail();
+
+        $batches = $this->batchService->getBatchFromAuthenticatedTeacherID($grade->id);
+
+        return response()->json([
+            'board' => $board,
+            'grade' => $grade,
+            'batches' => $batches,
+        ]);
+    }
+
+    public function teacher_live_class_batch_data($id)
+    {
+        $batch = $this->batchService->getBatch($id);
+
+        $teacher = auth()->user()->teacher;
+
+        abort_unless(
+            $teacher && $batch->teacher_id === $teacher->id,
+            403
+        );
+
+        $batch->load('liveClasses');
+
+        return response()->json([
+            'batch' => $batch,
+        ]);
+    }
+
+    public function teacher_live_class_data($id)
+    {
+        $liveClass = $this->liveClassesService->getLiveClass($id);
+        $liveClass->load(['batch.teacher', 'batch.grade.board', 'batch.curriculumSubject', 'meetingDetail']);
+
+        $teacher = auth()->user()->teacher;
+
+        abort_unless(
+            $teacher
+                && $liveClass->batch
+                && $liveClass->batch->teacher_id === $teacher->id,
+            403
+        );
+
+        // The model hides meeting details unless a student is enrolled -
+        // that gate doesn't apply to the class's own teacher, so it's
+        // added back in explicitly here.
+        $data = $liveClass->toArray();
+        $data['meeting_provider'] = $liveClass->meeting_provider;
+        $data['meeting_link'] = $liveClass->meetingDetail->link ?? null;
+        $data['meeting_id'] = $liveClass->meetingDetail->meeting_id ?? null;
+        $data['meeting_password'] = $liveClass->meetingDetail->password ?? null;
+
+        return response()->json([
+            'live_class' => $data,
+        ]);
+    }
+
+    public function teacher_profile_data()
+    {
+        $teacher = auth()->user()->teacher;
+
+        abort_unless($teacher, 403);
+
+        $teacher->load('application');
+
+        return response()->json([
+            'teacher' => $teacher,
+            'application' => $teacher->application,
+        ]);
+    }
+
+    public function teacher_profile_update(Request $request)
+    {
+        $teacher = auth()->user()->teacher;
+
+        abort_unless($teacher && $teacher->application, 403);
+
+        $validated = $request->validate([
+            'phone_number' => 'required|string|max:15',
+            'whatsapp_number' => 'required|string|max:15',
+            'city' => 'required|string|max:50',
+            'address' => 'required|string|max:120',
+        ]);
+
+        $teacher->application->update($validated);
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Profile updated successfully!',
+            'application' => $teacher->application->fresh(),
+        ]);
+    }
+
+    public function teacher_live_class_store(TeacherStoreLiveClassRequest $request)
+    {
+        $liveClass = $this->liveClassesService->create($request->validated());
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Live class created successfully.',
+            'live_class' => $liveClass,
+        ]);
+    }
+
+    public function teacher_live_class_update(TeacherUpdateLiveClassRequest $request, $live_class)
+    {
+        $liveClass = $this->liveClassesService->getLiveClass($live_class);
+        $this->liveClassesService->update($liveClass, $request->validated());
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Live class updated successfully.',
         ]);
     }
 }

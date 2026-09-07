@@ -114,11 +114,10 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
 Route::middleware(['auth', 'role:teacher'])->group(function () {
 
     Route::get('/teacher/dashboard', [TeacherController::class, 'dashboard'])->name('teacher.dashboard');
+    Route::get('/teacher/profile', [TeacherController::class, 'profile'])->name('teacher.profile');
     Route::get('/teacher/{board}/{grade}/batches', [TeacherController::class, 'live_class_batches_index'])->name('teacher.live_class_batches.index');
-    Route::get('/teacher/live_class_batch/{id}', [TeacherController::class, 'live_class_batch_show'])->name('teacher.live_class_batch.show');
-    Route::get('/teacher/live_class/{id}', [TeacherController::class, 'live_class_show'])->name('teacher.live_class.show');
-    Route::post('/teacher/live_class/store', [TeacherController::class, 'live_class_store'])->name('teacher.live_classes.store');
-    Route::put('/teacher/live_class/{live_class}', [TeacherController::class, 'live_class_update'])->name('teacher.live_classes.update');
+    Route::get('/teacher/live-class-batch/{id}', [TeacherController::class, 'live_class_batch_show'])->name('teacher.live_class_batch.show');
+    Route::get('/teacher/live-class/{id}', [TeacherController::class, 'live_class_show'])->name('teacher.live_class.show');
 
     Route::get('/teacher/jitsi/{liveClass}/join', [JitsiController::class, 'teacherJoin'])->name('teacher.jitsi.join');
     
