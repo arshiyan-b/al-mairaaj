@@ -12,6 +12,7 @@ use App\Http\Controllers\LiveClassController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\StudentController;
 use App\Http\Controllers\TeacherController;
+use App\Http\Controllers\AdminCourseController;
 use App\Http\Controllers\VideoController;
 use App\Http\Controllers\WalletController;
 
@@ -80,8 +81,21 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::put('/admin/books/{book}', [BookController::class, 'update'])->name('admin.books.update');
     Route::delete('/admin/books/{book}', [BookController::class, 'destroy'])->name('admin.books.destroy');
     Route::get('/admin/books/{book}/download', [BookController::class, 'download'])->name('admin.books.download');
-        
-    Route::get('/admin/courses/{board}/{grade}', [AdminController::class, 'course_index'])->name('admin.course.index');
+
+    Route::get('/admin/recorded-courses', [AdminCourseController::class, 'index'])->name('admin.courses.index');
+    Route::post('/admin/recorded-courses', [AdminCourseController::class, 'store'])->name('admin.courses.store');
+    Route::get('/admin/recorded-courses/{course}', [AdminCourseController::class, 'show'])->name('admin.courses.show');
+    Route::put('/admin/recorded-courses/{course}', [AdminCourseController::class, 'update'])->name('admin.courses.update');
+    Route::delete('/admin/recorded-courses/{course}', [AdminCourseController::class, 'destroy'])->name('admin.courses.destroy');
+
+    Route::post('/admin/recorded-courses/{course}/videos', [AdminCourseController::class, 'storeVideo'])->name('admin.courses.videos.store');
+    Route::put('/admin/recorded-courses/videos/{video}', [AdminCourseController::class, 'updateVideo'])->name('admin.courses.videos.update');
+    Route::delete('/admin/recorded-courses/videos/{video}', [AdminCourseController::class, 'destroyVideo'])->name('admin.courses.videos.destroy');
+    Route::get('/admin/recorded-courses/videos/{video}', [AdminCourseController::class, 'showVideo'])->name('admin.courses.videos.show');
+
+    Route::post('/admin/recorded-courses/videos/{video}/questions', [AdminCourseController::class, 'storeQuestion'])->name('admin.courses.questions.store');
+    Route::put('/admin/recorded-courses/questions/{question}', [AdminCourseController::class, 'updateQuestion'])->name('admin.courses.questions.update');
+    Route::delete('/admin/recorded-courses/questions/{question}', [AdminCourseController::class, 'destroyQuestion'])->name('admin.courses.questions.destroy');
 
     Route::get('/admin/live_class_batches/{board}/{grade}', [LiveClassBatchController::class, 'index'])->name('admin.live_class_batches.index');
     Route::post('/admin/live_class_batches/{board}/{grade}/store', [LiveClassBatchController::class, 'store'])->name('admin.live_class_batches.store');

@@ -394,31 +394,10 @@
                 </li>
                 
                 <li class="sidebar-item">
-                    <a class="sidebar-link collapsed has-dropdown" data-bs-toggle="collapse"
-                        data-bs-target="#courses" aria-expanded="false" aria-controls="courses">
+                    <a href="{{ route('admin.courses.index') }}" class="sidebar-link">
                         <i class="bi bi-camera-video fs-4"></i>
-                        <span class="fs-6">Courses</span>
+                        <span class="fs-6">Recorded Courses</span>
                     </a>
-
-                    <ul id="courses" class="sidebar-dropdown list-unstyled collapse" data-bs-parent="#courses">
-                        @foreach ($boards as $board)
-                            <li class="sidebar-item">
-                                <a class="sidebar-link collapsed" data-bs-toggle="collapse"
-                                    data-bs-target="#{{ $board->slug }}CourseGrades" aria-expanded="false"
-                                    aria-controls="{{ $board->slug }}CourseGrades">
-                                    {{ $board->name }}
-                                </a>
-                                <ul id="{{ $board->slug }}CourseGrades" class="sidebar-dropdown list-unstyled collapse">
-                                    @foreach ($board->grades as $grade)
-                                        <li class="sidebar-item">
-                                            <a href="{{ route('admin.course.index', ['board' => $board->slug, 'grade' => $grade->slug]) }}"
-                                                class="sidebar-link">{{ $grade->name }}</a>
-                                        </li>
-                                    @endforeach
-                                </ul>
-                            </li>
-                        @endforeach
-                    </ul>
                 </li>
 
                 <li class="sidebar-item">

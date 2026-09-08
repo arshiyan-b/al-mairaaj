@@ -346,13 +346,6 @@ class AdminController extends Controller
         return view('admin.books.index', compact('board'));
     }
 
-    public function course_index($board, $grade)
-    {
-
-        dd($board, $grade);
-        return view('admin.courses.index', compact('board', 'grade'));
-    }
-
     public function demo()
     {
         $videoId = 123;
