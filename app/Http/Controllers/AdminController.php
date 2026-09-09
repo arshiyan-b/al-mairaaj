@@ -17,7 +17,7 @@ use App\Models\TeacherDoc;
 use App\Models\Student;
 use App\Models\Grade;
 use App\Models\Subject;
-use App\Models\PearsonCourse;
+use App\Models\Course;
 
 class AdminController extends Controller
 {
@@ -57,12 +57,12 @@ class AdminController extends Controller
     {
         $studentCount = Student::all()->count();
         $teacherCount = Teacher::all()->count();
-        $pearson_courses = PearsonCourse::all()->count();
+        $courseCount = Course::count();
 
         return view('admin.dashboard', compact(
             'studentCount',
             'teacherCount',
-            'pearson_courses'
+            'courseCount'
         ));
     }
 

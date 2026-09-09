@@ -42,12 +42,12 @@
                     </div>
                 </div>
                 <div class="row my-4">
-                    <h3>Pearson Course Details</h3>
+                    <h3>Recorded Courses</h3>
                     <div class="col-md-4">
                         <div class="card info-card sales-card">
                             <div class="card-body">
-                                <h5 class="card-title">Total Pearson Courses</h5>
-                                <h5 class="card-text">{{ $pearson_courses }}</h5>
+                                <h5 class="card-title">Total Courses</h5>
+                                <h5 class="card-text">{{ $courseCount }}</h5>
                             </div>
                         </div>
                     </div>
