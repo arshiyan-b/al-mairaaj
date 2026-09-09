@@ -41,7 +41,7 @@ class Student extends Model
 
     public function wallet()
     {
-        return $this->hasOne(Wallet::class);
+        return $this->hasOne(StudentWallet::class);
     }
     protected function fullName(): Attribute
     {

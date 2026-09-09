@@ -16,7 +16,7 @@ use App\Models\TeacherApplication;
 use App\Models\TeacherDoc;
 use App\Models\User;
 use App\Models\Grade;
-use App\Models\Wallet;
+use App\Models\StudentWallet;
 
 use App\Mail\StudentRegistrationOTP;
 
@@ -316,7 +316,7 @@ class LoginController extends Controller
         ]);
 
         // Create student's wallet
-        Wallet::create([
+        StudentWallet::create([
             'student_id' => $student->id,
             'balance' => 0,
             'currency' => 'PKR',

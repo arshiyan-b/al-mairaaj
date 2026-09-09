@@ -9,7 +9,7 @@ use App\Services\VoucherService;
 use App\Services\TopupRequestService;
 use App\Services\WalletService;
 
-use App\Models\Wallet;
+use App\Models\StudentWallet;
 
 class WalletController extends Controller
 {
@@ -28,7 +28,7 @@ class WalletController extends Controller
     }
     public function index()
     {
-        $wallets = Wallet::with('student')->latest()->get();
+        $wallets = StudentWallet::with('student')->latest()->get();
         return view("admin.wallet.index", compact('wallets'));
     }
     public function topup_requests()

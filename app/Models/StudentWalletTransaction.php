@@ -5,11 +5,11 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class WalletTransaction extends Model
+class StudentWalletTransaction extends Model
 {
     use HasFactory;
 
-    protected $table = 'wallet_transactions';
+    protected $table = 'student_wallet_transactions';
 
     protected $fillable = [
         'wallet_id',
@@ -36,7 +36,7 @@ class WalletTransaction extends Model
 
     public function wallet()
     {
-        return $this->belongsTo(Wallet::class);
+        return $this->belongsTo(StudentWallet::class, 'wallet_id');
     }
     public function creator()
     {

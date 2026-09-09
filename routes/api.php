@@ -31,6 +31,7 @@ Route::middleware(['web', 'auth'])->prefix('teacher')->group(function () {
     Route::get('/dashboard-data', [ApiController::class, 'teacher_dashboard_data'])->name('teacher.dashboard.data');
 
     Route::get('/profile-data', [ApiController::class, 'teacher_profile_data'])->name('teacher.profile.data');
+    Route::get('/wallet-data', [ApiController::class, 'teacher_wallet_data'])->name('teacher.wallet.data');
     Route::post('/profile-update', [ApiController::class, 'teacher_profile_update'])->name('teacher.profile.update');
 
     Route::get('/live-class-batches-data/{board}/{grade}', [ApiController::class, 'teacher_live_class_batches_data'])->name('teacher.live_class_batches.data');

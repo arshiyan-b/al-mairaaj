@@ -8,6 +8,7 @@ import MainLayout from "./layouts/MainLayout";
 
 const Dashboard = lazy(() => import("./pages/Dashboard"));
 const Profile = lazy(() => import("./pages/Profile"));
+const Wallet = lazy(() => import("./pages/Wallet"));
 const LiveClassBatches = lazy(() => import("./pages/LiveClassBatches"));
 const LiveClassesBatch = lazy(() => import("./pages/LiveClassesBatch"));
 const LiveClass = lazy(() => import("./pages/LiveClass"));
@@ -39,6 +40,7 @@ function App() {
           <Route element={<MainLayout user={userData} />}>
             <Route path="/teacher/dashboard" element={<Dashboard />} />
             <Route path="/teacher/profile" element={<Profile />} />
+            <Route path="/teacher/wallet" element={<Wallet />} />
             <Route path="/teacher/:board/:grade/batches" element={<LiveClassBatches />} />
             <Route path="/teacher/live-class-batch/:id" element={<LiveClassesBatch />} />
             <Route path="/teacher/live-class/:id" element={<LiveClass />} />

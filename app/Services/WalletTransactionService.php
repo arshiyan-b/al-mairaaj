@@ -2,8 +2,8 @@
 
 namespace App\Services;
 
-use App\Models\Wallet;
-use App\Models\WalletTransaction;
+use App\Models\StudentWallet;
+use App\Models\StudentWalletTransaction;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 
@@ -11,16 +11,16 @@ class WalletTransactionService
 {
     public function getAuthenticatedStudentWalletTransactions()
     {
-        return WalletTransaction::where('wallet_id', auth()->user()->student->wallet->id)->get();
+        return StudentWalletTransaction::where('wallet_id', auth()->user()->student->wallet->id)->get();
     }
     public function credit(
-        Wallet $wallet,
+        StudentWallet $wallet,
         float $amount,
         ?string $type,
         ?string $paymentMethod = null,
         ?int $enrollmentId = null,
         ?string $description = null
-    ): WalletTransaction {
+    ): StudentWalletTransaction {
 
         return DB::transaction(function () use (
             $wallet,
@@ -33,7 +33,7 @@ class WalletTransactionService
             $wallet->balance += $amount;
             $wallet->save();
 
-            return WalletTransaction::create([
+            return StudentWalletTransaction::create([
                 'wallet_id'         => $wallet->id,
                 'enrollment_id'     => $enrollmentId,
                 'type'              => $type,
@@ -48,14 +48,14 @@ class WalletTransactionService
         });
     }
     public function debitForAuthenticatedStudentLiveClassEnrollment(
-        Wallet $wallet,
+        StudentWallet $wallet,
         int $enrollmentId,
         float $amount,
         string $type,
         string $paymentMethod,
         string $status = 'completed',
         ?string $description = null
-    ): WalletTransaction {
+    ): StudentWalletTransaction {
 
         return DB::transaction(function () use (
             $wallet,
@@ -70,7 +70,7 @@ class WalletTransactionService
             $wallet->balance -= $amount;
             $wallet->save();
 
-            return WalletTransaction::create([
+            return StudentWalletTransaction::create([
                 'wallet_id'         => $wallet->id,
                 'enrollment_id'     => $enrollmentId,
                 'type'              => $type,

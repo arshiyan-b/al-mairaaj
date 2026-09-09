@@ -5,7 +5,7 @@ namespace App\Services;
 use App\Services\WalletTransactionService;
 
 use App\Models\TopupRequest;
-use App\Models\Wallet;
+use App\Models\StudentWallet;
 use Illuminate\Http\UploadedFile;
 
 use Illuminate\Support\Facades\Auth;
@@ -35,7 +35,7 @@ class TopupRequestService
     {
         return TopupRequest::where('wallet_id', auth()->user()->student->wallet->id)->where('status', 'pending')->get();
     }
-    public function create(Wallet $wallet, array $data, ?UploadedFile $screenshot): TopupRequest
+    public function create(StudentWallet $wallet, array $data, ?UploadedFile $screenshot): TopupRequest
     {
         return DB::transaction(function () use ($wallet, $data, $screenshot) {
 

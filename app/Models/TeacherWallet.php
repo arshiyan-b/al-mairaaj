@@ -5,12 +5,14 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
-class Wallet extends Model
+class TeacherWallet extends Model
 {
     use HasFactory;
-    
+
+    protected $table = 'teacher_wallets';
+
     protected $fillable = [
-        'student_id',
+        'teacher_id',
         'balance',
         'currency',
         'status',
@@ -21,12 +23,13 @@ class Wallet extends Model
         'updated_at',
     ];
 
-    public function student()
+    public function teacher()
     {
-        return $this->belongsTo(Student::class);
+        return $this->belongsTo(Teacher::class);
     }
+
     public function transactions()
     {
-        return $this->hasMany(WalletTransaction::class);
+        return $this->hasMany(TeacherWalletTransaction::class, 'wallet_id');
     }
 }

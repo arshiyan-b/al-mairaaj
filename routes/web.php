@@ -129,6 +129,7 @@ Route::middleware(['auth', 'role:teacher'])->group(function () {
 
     Route::get('/teacher/dashboard', [TeacherController::class, 'dashboard'])->name('teacher.dashboard');
     Route::get('/teacher/profile', [TeacherController::class, 'profile'])->name('teacher.profile');
+    Route::get('/teacher/wallet', [TeacherController::class, 'wallet'])->name('teacher.wallet');
     Route::get('/teacher/{board}/{grade}/batches', [TeacherController::class, 'live_class_batches_index'])->name('teacher.live_class_batches.index');
     Route::get('/teacher/live-class-batch/{id}', [TeacherController::class, 'live_class_batch_show'])->name('teacher.live_class_batch.show');
     Route::get('/teacher/live-class/{id}', [TeacherController::class, 'live_class_show'])->name('teacher.live_class.show');

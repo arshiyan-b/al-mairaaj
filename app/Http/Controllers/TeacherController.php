@@ -14,6 +14,11 @@ class TeacherController extends Controller
         return view('teacher.profile');
     }
 
+    public function wallet()
+    {
+        return view('teacher.wallet');
+    }
+
     public function live_class_batches_index($board, $grade)
     {
         return view('teacher.live_class_batches.index');

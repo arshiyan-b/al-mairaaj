@@ -25,7 +25,7 @@ use App\Services\WalletTransactionService;
 use App\Models\Batch;
 use App\Models\Board;
 use App\Models\Grade;
-use App\Models\Wallet;
+use App\Models\StudentWallet;
 use App\Models\Book;
 use App\Models\LiveClass;
 
@@ -110,7 +110,7 @@ class ApiController extends Controller
         $wallet = $this->walletService->getAuthenticatedStudentWallet();
 
         if (!$wallet) {
-            $wallet = Wallet::create([
+            $wallet = StudentWallet::create([
                 'student_id' => $student->id,
                 'balance' => 0.00,
                 'currency' => 'PKR',
@@ -401,6 +401,26 @@ class ApiController extends Controller
             'status' => 'success',
             'message' => 'Profile updated successfully!',
             'application' => $teacher->application->fresh(),
+        ]);
+    }
+
+    public function teacher_wallet_data()
+    {
+        $teacher = auth()->user()->teacher;
+
+        abort_unless($teacher, 403);
+
+        $wallet = $teacher->wallet()->with('transactions')->first();
+
+        if ($wallet) {
+            $wallet->setRelation(
+                'transactions',
+                $wallet->transactions->sortByDesc('created_at')->values()
+            );
+        }
+
+        return response()->json([
+            'wallet' => $wallet,
         ]);
     }
 

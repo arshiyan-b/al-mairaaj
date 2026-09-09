@@ -40,6 +40,11 @@ class Teacher extends Model
         return $this->hasMany(AllowedClass::class);
     }
 
+    public function wallet()
+    {
+        return $this->hasOne(TeacherWallet::class);
+    }
+
     public function getPictureUrlAttribute()
     {
         $picture = $this->application?->teacherDocs
