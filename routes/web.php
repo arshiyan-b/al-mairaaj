@@ -137,6 +137,7 @@ Route::middleware(['auth', 'role:teacher'])->group(function () {
     Route::get('/teacher/profile', [TeacherController::class, 'profile'])->name('teacher.profile');
     Route::get('/teacher/wallet', [TeacherController::class, 'wallet'])->name('teacher.wallet');
     Route::get('/teacher/simulators', [TeacherController::class, 'simulators'])->name('teacher.simulators');
+    Route::get('/teacher/simulators/{any}', [TeacherController::class, 'simulators'])->where('any', '.*')->name('teacher.simulators.any');
     Route::get('/teacher/{board}/{grade}/batches', [TeacherController::class, 'live_class_batches_index'])->name('teacher.live_class_batches.index');
     Route::get('/teacher/live-class-batch/{id}', [TeacherController::class, 'live_class_batch_show'])->name('teacher.live_class_batch.show');
     Route::get('/teacher/live-class/{id}', [TeacherController::class, 'live_class_show'])->name('teacher.live_class.show');
@@ -174,6 +175,7 @@ Route::middleware(['auth', 'role:student'])->group(function () {
 
     // simulators
     Route::get('/simulators', [StudentController::class, 'simulators'])->name('student.simulators');
+    Route::get('/simulators/{any}', [StudentController::class, 'simulators'])->where('any', '.*')->name('student.simulators.any');
 
     // books
     Route::get('/books', [StudentController::class, 'books'])->name('student.books');

@@ -20,6 +20,7 @@ const Boards = lazy(() => import("./pages/Boards"));
 const Subjects = lazy(() => import("./pages/Subjects"));
 const Simulators = lazy(() => import("./pages/Simulators"));
 const SimulatorsBySubject = lazy(() => import("./pages/SimulatorsBySubject"));
+const PeriodicTable = lazy(() => import("./pages/PeriodicTable"));
 const Books = lazy(() => import("./pages/Books"));
 const PastPapers = lazy(() => import("./pages/PastPapers"));
 const Teachers = lazy(() => import("./pages/Teachers"));
@@ -71,6 +72,7 @@ function App() {
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/chatbot" element={<Chatbot />} />
+          <Route path="/simulators/periodic-table" element={<PeriodicTable />} />
 
           {/* Layout */}
           <Route element={<MainLayout user={userData} />}>

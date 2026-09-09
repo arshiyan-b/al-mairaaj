@@ -86,17 +86,18 @@ export default function SimulatorsBySubject() {
               </Card>
             );
 
-            // page_path may be a path on this site or a full external URL -
-            // a plain <a> handles both correctly, and lets the browser's
-            // own "open in new tab" etc. work as expected.
-            return sim.page_path ? (
-              <a key={sim.id} href={sim.page_path} className="block cursor-pointer">
+            if (!sim.page_path) {
+              return (
+                <div key={sim.id} className="opacity-70 cursor-not-allowed">
+                  {CardInner}
+                </div>
+              );
+            }
+
+            return (
+              <a key={sim.id} href={sim.page_path} target="_blank" rel="noopener noreferrer" className="block cursor-pointer">
                 {CardInner}
               </a>
-            ) : (
-              <div key={sim.id} className="opacity-70 cursor-not-allowed">
-                {CardInner}
-              </div>
             );
           })}
         </div>

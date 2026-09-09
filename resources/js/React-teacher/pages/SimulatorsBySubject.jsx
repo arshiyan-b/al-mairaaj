@@ -86,17 +86,26 @@ export default function SimulatorsBySubject() {
               </Card>
             );
 
-            // page_path may be a path on this site or a full external URL -
-            // a plain <a> handles both correctly, and lets the browser's
-            // own "open in new tab" etc. work as expected.
-            return sim.page_path ? (
-              <a key={sim.id} href={sim.page_path} className="block cursor-pointer">
+            // page_path is stored relative to the student app's routes
+            // (e.g. /simulators/periodic-table); the teacher app's own
+            // matching routes live under /teacher, so prefix internal
+            // paths accordingly. Always opens in a new tab since these
+            // are standalone pages, not part of either SPA's own layout.
+            const isInternal = sim.page_path && sim.page_path.startsWith("/");
+            const openPath = isInternal ? "/teacher" + sim.page_path : sim.page_path;
+
+            if (!sim.page_path) {
+              return (
+                <div key={sim.id} className="opacity-70 cursor-not-allowed">
+                  {CardInner}
+                </div>
+              );
+            }
+
+            return (
+              <a key={sim.id} href={openPath} target="_blank" rel="noopener noreferrer" className="block cursor-pointer">
                 {CardInner}
               </a>
-            ) : (
-              <div key={sim.id} className="opacity-70 cursor-not-allowed">
-                {CardInner}
-              </div>
             );
           })}
         </div>
