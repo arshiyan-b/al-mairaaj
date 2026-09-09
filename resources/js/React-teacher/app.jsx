@@ -11,7 +11,6 @@ const Profile = lazy(() => import("./pages/Profile"));
 const Wallet = lazy(() => import("./pages/Wallet"));
 const Simulators = lazy(() => import("./pages/Simulators"));
 const SimulatorsBySubject = lazy(() => import("./pages/SimulatorsBySubject"));
-const PeriodicTable = lazy(() => import("./pages/PeriodicTable"));
 const LiveClassBatches = lazy(() => import("./pages/LiveClassBatches"));
 const LiveClassesBatch = lazy(() => import("./pages/LiveClassesBatch"));
 const LiveClass = lazy(() => import("./pages/LiveClass"));
@@ -40,7 +39,6 @@ function App() {
     <BrowserRouter>
       <Suspense fallback={<PageLoader />}>
         <Routes>
-          <Route path="/teacher/simulators/periodic-table" element={<PeriodicTable />} />
 
           <Route element={<MainLayout user={userData} />}>
             <Route path="/teacher/dashboard" element={<Dashboard />} />
