@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Outlet, Link } from "react-router-dom";
-import { User, LogOut, Menu, Wallet as WalletIcon } from "lucide-react";
+import { User, LogOut, Menu, Wallet as WalletIcon, FlaskConical } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -85,6 +85,11 @@ const MainLayout = ({ user }) => {
                   <Link to="/teacher/wallet" className="w-full">
                     <DropdownMenuItem className="cursor-pointer">
                       <WalletIcon className="h-4 w-4 mr-2" /> Wallet
+                    </DropdownMenuItem>
+                  </Link>
+                  <Link to="/teacher/simulators" className="w-full">
+                    <DropdownMenuItem className="cursor-pointer">
+                      <FlaskConical className="h-4 w-4 mr-2" /> Simulators
                     </DropdownMenuItem>
                   </Link>
                   <DropdownMenuSeparator />

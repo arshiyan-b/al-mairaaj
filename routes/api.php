@@ -41,3 +41,10 @@ Route::middleware(['web', 'auth'])->prefix('teacher')->group(function () {
     Route::post('/live-class-store', [ApiController::class, 'teacher_live_class_store'])->name('teacher.live_class.store');
     Route::put('/live-class-update/{live_class}', [ApiController::class, 'teacher_live_class_update'])->name('teacher.live_class.update');
 });
+
+// Shared between students and teachers - identical content either way,
+// so this isn't duplicated under both /student and /teacher prefixes.
+Route::middleware(['web', 'auth'])->prefix('simulators')->group(function () {
+    Route::get('/subjects', [ApiController::class, 'simulator_subjects_data'])->name('simulators.subjects.data');
+    Route::get('/by-subject/{subject}', [ApiController::class, 'simulators_by_subject_data'])->name('simulators.by_subject.data');
+});

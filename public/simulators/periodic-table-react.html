@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Periodic Table | Al Mairaaj Simulators</title>
+
+<script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+<style>
+  :root {
+    --ink: #0f1417;
+    --panel: #161d21;
+    --panel-2: #1b2328;
+    --line: #2a343b;
+    --teal: #14b8a6;
+    --teal-dim: #0d6d72;
+    --text: #e7edf0;
+    --text-dim: #8fa1a8;
+    --mono: 'JetBrains Mono', 'SF Mono', Consolas, monospace;
+    --sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+
+    --c-alkali-metal: #ef7b5a;
+    --c-alkaline-earth: #f2a65a;
+    --c-transition-metal: #5aa9e6;
+    --c-post-transition: #6bc4b8;
+    --c-metalloid: #a6c85a;
+    --c-nonmetal: #4dd0a8;
+    --c-halogen: #d6e05a;
+    --c-noble-gas: #b98af0;
+    --c-lanthanide: #f06fa0;
+    --c-actinide: #ee5a8a;
+    --c-unknown: #5c6b72;
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body, #root { height: 100%; }
+
+  body {
+    margin: 0;
+    background: var(--ink);
+    color: var(--text);
+    font-family: var(--sans);
+  }
+
+  header {
+    padding: 22px 28px 14px;
+    border-bottom: 1px solid var(--line);
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 24px;
+    flex-wrap: wrap;
+  }
+  .brand {
+    font-family: var(--mono);
+    font-size: 12px;
+    letter-spacing: 0.08em;
+    color: var(--teal);
+    margin-bottom: 6px;
+    opacity: 0;
+    animation: dropIn .5s ease forwards;
+  }
+  h1 {
+    margin: 0;
+    font-size: 26px;
+    font-weight: 650;
+    letter-spacing: -0.01em;
+    opacity: 0;
+    animation: dropIn .5s .08s ease forwards;
+  }
+  @keyframes dropIn {
+    from { opacity: 0; transform: translateY(-8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  #search {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    color: var(--text);
+    padding: 9px 14px;
+    border-radius: 8px;
+    font-family: var(--sans);
+    font-size: 14px;
+    width: 220px;
+    outline: none;
+    transition: border-color .15s ease, box-shadow .15s ease;
+  }
+  #search:focus { border-color: var(--teal-dim); box-shadow: 0 0 0 3px rgba(20,184,166,0.15); }
+  #search::placeholder { color: var(--text-dim); }
+
+  .legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px 16px;
+    padding: 14px 28px;
+    font-size: 12px;
+    color: var(--text-dim);
+    border-bottom: 1px solid var(--line);
+  }
+  .legend-item { display: flex; align-items: center; gap: 6px; cursor: pointer; transition: opacity .15s ease; }
+  .legend-item.inactive { opacity: 0.3; }
+  .swatch { width: 10px; height: 10px; border-radius: 2px; flex-shrink: 0; }
+
+  .table-wrap {
+    padding: 26px 16px 60px;
+    overflow-x: auto;
+    perspective: 1400px;
+  }
+
+  #grid {
+    display: grid;
+    grid-template-columns: repeat(18, minmax(46px, 1fr));
+    grid-auto-rows: minmax(46px, 1fr);
+    gap: 4px;
+    max-width: 1180px;
+    margin: 0 auto;
+    min-width: 900px;
+  }
+
+  .cell {
+    position: relative;
+    border-radius: 7px;
+    background: var(--panel);
+    border: 1px solid var(--line);
+    padding: 4px 6px;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    transition: box-shadow .15s ease, opacity .2s ease, border-color .15s ease;
+    transform-style: preserve-3d;
+    will-change: transform;
+    opacity: 0;
+    animation: tileIn .4s ease forwards;
+  }
+  @keyframes tileIn {
+    from { opacity: 0; transform: scale(.85) translateY(6px); }
+    to { opacity: 1; transform: scale(1) translateY(0); }
+  }
+  .cell.dim { opacity: 0.15 !important; }
+  .cell.selected {
+    border-color: var(--teal);
+    box-shadow: 0 0 0 2px rgba(20,184,166,0.35);
+  }
+
+  .cell.placeholder {
+    cursor: default;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-dim);
+    font-family: var(--mono);
+    font-size: 11px;
+    background: transparent;
+    border-style: dashed;
+    animation: none;
+    opacity: 1;
+  }
+
+  .cell .num { font-family: var(--mono); font-size: 9px; color: rgba(255,255,255,0.55); }
+  .cell .sym { font-size: 15px; font-weight: 700; line-height: 1; }
+  .cell .nm { font-size: 8px; color: rgba(255,255,255,0.6); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+  footer {
+    text-align: center;
+    color: var(--text-dim);
+    font-size: 12px;
+    padding: 10px 0 30px;
+    font-family: var(--mono);
+  }
+
+  /* Detail overlay */
+  .overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 20;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+  }
+  .overlay-backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(6, 9, 11, 0.7);
+    backdrop-filter: blur(3px);
+    animation: fadeIn .25s ease forwards;
+  }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+  .detail-card {
+    position: relative;
+    width: 100%;
+    max-width: 560px;
+    background: var(--panel-2);
+    border: 1px solid var(--line);
+    border-radius: 18px;
+    padding: 36px;
+    animation: cardIn .38s cubic-bezier(.2,.9,.25,1.15) forwards;
+    box-shadow: 0 30px 80px rgba(0,0,0,0.55);
+  }
+  @keyframes cardIn {
+    from { opacity: 0; transform: scale(.85) translateY(24px) rotateX(8deg); }
+    to   { opacity: 1; transform: scale(1) translateY(0) rotateX(0deg); }
+  }
+
+  .detail-close {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: none;
+    border: none;
+    color: var(--text-dim);
+    font-size: 22px;
+    cursor: pointer;
+    line-height: 1;
+    transition: color .15s ease, transform .15s ease;
+  }
+  .detail-close:hover { color: var(--text); transform: rotate(90deg); }
+
+  .detail-head {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    margin-bottom: 28px;
+  }
+  .detail-symbol {
+    font-size: 72px;
+    font-weight: 700;
+    line-height: 1;
+    width: 110px;
+    height: 110px;
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    animation: symbolPop .5s .1s cubic-bezier(.2,.9,.25,1.4) both;
+  }
+  @keyframes symbolPop {
+    from { transform: scale(0.5) rotate(-8deg); opacity: 0; }
+    to   { transform: scale(1) rotate(0deg); opacity: 1; }
+  }
+  .detail-titles .num { font-family: var(--mono); font-size: 13px; color: var(--text-dim); letter-spacing: .04em; }
+  .detail-titles h2 { margin: 4px 0 10px; font-size: 26px; }
+  .cat-tag {
+    display: inline-block;
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.04em;
+    padding: 4px 10px;
+    border-radius: 100px;
+  }
+
+  .detail-blurb {
+    font-size: 14px;
+    line-height: 1.6;
+    color: var(--text-dim);
+    margin-bottom: 26px;
+    padding-bottom: 26px;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .detail-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+  .stat {
+    opacity: 0;
+    animation: statIn .35s ease forwards;
+  }
+  .stat dt {
+    font-family: var(--mono);
+    font-size: 10.5px;
+    color: var(--text-dim);
+    letter-spacing: 0.05em;
+    margin-bottom: 4px;
+  }
+  .stat dd { margin: 0; font-size: 17px; font-weight: 600; }
+  @keyframes statIn {
+    from { opacity: 0; transform: translateX(-6px); }
+    to   { opacity: 1; transform: translateX(0); }
+  }
+
+  @media (max-width: 640px) {
+    header { padding: 18px 16px 12px; }
+    h1 { font-size: 20px; }
+    .legend { padding: 12px 16px; }
+    .detail-card { padding: 26px; }
+    .detail-symbol { width: 84px; height: 84px; font-size: 52px; border-radius: 16px; }
+  }
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<script type="text/babel" data-presets="react">
+const { useState, useMemo, useRef, useEffect } = React;
+
+const CATEGORY_LABELS = {
+  'alkali-metal': 'Alkali metal',
+  'alkaline-earth': 'Alkaline earth metal',
+  'transition-metal': 'Transition metal',
+  'post-transition': 'Post-transition metal',
+  'metalloid': 'Metalloid',
+  'nonmetal': 'Reactive nonmetal',
+  'halogen': 'Halogen',
+  'noble-gas': 'Noble gas',
+  'lanthanide': 'Lanthanide',
+  'actinide': 'Actinide',
+  'unknown': 'Unknown properties',
+};
+
+const CATEGORY_BLURBS = {
+  'alkali-metal': 'Soft, highly reactive metals that lose a single outer electron easily, forming +1 ions. Never found free in nature.',
+  'alkaline-earth': 'Reactive metals that lose two outer electrons to form +2 ions. Harder and denser than the alkali metals.',
+  'transition-metal': 'Hard, dense metals known for multiple oxidation states, catalytic activity, and colorful compounds.',
+  'post-transition': 'Metals that are softer and lower-melting than the transition metals, sitting just before the metalloids.',
+  'metalloid': 'Elements with properties between metals and nonmetals - many are semiconductors used in electronics.',
+  'nonmetal': 'Poor conductors of heat and electricity, essential to organic chemistry and biological molecules.',
+  'halogen': 'Highly reactive nonmetals that readily gain one electron to form -1 ions, such as in table salt.',
+  'noble-gas': 'Extremely unreactive gases with a full outer electron shell, used in lighting and inert atmospheres.',
+  'lanthanide': 'Rare-earth metals with similar chemistry, used in magnets, phosphors, and catalysts.',
+  'actinide': 'Radioactive heavy elements; several are synthetic and exist only briefly in laboratories.',
+  'unknown': 'A synthetic, superheavy element - too unstable and short-lived for its properties to be fully measured.',
+};
+
+// number, symbol, name, mass, category, period, group, phase
+const ELEMENTS = [
+[1,'H','Hydrogen',1.008,'nonmetal',1,1,'gas'],
+[2,'He','Helium',4.0026,'noble-gas',1,18,'gas'],
+[3,'Li','Lithium',6.94,'alkali-metal',2,1,'solid'],
+[4,'Be','Beryllium',9.0122,'alkaline-earth',2,2,'solid'],
+[5,'B','Boron',10.81,'metalloid',2,13,'solid'],
+[6,'C','Carbon',12.011,'nonmetal',2,14,'solid'],
+[7,'N','Nitrogen',14.007,'nonmetal',2,15,'gas'],
+[8,'O','Oxygen',15.999,'nonmetal',2,16,'gas'],
+[9,'F','Fluorine',18.998,'halogen',2,17,'gas'],
+[10,'Ne','Neon',20.180,'noble-gas',2,18,'gas'],
+[11,'Na','Sodium',22.990,'alkali-metal',3,1,'solid'],
+[12,'Mg','Magnesium',24.305,'alkaline-earth',3,2,'solid'],
+[13,'Al','Aluminium',26.982,'post-transition',3,13,'solid'],
+[14,'Si','Silicon',28.085,'metalloid',3,14,'solid'],
+[15,'P','Phosphorus',30.974,'nonmetal',3,15,'solid'],
+[16,'S','Sulfur',32.06,'nonmetal',3,16,'solid'],
+[17,'Cl','Chlorine',35.45,'halogen',3,17,'gas'],
+[18,'Ar','Argon',39.948,'noble-gas',3,18,'gas'],
+[19,'K','Potassium',39.098,'alkali-metal',4,1,'solid'],
+[20,'Ca','Calcium',40.078,'alkaline-earth',4,2,'solid'],
+[21,'Sc','Scandium',44.956,'transition-metal',4,3,'solid'],
+[22,'Ti','Titanium',47.867,'transition-metal',4,4,'solid'],
+[23,'V','Vanadium',50.942,'transition-metal',4,5,'solid'],
+[24,'Cr','Chromium',51.996,'transition-metal',4,6,'solid'],
+[25,'Mn','Manganese',54.938,'transition-metal',4,7,'solid'],
+[26,'Fe','Iron',55.845,'transition-metal',4,8,'solid'],
+[27,'Co','Cobalt',58.933,'transition-metal',4,9,'solid'],
+[28,'Ni','Nickel',58.693,'transition-metal',4,10,'solid'],
+[29,'Cu','Copper',63.546,'transition-metal',4,11,'solid'],
+[30,'Zn','Zinc',65.38,'transition-metal',4,12,'solid'],
+[31,'Ga','Gallium',69.723,'post-transition',4,13,'solid'],
+[32,'Ge','Germanium',72.630,'metalloid',4,14,'solid'],
+[33,'As','Arsenic',74.922,'metalloid',4,15,'solid'],
+[34,'Se','Selenium',78.971,'nonmetal',4,16,'solid'],
+[35,'Br','Bromine',79.904,'halogen',4,17,'liquid'],
+[36,'Kr','Krypton',83.798,'noble-gas',4,18,'gas'],
+[37,'Rb','Rubidium',85.468,'alkali-metal',5,1,'solid'],
+[38,'Sr','Strontium',87.62,'alkaline-earth',5,2,'solid'],
+[39,'Y','Yttrium',88.906,'transition-metal',5,3,'solid'],
+[40,'Zr','Zirconium',91.224,'transition-metal',5,4,'solid'],
+[41,'Nb','Niobium',92.906,'transition-metal',5,5,'solid'],
+[42,'Mo','Molybdenum',95.95,'transition-metal',5,6,'solid'],
+[43,'Tc','Technetium',98,'transition-metal',5,7,'solid'],
+[44,'Ru','Ruthenium',101.07,'transition-metal',5,8,'solid'],
+[45,'Rh','Rhodium',102.91,'transition-metal',5,9,'solid'],
+[46,'Pd','Palladium',106.42,'transition-metal',5,10,'solid'],
+[47,'Ag','Silver',107.87,'transition-metal',5,11,'solid'],
+[48,'Cd','Cadmium',112.41,'transition-metal',5,12,'solid'],
+[49,'In','Indium',114.82,'post-transition',5,13,'solid'],
+[50,'Sn','Tin',118.71,'post-transition',5,14,'solid'],
+[51,'Sb','Antimony',121.76,'metalloid',5,15,'solid'],
+[52,'Te','Tellurium',127.60,'metalloid',5,16,'solid'],
+[53,'I','Iodine',126.90,'halogen',5,17,'solid'],
+[54,'Xe','Xenon',131.29,'noble-gas',5,18,'gas'],
+[55,'Cs','Caesium',132.91,'alkali-metal',6,1,'solid'],
+[56,'Ba','Barium',137.33,'alkaline-earth',6,2,'solid'],
+[57,'La','Lanthanum',138.91,'lanthanide',8,3,'solid'],
+[58,'Ce','Cerium',140.12,'lanthanide',8,4,'solid'],
+[59,'Pr','Praseodymium',140.91,'lanthanide',8,5,'solid'],
+[60,'Nd','Neodymium',144.24,'lanthanide',8,6,'solid'],
+[61,'Pm','Promethium',145,'lanthanide',8,7,'solid'],
+[62,'Sm','Samarium',150.36,'lanthanide',8,8,'solid'],
+[63,'Eu','Europium',151.96,'lanthanide',8,9,'solid'],
+[64,'Gd','Gadolinium',157.25,'lanthanide',8,10,'solid'],
+[65,'Tb','Terbium',158.93,'lanthanide',8,11,'solid'],
+[66,'Dy','Dysprosium',162.50,'lanthanide',8,12,'solid'],
+[67,'Ho','Holmium',164.93,'lanthanide',8,13,'solid'],
+[68,'Er','Erbium',167.26,'lanthanide',8,14,'solid'],
+[69,'Tm','Thulium',168.93,'lanthanide',8,15,'solid'],
+[70,'Yb','Ytterbium',173.05,'lanthanide',8,16,'solid'],
+[71,'Lu','Lutetium',174.97,'lanthanide',8,17,'solid'],
+[72,'Hf','Hafnium',178.49,'transition-metal',6,4,'solid'],
+[73,'Ta','Tantalum',180.95,'transition-metal',6,5,'solid'],
+[74,'W','Tungsten',183.84,'transition-metal',6,6,'solid'],
+[75,'Re','Rhenium',186.21,'transition-metal',6,7,'solid'],
+[76,'Os','Osmium',190.23,'transition-metal',6,8,'solid'],
+[77,'Ir','Iridium',192.22,'transition-metal',6,9,'solid'],
+[78,'Pt','Platinum',195.08,'transition-metal',6,10,'solid'],
+[79,'Au','Gold',196.97,'transition-metal',6,11,'solid'],
+[80,'Hg','Mercury',200.59,'transition-metal',6,12,'liquid'],
+[81,'Tl','Thallium',204.38,'post-transition',6,13,'solid'],
+[82,'Pb','Lead',207.2,'post-transition',6,14,'solid'],
+[83,'Bi','Bismuth',208.98,'post-transition',6,15,'solid'],
+[84,'Po','Polonium',209,'post-transition',6,16,'solid'],
+[85,'At','Astatine',210,'halogen',6,17,'solid'],
+[86,'Rn','Radon',222,'noble-gas',6,18,'gas'],
+[87,'Fr','Francium',223,'alkali-metal',7,1,'solid'],
+[88,'Ra','Radium',226,'alkaline-earth',7,2,'solid'],
+[89,'Ac','Actinium',227,'actinide',9,3,'solid'],
+[90,'Th','Thorium',232.04,'actinide',9,4,'solid'],
+[91,'Pa','Protactinium',231.04,'actinide',9,5,'solid'],
+[92,'U','Uranium',238.03,'actinide',9,6,'solid'],
+[93,'Np','Neptunium',237,'actinide',9,7,'solid'],
+[94,'Pu','Plutonium',244,'actinide',9,8,'solid'],
+[95,'Am','Americium',243,'actinide',9,9,'solid'],
+[96,'Cm','Curium',247,'actinide',9,10,'solid'],
+[97,'Bk','Berkelium',247,'actinide',9,11,'solid'],
+[98,'Cf','Californium',251,'actinide',9,12,'solid'],
+[99,'Es','Einsteinium',252,'actinide',9,13,'solid'],
+[100,'Fm','Fermium',257,'actinide',9,14,'solid'],
+[101,'Md','Mendelevium',258,'actinide',9,15,'solid'],
+[102,'No','Nobelium',259,'actinide',9,16,'solid'],
+[103,'Lr','Lawrencium',266,'actinide',9,17,'solid'],
+[104,'Rf','Rutherfordium',267,'transition-metal',7,4,'unknown'],
+[105,'Db','Dubnium',268,'transition-metal',7,5,'unknown'],
+[106,'Sg','Seaborgium',269,'transition-metal',7,6,'unknown'],
+[107,'Bh','Bohrium',270,'transition-metal',7,7,'unknown'],
+[108,'Hs','Hassium',269,'transition-metal',7,8,'unknown'],
+[109,'Mt','Meitnerium',278,'unknown',7,9,'unknown'],
+[110,'Ds','Darmstadtium',281,'unknown',7,10,'unknown'],
+[111,'Rg','Roentgenium',282,'unknown',7,11,'unknown'],
+[112,'Cn','Copernicium',285,'transition-metal',7,12,'unknown'],
+[113,'Nh','Nihonium',286,'post-transition',7,13,'unknown'],
+[114,'Fl','Flerovium',289,'post-transition',7,14,'unknown'],
+[115,'Mc','Moscovium',290,'post-transition',7,15,'unknown'],
+[116,'Lv','Livermorium',293,'post-transition',7,16,'unknown'],
+[117,'Ts','Tennessine',294,'halogen',7,17,'unknown'],
+[118,'Og','Oganesson',294,'noble-gas',7,18,'unknown'],
+].map(([num, sym, name, mass, cat, period, group, phase]) => ({ num, sym, name, mass, cat, period, group, phase }));
+
+const PLACEHOLDERS = [
+  { period: 6, group: 3, label: '57-71' },
+  { period: 7, group: 3, label: '89-103' },
+];
+
+const ROW_MAP = { 1:1, 2:2, 3:3, 4:4, 5:5, 6:6, 7:7, 8:9, 9:10 };
+
+function Legend({ activeCategory, onToggle }) {
+  return (
+    <div className="legend">
+      {Object.keys(CATEGORY_LABELS).map((key) => (
+        <div
+          key={key}
+          className={"legend-item" + (activeCategory && activeCategory !== key ? " inactive" : "")}
+          onClick={() => onToggle(key)}
+        >
+          <span className="swatch" style={{ background: `var(--c-${key})` }}></span>
+          {CATEGORY_LABELS[key]}
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function Tile({ el, index, dimmed, selected, onSelect }) {
+  const ref = useRef(null);
+
+  const handleMove = (e) => {
+    const node = ref.current;
+    if (!node) return;
+    const rect = node.getBoundingClientRect();
+    const x = (e.clientX - rect.left) / rect.width - 0.5;
+    const y = (e.clientY - rect.top) / rect.height - 0.5;
+    node.style.transform = `translateY(-2px) rotateX(${(-y * 14).toFixed(2)}deg) rotateY(${(x * 14).toFixed(2)}deg)`;
+    node.style.boxShadow = "0 10px 24px rgba(0,0,0,0.4)";
+    node.style.zIndex = 2;
+  };
+
+  const handleLeave = () => {
+    const node = ref.current;
+    if (!node) return;
+    node.style.transform = "";
+    node.style.boxShadow = "";
+    node.style.zIndex = "";
+  };
+
+  return (
+    <div
+      ref={ref}
+      className={"cell cat-" + el.cat + (dimmed ? " dim" : "") + (selected ? " selected" : "")}
+      style={{
+        gridRow: ROW_MAP[el.period],
+        gridColumn: el.group,
+        borderLeft: `3px solid var(--c-${el.cat})`,
+        animationDelay: (index * 4) + "ms",
+      }}
+      onMouseMove={handleMove}
+      onMouseLeave={handleLeave}
+      onClick={() => onSelect(el)}
+    >
+      <div className="num">{el.num}</div>
+      <div className="sym">{el.sym}</div>
+      <div className="nm">{el.name}</div>
+    </div>
+  );
+}
+
+function DetailOverlay({ el, onClose }) {
+  useEffect(() => {
+    const handler = (e) => { if (e.key === "Escape") onClose(); };
+    document.addEventListener("keydown", handler);
+    return () => document.removeEventListener("keydown", handler);
+  }, [onClose]);
+
+  if (!el) return null;
+
+  const periodLabel = el.period > 7
+    ? (el.period === 8 ? "6 (lanthanide series)" : "7 (actinide series)")
+    : el.period;
+
+  const stats = [
+    ["Atomic Mass", el.mass + " u"],
+    ["Period", periodLabel],
+    ["Group", el.group],
+    ["Phase (room temp)", el.phase.charAt(0).toUpperCase() + el.phase.slice(1)],
+  ];
+
+  return (
+    <div className="overlay">
+      <div className="overlay-backdrop" onClick={onClose}></div>
+      <div className="detail-card">
+        <button className="detail-close" onClick={onClose} aria-label="Close">&times;</button>
+
+        <div className="detail-head">
+          <div
+            className="detail-symbol"
+            style={{ background: `var(--c-${el.cat})22`, color: `var(--c-${el.cat})` }}
+          >
+            {el.sym}
+          </div>
+          <div className="detail-titles">
+            <div className="num">ATOMIC NO. {el.num}</div>
+            <h2>{el.name}</h2>
+            <span
+              className="cat-tag"
+              style={{ background: `var(--c-${el.cat})22`, color: `var(--c-${el.cat})` }}
+            >
+              {CATEGORY_LABELS[el.cat]}
+            </span>
+          </div>
+        </div>
+
+        <p className="detail-blurb">{CATEGORY_BLURBS[el.cat]}</p>
+
+        <dl className="detail-grid">
+          {stats.map(([label, value], i) => (
+            <div className="stat" key={label} style={{ animationDelay: (140 + i * 60) + "ms" }}>
+              <dt>{label}</dt>
+              <dd>{value}</dd>
+            </div>
+          ))}
+        </dl>
+      </div>
+    </div>
+  );
+}
+
+function App() {
+  const [query, setQuery] = useState("");
+  const [activeCategory, setActiveCategory] = useState(null);
+  const [selected, setSelected] = useState(null);
+
+  const q = query.trim().toLowerCase();
+
+  const isDimmed = (el) => {
+    const matchesQuery = !q || el.name.toLowerCase().includes(q) || el.sym.toLowerCase() === q || el.sym.toLowerCase().startsWith(q);
+    const matchesCategory = !activeCategory || el.cat === activeCategory;
+    return !(matchesQuery && matchesCategory);
+  };
+
+  const toggleCategory = (key) => {
+    setActiveCategory((prev) => (prev === key ? null : key));
+  };
+
+  return (
+    <React.Fragment>
+      <header>
+        <div>
+          <div className="brand">AL MAIRAAJ &middot; SIMULATORS</div>
+          <h1>Periodic Table of Elements</h1>
+        </div>
+        <input
+          id="search"
+          type="text"
+          placeholder="Search by name or symbol&hellip;"
+          autoComplete="off"
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+        />
+      </header>
+
+      <Legend activeCategory={activeCategory} onToggle={toggleCategory} />
+
+      <div className="table-wrap">
+        <div id="grid">
+          {ELEMENTS.map((el, i) => (
+            <Tile
+              key={el.num}
+              el={el}
+              index={i}
+              dimmed={isDimmed(el)}
+              selected={selected && selected.num === el.num}
+              onSelect={setSelected}
+            />
+          ))}
+          {PLACEHOLDERS.map((p) => (
+            <div
+              key={p.label}
+              className="cell placeholder"
+              style={{ gridRow: p.period, gridColumn: p.group }}
+            >
+              {p.label}
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <footer>Click any element to see its details &middot; 118 elements</footer>
+
+      <DetailOverlay el={selected} onClose={() => setSelected(null)} />
+    </React.Fragment>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+</script>
+</body>
+</html>

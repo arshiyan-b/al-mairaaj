@@ -8,6 +8,7 @@ const navigationItems = [
   { label: "Live Classes", href: "/live-classes" },
   // { label: "Examination Boards", href: "/examination-boards" },
   { label: "Subjects", href: "/subjects" },
+  { label: "Simulators", href: "/simulators" },
   // { label: "Books", href: "/books" },
   // { label: "Past Papers", href: "/past-papers" },
   { label: "Teachers", href: "/teachers" },

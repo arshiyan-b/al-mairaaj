@@ -18,6 +18,8 @@ const BrowseLiveClasses = lazy(() => import("./pages/BrowseLiveClasses"));
 const LiveClassesBatch = lazy(() => import("./pages/LiveClassesBatch"));
 const Boards = lazy(() => import("./pages/Boards"));
 const Subjects = lazy(() => import("./pages/Subjects"));
+const Simulators = lazy(() => import("./pages/Simulators"));
+const SimulatorsBySubject = lazy(() => import("./pages/SimulatorsBySubject"));
 const Books = lazy(() => import("./pages/Books"));
 const PastPapers = lazy(() => import("./pages/PastPapers"));
 const Teachers = lazy(() => import("./pages/Teachers"));
@@ -81,6 +83,8 @@ function App() {
             <Route path="live-classes-batch/:id" element={<LiveClassesBatch />} />
             <Route path="examination-boards" element={<Boards />} />
             <Route path="subjects" element={<Subjects />} />
+            <Route path="simulators" element={<Simulators />} />
+            <Route path="simulators/:subjectId" element={<SimulatorsBySubject />} />
             <Route path="books" element={<Books />} />
             <Route path="past-papers" element={<PastPapers />} />
             <Route path="teachers" element={<Teachers />} />

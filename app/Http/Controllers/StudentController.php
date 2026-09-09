@@ -112,6 +112,10 @@ class StudentController extends Controller
     {
         return view('student.subjects.index');
     }
+    public function simulators()
+    {
+        return view('student.simulators.index');
+    }
     public function books()
     {
         return view('student.books.index');

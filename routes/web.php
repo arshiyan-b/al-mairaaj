@@ -13,6 +13,7 @@ use App\Http\Controllers\LoginController;
 use App\Http\Controllers\StudentController;
 use App\Http\Controllers\TeacherController;
 use App\Http\Controllers\AdminCourseController;
+use App\Http\Controllers\AdminSimulatorController;
 use App\Http\Controllers\VideoController;
 use App\Http\Controllers\WalletController;
 
@@ -97,6 +98,11 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::put('/admin/recorded-courses/questions/{question}', [AdminCourseController::class, 'updateQuestion'])->name('admin.courses.questions.update');
     Route::delete('/admin/recorded-courses/questions/{question}', [AdminCourseController::class, 'destroyQuestion'])->name('admin.courses.questions.destroy');
 
+    Route::get('/admin/simulators', [AdminSimulatorController::class, 'index'])->name('admin.simulators.index');
+    Route::post('/admin/simulators', [AdminSimulatorController::class, 'store'])->name('admin.simulators.store');
+    Route::put('/admin/simulators/{simulator}', [AdminSimulatorController::class, 'update'])->name('admin.simulators.update');
+    Route::delete('/admin/simulators/{simulator}', [AdminSimulatorController::class, 'destroy'])->name('admin.simulators.destroy');
+
     Route::get('/admin/live_class_batches/{board}/{grade}', [LiveClassBatchController::class, 'index'])->name('admin.live_class_batches.index');
     Route::post('/admin/live_class_batches/{board}/{grade}/store', [LiveClassBatchController::class, 'store'])->name('admin.live_class_batches.store');
     Route::get('/admin/live_class_batches/{board}/{grade}/{batch}', [LiveClassBatchController::class, 'show'])->name('admin.live_class_batches.show');
@@ -130,6 +136,7 @@ Route::middleware(['auth', 'role:teacher'])->group(function () {
     Route::get('/teacher/dashboard', [TeacherController::class, 'dashboard'])->name('teacher.dashboard');
     Route::get('/teacher/profile', [TeacherController::class, 'profile'])->name('teacher.profile');
     Route::get('/teacher/wallet', [TeacherController::class, 'wallet'])->name('teacher.wallet');
+    Route::get('/teacher/simulators', [TeacherController::class, 'simulators'])->name('teacher.simulators');
     Route::get('/teacher/{board}/{grade}/batches', [TeacherController::class, 'live_class_batches_index'])->name('teacher.live_class_batches.index');
     Route::get('/teacher/live-class-batch/{id}', [TeacherController::class, 'live_class_batch_show'])->name('teacher.live_class_batch.show');
     Route::get('/teacher/live-class/{id}', [TeacherController::class, 'live_class_show'])->name('teacher.live_class.show');
@@ -164,6 +171,9 @@ Route::middleware(['auth', 'role:student'])->group(function () {
 
     // subjects
     Route::get('/subjects', [StudentController::class, 'subjects'])->name('student.subjects');
+
+    // simulators
+    Route::get('/simulators', [StudentController::class, 'simulators'])->name('student.simulators');
 
     // books
     Route::get('/books', [StudentController::class, 'books'])->name('student.books');

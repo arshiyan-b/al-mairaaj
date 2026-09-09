@@ -28,6 +28,8 @@ use App\Models\Grade;
 use App\Models\StudentWallet;
 use App\Models\Book;
 use App\Models\LiveClass;
+use App\Models\Subject;
+use App\Models\Simulator;
 
 use Illuminate\Http\Request;
 
@@ -443,6 +445,32 @@ class ApiController extends Controller
         return response()->json([
             'status' => 'success',
             'message' => 'Live class updated successfully.',
+        ]);
+    }
+
+    public function simulator_subjects_data()
+    {
+        $subjects = Subject::whereHas('simulators', function ($query) {
+            $query->where('status', 'published');
+        })->orderBy('name')->get();
+
+        return response()->json([
+            'subjects' => $subjects,
+        ]);
+    }
+
+    public function simulators_by_subject_data($subject)
+    {
+        $subject = Subject::findOrFail($subject);
+
+        $simulators = Simulator::where('subject_id', $subject->id)
+            ->where('status', 'published')
+            ->orderBy('sort_order')
+            ->get();
+
+        return response()->json([
+            'subject' => $subject,
+            'simulators' => $simulators,
         ]);
     }
 }

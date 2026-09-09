@@ -11,4 +11,9 @@ class Subject extends Model
         'key',
         'name',
     ];
+
+    public function simulators()
+    {
+        return $this->hasMany(Simulator::class);
+    }
 }
