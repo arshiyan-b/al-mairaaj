@@ -400,12 +400,6 @@
                     </a>
                 </li>
 
-                <li class="sidebar-item">
-                    <a href="{{ route('admin.simulators.index') }}" class="sidebar-link">
-                        <i class="bi bi-lightning-charge fs-4"></i>
-                        <span class="fs-6">Simulators</span>
-                    </a>
-                </li>
 
                 <li class="sidebar-item">
                     <a class="sidebar-link collapsed has-dropdown" data-bs-toggle="collapse" data-bs-target="#liveClassBatches"
