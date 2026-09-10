@@ -20,6 +20,10 @@ class Simulator extends Model
         'sort_order',
     ];
 
+    protected $hidden = [
+        'uuid',
+    ];
+
     public function subject()
     {
         return $this->belongsTo(Subject::class);
