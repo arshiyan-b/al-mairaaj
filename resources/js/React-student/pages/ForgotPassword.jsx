@@ -2,6 +2,10 @@ import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import logo from "../assets/logo.png";
+import { fetchCsrfToken } from "../utils/csrf";
+
+// Fixed, well-known endpoint - no need to read it out of the page's DOM.
+const FORGOT_PASSWORD_ROUTE = "/forgot-password";
 
 const containerVariants = {
   hidden: { opacity: 0, y: 24, scale: 0.97 },
@@ -24,10 +28,6 @@ const fieldVariants = {
 };
 
 export default function ForgotPassword() {
-  const appDiv = document.getElementById("app");
-  const forgotPasswordRoute = appDiv?.dataset?.forgotPasswordRoute;
-  const csrfToken = appDiv?.dataset?.csrf;
-
   const [email, setEmail] = useState("");
   const [errorMsg, setErrorMsg] = useState("");
   const [successMsg, setSuccessMsg] = useState("");
@@ -42,7 +42,9 @@ export default function ForgotPassword() {
     let isSuccess = false;
 
     try {
-      const response = await fetch(forgotPasswordRoute, {
+      const csrfToken = await fetchCsrfToken();
+
+      const response = await fetch(FORGOT_PASSWORD_ROUTE, {
         method: "POST",
         headers: {
           Accept: "application/json",
@@ -62,7 +64,11 @@ export default function ForgotPassword() {
       }
 
       if (!response.ok || data.status === "error") {
-        setErrorMsg(data.message || "We couldn't find an account with that email.");
+        setErrorMsg(
+          response.status === 419
+            ? "Your session had expired. Please try again."
+            : data.message || "We couldn't find an account with that email."
+        );
         return;
       }
 

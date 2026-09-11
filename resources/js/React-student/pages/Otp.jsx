@@ -2,6 +2,10 @@ import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import logo from "../assets/logo.png";
+import { fetchCsrfToken } from "../utils/csrf";
+
+// Fixed, well-known endpoint - no need to read it out of the page's DOM.
+const OTP_VERIFY_ROUTE = "/verify-otp-auth";
 
 // Animation variants
 const containerVariants = {
@@ -31,11 +35,6 @@ export default function Otp() {
   const [successMsg, setSuccessMsg] = useState("");
   const [loading, setLoading] = useState(false);
 
-  // Get Laravel route + CSRF token from Blade
-  const appDiv = document.getElementById("app");
-  const otpVerifyRoute = `${appDiv?.dataset?.otpVerifyRoute}`;
-  const csrfToken = appDiv?.dataset?.csrf;
-
   useEffect(() => {
     // Get email from Laravel blade's data attribute
     const el = document.getElementById("app");
@@ -61,7 +60,9 @@ export default function Otp() {
     let isSuccess = false;
 
     try {
-      const response = await fetch(otpVerifyRoute, {
+      const csrfToken = await fetchCsrfToken();
+
+      const response = await fetch(OTP_VERIFY_ROUTE, {
         method: "POST",
         headers: {
           "Accept": "application/json",
@@ -88,7 +89,9 @@ export default function Otp() {
 
       if (!response.ok) {
         setErrorMsg(
-          data.message || "OTP verification failed. Please try again."
+          response.status === 419
+            ? "Your session had expired. Please try again."
+            : data.message || "OTP verification failed. Please try again."
         );
         return;
       }

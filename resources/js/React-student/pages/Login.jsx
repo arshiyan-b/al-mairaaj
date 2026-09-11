@@ -4,6 +4,10 @@ import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import logo from "../assets/logo_text.png"; // your Al Mairaaj logo
 import sideImage from "../assets/sideimage.png"; // right side image
+import { fetchCsrfToken } from "../utils/csrf";
+
+// Fixed, well-known endpoint - no need to read it out of the page's DOM.
+const LOGIN_ROUTE = "/login-auth";
 
 // Animation variants
 const containerVariants = {
@@ -32,10 +36,6 @@ const imageVariants = {
 };
 
 export default function Login() {
-  const appDiv = document.getElementById("app");
-  const loginRoute = appDiv?.dataset?.loginRoute;
-  const csrfToken = appDiv?.dataset?.csrf;
-
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [errorMsg, setErrorMsg] = useState("");
@@ -53,7 +53,9 @@ export default function Login() {
     let isSuccess = false;
 
     try {
-      const response = await fetch(loginRoute, {
+      const csrfToken = await fetchCsrfToken();
+
+      const response = await fetch(LOGIN_ROUTE, {
         method: "POST",
         headers: {
           Accept: "application/json",
@@ -73,7 +75,11 @@ export default function Login() {
       }
 
       if (!response.ok || data.status === "error") {
-        setErrorMsg(data.message || "Invalid credentials. Please try again.");
+        setErrorMsg(
+          response.status === 419
+            ? "Your session had expired. Please try logging in again."
+            : data.message || "Invalid credentials. Please try again."
+        );
         return;
       }
 

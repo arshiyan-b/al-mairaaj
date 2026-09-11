@@ -31,6 +31,15 @@ Route::post('/verify-otp-auth', [LoginController::class, 'verify_otp_authenticat
 
 Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
 Route::post('/login-auth', [LoginController::class, 'authenticate'])->name('login.auth');
+
+// Lets the SPA auth pages (login/register/otp/forgot-reset password) pull a
+// fresh CSRF token right before they submit, instead of relying on the token
+// baked into the page at initial load - which goes stale if the tab sits
+// idle past the session lifetime, or is simply missing when the page was
+// reached via client-side navigation from another auth page.
+Route::get('/csrf-token', function () {
+    return response()->json(['csrf_token' => csrf_token()]);
+})->name('csrf.token');
 Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
 Route::get('/forgot-password', [LoginController::class, 'forgot_password'])->name('forgot.password');

@@ -2,6 +2,11 @@ import React, { useEffect, useState } from "react";
 import { data, Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import logo from "../assets/logo.png";
+import { fetchCsrfToken } from "../utils/csrf";
+
+// Fixed, well-known endpoints - no need to read them out of the page's DOM.
+const VERIFY_RESET_OTP_ROUTE = "/verify-reset-password-otp";
+const RESET_PASSWORD_ROUTE = "/update-reset-password";
 
 const containerVariants = {
   hidden: { opacity: 0, y: 24, scale: 0.97 },
@@ -30,11 +35,6 @@ const stepVariants = {
 };
 
 export default function ResetPassword() {
-  const appDiv = document.getElementById("app");
-  const verifyResetOtpRoute = appDiv?.dataset?.verifyResetOtpRoute;
-  const resetPasswordRoute = appDiv?.dataset?.resetPasswordRoute;
-  const csrfToken = appDiv?.dataset?.csrf;
-
   const [step, setStep] = useState(1); // 1 = OTP, 2 = new password
   const [email, setEmail] = useState("");
   const [otp, setOtp] = useState("");
@@ -68,7 +68,9 @@ export default function ResetPassword() {
     setSuccessMsg("");
 
     try {
-      const response = await fetch(verifyResetOtpRoute, {
+      const csrfToken = await fetchCsrfToken();
+
+      const response = await fetch(VERIFY_RESET_OTP_ROUTE, {
         method: "POST",
         headers: {
           Accept: "application/json",
@@ -83,7 +85,11 @@ export default function ResetPassword() {
       const data = await response.json();
 
       if (!response.ok || data.status === "error") {
-        setErrorMsg(data.message || "Invalid or expired OTP. Please try again.");
+        setErrorMsg(
+          response.status === 419
+            ? "Your session had expired. Please try again."
+            : data.message || "Invalid or expired OTP. Please try again."
+        );
         return;
       }
 
@@ -110,7 +116,9 @@ export default function ResetPassword() {
     let isSuccess = false;
 
     try {
-      const response = await fetch(resetPasswordRoute, {
+      const csrfToken = await fetchCsrfToken();
+
+      const response = await fetch(RESET_PASSWORD_ROUTE, {
         method: "POST",
         headers: {
           Accept: "application/json",
@@ -131,7 +139,11 @@ export default function ResetPassword() {
       const data = await response.json();
 
       if (!response.ok || data.status === "error") {
-        setErrorMsg(data.message || "Could not reset password. Please try again.");
+        setErrorMsg(
+          response.status === 419
+            ? "Your session had expired. Please try again."
+            : data.message || "Could not reset password. Please try again."
+        );
         return;
       }
 

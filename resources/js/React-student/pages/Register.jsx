@@ -4,6 +4,10 @@ import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import logo from "../assets/logo_text.png";
 import SearchablePhoneInput from "../components/SearchablePhoneInput";
+import { fetchCsrfToken } from "../utils/csrf";
+
+// Fixed, well-known endpoint - no need to read it out of the page's DOM.
+const REGISTER_ROUTE = "/register-auth";
 
 // Animation variants
 const containerVariants = {
@@ -25,11 +29,6 @@ const fieldVariants = {
 };
 
 export default function Register() {
-  // Get Laravel route + CSRF token from Blade
-  const appDiv = document.getElementById("app");
-  const registerRoute = `${appDiv.dataset.registerRoute}`;
-  const csrfToken = appDiv.dataset.csrf;
-
   const [errors, setErrors] = useState({});
 
   const [formData, setFormData] = useState({
@@ -62,7 +61,9 @@ export default function Register() {
     setSuccessMsg("");
 
     try {
-      const response = await fetch(registerRoute, {
+      const csrfToken = await fetchCsrfToken();
+
+      const response = await fetch(REGISTER_ROUTE, {
         method: "POST",
         headers: {
           "Accept": "application/json",
@@ -79,6 +80,8 @@ export default function Register() {
       if (!response.ok) {
         if (data.errors) {
           setErrors(data.errors);
+        } else if (response.status === 419) {
+          setErrorMsg("Your session had expired. Please try again.");
         } else {
           setErrorMsg(data.message || "Registration failed. Please try again.");
         }
