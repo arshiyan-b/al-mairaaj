@@ -212,7 +212,8 @@ class ApiController extends Controller
     public function student_live_classes_data()
     {
         $liveClassEnrollments = $this->liveClassEnrollmentService->getAuthenticatedStudentEnrollments();
-    
+        $batchEnrollments = $this->batchEnrollmentService->getAuthenticatedStudentEnrollments();
+
         $liveClasses = $liveClassEnrollments
             ->map(fn ($enrollment) => $enrollment->liveClass)
             ->filter()
@@ -243,6 +244,7 @@ class ApiController extends Controller
             'upcoming_live_classes' => $upcomingLiveClasses,
             'stats' => [
                 'enrolled_classes' => $liveClassEnrollments->count(),
+                'enrolled_batches' => $batchEnrollments->count(),
                 'live_today_count' => $liveToday->count(),
                 'upcoming_count' => $upcomingLiveClasses->count(),
             ],
@@ -278,6 +280,7 @@ class ApiController extends Controller
     {
         $batch = $this->batchService->getBatch($id);
         $liveClasses = $this->liveClassesService->getAuthenticatedStudentLiveClassesByBatchId($batch->id);
+        $batch->is_enrolled = $this->batchEnrollmentService->isStudentEnrolled(auth()->user()->student->id, $batch->id);
 
         return response()->json([
             'batch' => $batch,

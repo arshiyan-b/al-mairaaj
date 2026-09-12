@@ -241,7 +241,7 @@ const BrowseLiveClasses = () => {
                               <CheckCircle2 className="h-4 w-4" /> View Batch
                             </span>
                           ) : (
-                            "Enroll Now"
+                            "Explore"
                           )}
                         </Button>
                       </CardContent>

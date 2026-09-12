@@ -47,7 +47,24 @@
                                 This code will expire in <strong>10 minutes</strong>. For your security, please do not share it with anyone.
                             </p>
 
+                            @if(!empty($verifyLink))
+                            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-top:28px;">
+                                <tr>
+                                    <td align="center">
+                                        <a href="{{ $verifyLink }}"
+                                           style="display:inline-block; background-color:#2c5282; color:#ffffff; text-decoration:none; font-size:14px; font-weight:600; padding:12px 28px; border-radius:6px;">
+                                            Verify Now
+                                        </a>
+                                    </td>
+                                </tr>
+                            </table>
+
                             @if(!empty($formattedLink))
+                            <p style="margin:16px 0 0; color:#a0aec0; font-size:12px; text-align:center;">
+                                Or <a href="{{ $formattedLink }}" style="color:#2c5282;">enter the code manually</a> instead.
+                            </p>
+                            @endif
+                            @elseif(!empty($formattedLink))
                             <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-top:28px;">
                                 <tr>
                                     <td align="center">

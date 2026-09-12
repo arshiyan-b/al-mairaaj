@@ -11,6 +11,7 @@ import {
   Clock,
   Radio,
   BookOpen,
+  Layers,
   ArrowRight,
   Compass,
   GraduationCap,
@@ -170,12 +171,13 @@ const LiveClasses = () => {
         {/* Stats */}
         {stats && (
           <motion.div
-            className="mb-10 grid grid-cols-1 gap-4 sm:grid-cols-3"
+            className="mb-10 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4"
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4, delay: 0.05 }}
           >
             <StatCard icon={BookOpen} label="Enrolled classes" value={stats.enrolled_classes} />
+            <StatCard icon={Layers} label="Enrolled batches" value={stats.enrolled_batches} />
             <StatCard icon={Radio} label="Live now" value={liveNow.length} accent pulse={liveNow.length > 0} />
             <StatCard icon={CalendarDays} label="Upcoming" value={stats.upcoming_count} />
           </motion.div>
@@ -470,8 +472,8 @@ function LiveClassesSkeleton() {
     <div className="min-h-screen bg-[#F7F6F2] px-4 py-6 dark:bg-[#0F1120] md:px-8 md:py-10">
       <div className="mx-auto max-w-6xl space-y-8">
         <Skeleton className="h-28 rounded-2xl" />
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-          {Array.from({ length: 3 }).map((_, i) => (
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {Array.from({ length: 4 }).map((_, i) => (
             <Skeleton key={i} className="h-20 rounded-xl" />
           ))}
         </div>

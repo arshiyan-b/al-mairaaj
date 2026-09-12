@@ -96,12 +96,14 @@ class StudentController extends Controller
 
         if (!$canEnroll) {
             return redirect()
-                ->route('student.wallet')
+                ->route('student.live_class_batch', $id)
                 ->with('error', 'Insufficient wallet balance to enroll in "' . $batchTitle . '". Please top up your wallet.');
         }
-        
+
+        $this->batchEnrollmentService->create($id);
+
         return redirect()
-            ->back()
+            ->route('student.live_class_batch', $id)
             ->with('success', 'You have successfully enrolled in "' . $batchTitle . '".');
     }
     public function boards()

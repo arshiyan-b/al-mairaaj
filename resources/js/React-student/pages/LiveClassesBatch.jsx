@@ -101,6 +101,26 @@ const LiveClassesBatch = () => {
     form.submit();
   };
 
+  const [batchEnrolling, setBatchEnrolling] = useState(false);
+
+  const handleBatchEnroll = () => {
+    if (batchEnrolling) return; // guard against double submits
+    setBatchEnrolling(true);
+
+    const form = document.createElement("form");
+    form.method = "POST";
+    form.action = `/live-class-batch-enroll/${id}`;
+
+    const token = document.createElement("input");
+    token.type = "hidden";
+    token.name = "_token";
+    token.value = csrfToken;
+
+    form.appendChild(token);
+    document.body.appendChild(form);
+    form.submit();
+  };
+
   const handleJoin = async (liveClassId) => {
     if (joiningId) return;
 
@@ -177,9 +197,28 @@ const LiveClassesBatch = () => {
                     {batch.title?.charAt(0) ?? "B"}
                   </AvatarFallback>
                 </Avatar>
-                <Badge className="bg-emerald-50 capitalize text-emerald-600 hover:bg-emerald-50">
-                  {batch.status}
-                </Badge>
+                <div className="flex items-center gap-3">
+                  <Badge className="bg-emerald-50 capitalize text-emerald-600 hover:bg-emerald-50">
+                    {batch.status}
+                  </Badge>
+
+                  {!batch.is_enrolled && (
+                    <Button
+                      size="sm"
+                      disabled={batchEnrolling}
+                      onClick={handleBatchEnroll}
+                      className="bg-indigo-600 text-white hover:bg-indigo-700"
+                    >
+                      {batchEnrolling ? (
+                        <>
+                          <Loader2 className="mr-2 h-3.5 w-3.5 animate-spin" /> Enrolling...
+                        </>
+                      ) : (
+                        "Enroll Now"
+                      )}
+                    </Button>
+                  )}
+                </div>
               </div>
 
               <h1 className="mt-4 text-2xl font-semibold text-gray-800">
@@ -328,51 +367,55 @@ const LiveClassesBatch = () => {
                           {c.status}
                         </Badge>
 
-                        {c.is_enrolled ? (
-                          ended ? (
-                            // Enrolled but class has already ended
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              onClick={() => setModalClass({ ...c, reason: "ended" })}
-                            >
-                              <Video className="mr-2 h-3.5 w-3.5" /> Join
-                            </Button>
-                          ) : withinJoinCutoff ? (
-                            // Enrolled + within 30 min of start (or already started) -> active Join link
-                            <Button size="sm" onClick={() => handleJoin(c.id)}>
-                              <Video className="mr-2 h-3.5 w-3.5" /> Join
+                        {/* Enroll/Join buttons for individual classes are only shown once
+                            the student is enrolled in the batch itself. */}
+                        {batch.is_enrolled && (
+                          c.is_enrolled ? (
+                            ended ? (
+                              // Enrolled but class has already ended
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => setModalClass({ ...c, reason: "ended" })}
+                              >
+                                <Video className="mr-2 h-3.5 w-3.5" /> Join
+                              </Button>
+                            ) : withinJoinCutoff ? (
+                              // Enrolled + within 30 min of start (or already started) -> active Join link
+                              <Button size="sm" onClick={() => handleJoin(c.id)}>
+                                <Video className="mr-2 h-3.5 w-3.5" /> Join
+                              </Button>
+                            ) : (
+                              // Enrolled but more than 30 min out -> disabled-looking Join that opens an info modal
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => setModalClass({ ...c, reason: "early" })}
+                              >
+                                <Video className="mr-2 h-3.5 w-3.5" /> Join
+                              </Button>
+                            )
+                          ) : enrollmentClosed ? (
+                            // Not enrolled + more than 10 min past start -> can no longer enroll
+                            <Button size="sm" variant="outline" disabled>
+                              Enrollment Closed
                             </Button>
                           ) : (
-                            // Enrolled but more than 30 min out -> disabled-looking Join that opens an info modal
+                            // Not enrolled + still within 10 min of start (or before it) -> can enroll
                             <Button
                               size="sm"
-                              variant="outline"
-                              onClick={() => setModalClass({ ...c, reason: "early" })}
+                              disabled={isEnrolling}
+                              onClick={() => handleEnroll(c.id)}
                             >
-                              <Video className="mr-2 h-3.5 w-3.5" /> Join
+                              {isEnrolling ? (
+                                <>
+                                  <Loader2 className="mr-2 h-3.5 w-3.5 animate-spin" /> Enrolling...
+                                </>
+                              ) : (
+                                "Enroll"
+                              )}
                             </Button>
                           )
-                        ) : enrollmentClosed ? (
-                          // Not enrolled + more than 10 min past start -> can no longer enroll
-                          <Button size="sm" variant="outline" disabled>
-                            Enrollment Closed
-                          </Button>
-                        ) : (
-                          // Not enrolled + still within 10 min of start (or before it) -> can enroll
-                          <Button
-                            size="sm"
-                            disabled={isEnrolling}
-                            onClick={() => handleEnroll(c.id)}
-                          >
-                            {isEnrolling ? (
-                              <>
-                                <Loader2 className="mr-2 h-3.5 w-3.5 animate-spin" /> Enrolling...
-                              </>
-                            ) : (
-                              "Enroll"
-                            )}
-                          </Button>
                         )}
                       </div>
                     </CardContent>

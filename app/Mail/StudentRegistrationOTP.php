@@ -15,13 +15,18 @@ class StudentRegistrationOTP extends Mailable
 
     public $otp;
     public $formattedLink;
+    public $verifyLink;
     /**
      * Create a new message instance.
+     *
+     * @param  string|null  $formattedLink  Link to the in-app OTP entry page (email pre-filled).
+     * @param  string|null  $verifyLink  Signed one-click link that verifies the OTP automatically.
      */
-    public function __construct($otp, $formattedLink)
+    public function __construct($otp, $formattedLink, $verifyLink = null)
     {
         $this->otp = $otp;
         $this->formattedLink = $formattedLink;
+        $this->verifyLink = $verifyLink;
     }
 
     /**
@@ -40,10 +45,11 @@ class StudentRegistrationOTP extends Mailable
     public function content(): Content
     {
         return new Content(
-            view: 'emails.student_otp', 
+            view: 'emails.student_otp',
             with: [
-                'otp' => $this->otp, 
+                'otp' => $this->otp,
                 'formattedLink' => $this->formattedLink,
+                'verifyLink' => $this->verifyLink,
             ],
         );
     }

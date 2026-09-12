@@ -29,6 +29,13 @@ Route::post('/register-auth', [LoginController::class, 'register_authenticate'])
 Route::get('/verify-otp', [LoginController::class, 'verify_otp'])->name('otp');
 Route::post('/verify-otp-auth', [LoginController::class, 'verify_otp_authenticate'])->name('otp.verify');
 
+// One-click "Verify Now" link sent in the OTP email - the signed URL itself
+// (scoped to one OTP record, expiring alongside it) is the proof, so no
+// manual code entry is needed.
+Route::get('/verify-otp-link/{studentUserOtp}', [LoginController::class, 'verify_otp_link'])
+    ->middleware('signed')
+    ->name('otp.verify.link');
+
 Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
 Route::post('/login-auth', [LoginController::class, 'authenticate'])->name('login.auth');
 

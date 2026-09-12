@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\URL;
 
 use App\Models\Role;
 use App\Models\Student;
@@ -173,7 +174,7 @@ class LoginController extends Controller
             'whatsapp_number' => $request->whatsapp,
         ]);
 
-        StudentUserOtp::create([
+        $otpRecord = StudentUserOtp::create([
             'student_id' => $student->id,
             'email' => $student->email,
             'password' => Hash::make($request->password),
@@ -184,7 +185,8 @@ class LoginController extends Controller
         ]);
 
         $formattedLink = route('otp') . '?email=' . urlencode($student->email);
-        Mail::to($student->email)->send(new StudentRegistrationOTP($otp, $formattedLink));
+        $verifyLink = $this->otpVerifyLink($otpRecord);
+        Mail::to($student->email)->send(new StudentRegistrationOTP($otp, $formattedLink, $verifyLink));
 
         return response()->json([
             'status' => 'success',
@@ -250,9 +252,10 @@ class LoginController extends Controller
             ]);
 
             $formattedLink = route('otp') . '?email=' . urlencode($request->email);
+            $verifyLink = $this->otpVerifyLink($otpRecord);
 
             Mail::to($request->email)->send(
-                new StudentRegistrationOTP($otp, $formattedLink)
+                new StudentRegistrationOTP($otp, $formattedLink, $verifyLink)
             );
 
             return response()->json([
@@ -289,17 +292,45 @@ class LoginController extends Controller
             ]);
         }
 
-        // Mark OTP as verified
+        $this->completeRegistrationOtp($otpRecord, $student, $studentRole);
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'OTP verified successfully! Your account has been created.',
+            'redirect' => route('login'),
+        ]);
+    }
+
+    /**
+     * The URL emailed in the OTP message's "Verify Now" button. Visiting it
+     * runs the same verification the manual-entry form does, without the
+     * user needing to retype the code - the signature (scoped to this OTP
+     * record and expiring alongside it) is the proof instead.
+     */
+    private function otpVerifyLink(StudentUserOtp $otpRecord): string
+    {
+        return URL::temporarySignedRoute(
+            'otp.verify.link',
+            $otpRecord->expires_at,
+            ['studentUserOtp' => $otpRecord->id]
+        );
+    }
+
+    /**
+     * Shared by the manual OTP form and the one-click email link: marks the
+     * OTP verified, creates the login-capable user account, links it back
+     * to the student, and opens their wallet.
+     */
+    private function completeRegistrationOtp(StudentUserOtp $otpRecord, Student $student, Role $studentRole): User
+    {
         $otpRecord->update([
             'status' => 'verified',
         ]);
 
-        // Mark student as OTP verified
         $student->update([
             'otp_verified' => 1,
         ]);
 
-        // Create user account
         $user = User::create([
             'name' => $student->full_name,
             'email' => $student->email,
@@ -310,12 +341,10 @@ class LoginController extends Controller
             'email_verified_at' => now(),
         ]);
 
-        // Link user to student
         $student->update([
             'user_id' => $user->id,
         ]);
 
-        // Create student's wallet
         StudentWallet::create([
             'student_id' => $student->id,
             'balance' => 0,
@@ -323,11 +352,51 @@ class LoginController extends Controller
             'status' => 'active',
         ]);
 
-        return response()->json([
-            'status' => 'success',
-            'message' => 'OTP verified successfully! Your account has been created.',
-            'redirect' => route('login'),
-        ]);
+        return $user;
+    }
+
+    /**
+     * The destination of the OTP email's "Verify Now" button. Requires a
+     * valid Laravel signed-URL signature (added by the `signed` route
+     * middleware) so the link can't be guessed or tampered with, and it
+     * naturally stops working once the underlying OTP expires (10 minutes
+     * after it was issued) since the signature is scoped to that same
+     * expiry.
+     */
+    public function verify_otp_link(StudentUserOtp $studentUserOtp)
+    {
+        if ($studentUserOtp->type !== 'registration') {
+            abort(404);
+        }
+
+        if ($studentUserOtp->status === 'verified') {
+            return redirect()->route('login')
+                ->with('success', 'Your email is already verified. Please log in.');
+        }
+
+        if ($studentUserOtp->status === 'expired' || $studentUserOtp->isExpired()) {
+            return redirect()->route('otp', ['email' => $studentUserOtp->email])
+                ->with('error', 'This verification link has expired. Please request a new OTP.');
+        }
+
+        $student = Student::where('email', $studentUserOtp->email)->first();
+
+        if (!$student) {
+            return redirect()->route('register')
+                ->with('error', 'We could not find your registration. Please sign up again.');
+        }
+
+        $studentRole = Role::where('slug', 'student')->first();
+
+        if (!$studentRole) {
+            return redirect()->route('otp', ['email' => $studentUserOtp->email])
+                ->with('error', 'Something went wrong on our end. Please try again shortly.');
+        }
+
+        $this->completeRegistrationOtp($studentUserOtp, $student, $studentRole);
+
+        return redirect()->route('login')
+            ->with('success', 'Your email has been verified! You can now log in.');
     }
 
     public function authenticate(Request $request)
@@ -342,7 +411,7 @@ class LoginController extends Controller
         if ($student && !$student->otp_verified) {
             $otp = rand(100000, 999999);
 
-            StudentUserOtp::updateOrCreate(
+            $otpRecord = StudentUserOtp::updateOrCreate(
                 ['student_id' => $student->id],
                 [
                     'email' => $student->email,
@@ -355,7 +424,8 @@ class LoginController extends Controller
             );
 
             $formattedLink = route('otp') . '?email=' . urlencode($student->email);
-            Mail::to($student->email)->send(new StudentRegistrationOTP($otp, $formattedLink));
+            $verifyLink = $this->otpVerifyLink($otpRecord);
+            Mail::to($student->email)->send(new StudentRegistrationOTP($otp, $formattedLink, $verifyLink));
             $student->update(['opt_sent' => 1]);
 
             return response()->json([

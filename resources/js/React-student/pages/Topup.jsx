@@ -14,6 +14,7 @@ import {
   Search,
   Copy,
   Check,
+  Info,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -468,6 +469,16 @@ const Topup = () => {
                       <span className="font-semibold">{selectedMethodLabel}</span>
                     </div>
 
+                    {method !== "kuickpay" && (
+                      <div className="flex items-start gap-2 rounded-lg border border-blue-300 bg-blue-50 dark:border-blue-800 dark:bg-blue-950/40 p-3 text-sm text-blue-800 dark:text-blue-300">
+                        <Info className="h-4 w-4 mt-0.5 shrink-0" />
+                        <p>
+                          This is a manual payment — our team verifies it by hand, so it will be
+                          processed within <span className="font-semibold">24 hours</span>.
+                        </p>
+                      </div>
+                    )}
+
                     {method === "kuickpay" && (
                       <div className="flex flex-col items-center justify-center text-center gap-2 py-10 text-gray-500 dark:text-gray-400">
                         <CreditCard className="h-8 w-8 opacity-50" />
@@ -497,7 +508,7 @@ const Topup = () => {
                             placeholder="03XX-XXXXXXX"
                           />
                           <FormField
-                            label="Account Name"
+                            label="Account Name (of the Sender)"
                             value={senderAccountName}
                             onChange={setSenderAccountName}
                             placeholder="Name on the sending account"
@@ -545,7 +556,7 @@ const Topup = () => {
                             placeholder="Account number you sent from"
                           />
                           <FormField
-                            label="Your Account Name"
+                            label="Your Account Name (of the Sender)"
                             value={bankAccountName}
                             onChange={setBankAccountName}
                             placeholder="Name on the sending account"
